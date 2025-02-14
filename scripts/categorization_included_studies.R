@@ -11,7 +11,7 @@
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, janitor, here, stringr, readr)
+pacman::p_load(tidyverse, janitor, here, stringr, readr, openxlsx)
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load data ----
@@ -162,4 +162,27 @@ systematic_reviews <- df %>%
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Save categorized results
-write_csv(df, "data/categorized_studies_feb_13.csv")
+write_csv(df, "outputs/categorized_studies_feb_13.csv")
+
+# Save systematic reviews list
+write_csv(systematic_reviews, here("outputs/systematic_reviews_feb_13.csv"))
+
+# Save access / barriers to care
+write_csv(access_barriers, here("outputs/access_barriers_feb_13.csv"))
+
+# Save burden & outcomes 
+write_csv(burden_outcome, here("outputs/burden_outcome_feb_13.csv"))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+# Save all datasets into excel sheet
+
+# mapping the data frames onto the list
+data_frames <- list("included_studies" = df, 
+                    "burden_outcomes" = burden_outcome,
+                    "access_barriers" = access_barriers,
+                    "systematic_reviews" = systematic_reviews)
+
+# writing the list of data frames onto the xlsx file
+write.xlsx(data_frames,
+           file = "outputs/included_studies_cat_feb_13.xlsx")
