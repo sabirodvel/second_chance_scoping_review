@@ -5,6 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 2/13/2025
+## Updated: 2/26/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -17,7 +18,7 @@ pacman::p_load(tidyverse, janitor, here, stringr, readr, openxlsx)
 ## Load data ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the CSV file
-included_studies <- read_csv(here("data/included_studies_february_13.csv"))
+included_studies <- read_csv(here("data/included_studies_february_26.csv"))
 
 # Clean dataset
 df <- clean_names(included_studies)
@@ -161,17 +162,17 @@ systematic_reviews <- df %>%
 ## Save data ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Save categorized results
-write_csv(df, "outputs/categorized_studies_feb_13.csv")
-
-# Save systematic reviews list
-write_csv(systematic_reviews, here("outputs/systematic_reviews_feb_13.csv"))
-
-# Save access / barriers to care
-write_csv(access_barriers, here("outputs/access_barriers_feb_13.csv"))
-
-# Save burden & outcomes 
-write_csv(burden_outcome, here("outputs/burden_outcome_feb_13.csv"))
+# # Save categorized results
+# write_csv(df, "outputs/categorized_studies_feb_26.csv")
+# 
+# # Save systematic reviews list
+# write_csv(systematic_reviews, here("outputs/systematic_reviews_feb_26.csv"))
+# 
+# # Save access / barriers to care
+# write_csv(access_barriers, here("outputs/access_barriers_feb_26.csv"))
+# 
+# # Save burden & outcomes 
+# write_csv(burden_outcome, here("outputs/burden_outcome_feb_26.csv"))
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
@@ -185,4 +186,4 @@ data_frames <- list("included_studies" = df,
 
 # writing the list of data frames onto the xlsx file
 write.xlsx(data_frames,
-           file = "outputs/included_studies_cat_feb_13.xlsx")
+           file = "outputs/included_studies_cat_feb_26.xlsx")
