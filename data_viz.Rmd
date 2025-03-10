@@ -1,0 +1,103 @@
+---
+title: "Data Viz for March 27th Webinar"
+author: "VALERA Camille Beatrice"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r global_chunk options, include = F}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+```
+
+```{r initial_setup}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, 
+               here, 
+               janitor, 
+               reactable, 
+               sf, 
+               rnaturalearth, 
+               reactable,
+               plotly, 
+               ggrepel)
+
+```
+
+```{r dataset_load}
+included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
+
+extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
+```
+
+# Preliminary Findings
+
+## Research Distribution & Trends 
+
+```{r publications over time}
+publications_over_time <- included_studies_mar10 %>%
+  group_by(`Published Year`) %>%
+  summarise(Count = n()) %>%
+  arrange(`Published Year`)
+
+# Static plot
+publications_years <- publications_over_time %>%
+  ggplot(aes(x = `Published Year`, y = Count)) +
+  geom_line(color = "#1F968BFF", size = 1) +
+  geom_point(color = "#440154FF", size = 2) +
+  scale_x_continuous(breaks = seq(min(publications_over_time$`Published Year`), max(publications_over_time$`Published Year`), by = 5)) +  # Set x-axis in 5-year increments
+  labs(
+    title = "Research Output on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+    subtitle = "Tracking the number of studies published over time to understand growth \n of Plastic Reconstructive Surgery Research in SSA.",
+    x = "Publication Year (5-year intervals)",
+    y = "Number of Published Studies"
+  ) +
+  theme_minimal()
+publications_years
+ 
+# Interactive plot
+ggplotly(publications_years)
+```
+
+```{r choropleth of study distribution}
+
+# Process data: Count occurrences per country
+country_counts <- extracted_studies_mar10 %>%
+  separate_rows(Country, sep = ", ") %>%  # Separate multiple countries in one entry
+  count(Country, name = "study_count")
+
+# Load African map data
+africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
+
+# Merge study data with map
+africa_data <- africa %>%
+  left_join(country_counts, by = c("name" = "Country"))
+
+# Define subregion colors
+subregion_colors <- c(
+  "Northern Africa" = "purple",
+  "Western Africa" = "yellowgreen",
+  "Central Africa" = "lightgray",
+  "Eastern Africa" = "slategray",
+  "Southern Africa" = "red"
+)
+
+# Plot the choropleth map
+country_distribution <- 
+  ggplot() +
+  geom_sf(data = africa_data, aes(fill = study_count), color = "black", size = 0.3) +
+  scale_fill_gradient(low = "lightgray", high = "darkred", na.value = "white", name = "Study Count") +
+  geom_text_repel(data = africa_data, aes(label = ifelse(!is.na(study_count), paste0(name, " (n=", study_count, ")"), ""), geometry = geometry),
+                  stat = "sf_coordinates", size = 3, color = "black") +
+  labs(title = "Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+       subtitle = "Based on extracted literature",
+       caption = "Source: Covidence Dataset") +
+  theme_minimal() +
+  theme(legend.position = "right")
+country_distribution
+
+```
+
+```{r trends}
+
+```
+
