@@ -33,7 +33,8 @@ pacman::p_load(tidyverse,
                ggrepel,
                treemap, #package to create treemap
                RRColorBrewer,
-               patchwork
+               patchwork,
+               ggfittext
                )
 ```
 
@@ -83,7 +84,6 @@ cleaned_country_data <- filtered_consensus %>%
   mutate(Country = lapply(Country, extract_countries)) %>%  # Process each cell in Country column
   unnest(Country)  # Expand list-column so each country is its own row
 ```
-
 
 # Preliminary Findings
 
@@ -194,13 +194,11 @@ combined_choro_bar
 ```
 
 
-
-```{r trends}
-#!! Requires to run `extracted_data_cleaning` to obtain categorized pathologies !!
+```{r treemap of pathologies trends}
 # Adding source code here - C.V.
 source(here("scripts/extracted_data_cleaning.R"))
 
-# Create frequency table, removing NA values directly in summarize
+# Create frequency table
 pathology_distribution <- categorized_general_pathology %>% 
   separate_rows(category_gen_pathology, sep = "; ") %>%
   filter(!is.na(category_gen_pathology)) %>%  # Remove NA values
@@ -209,11 +207,11 @@ pathology_distribution <- categorized_general_pathology %>%
   ungroup() %>% 
   arrange(desc(n))
 
-# Create simple treemap
-treemap(pathology_distribution,
-            index="category_gen_pathology",
-            vSize="n",
-            type="index")
+# # Create simple treemap
+# treemap(pathology_distribution,
+#             index="category_gen_pathology",
+#             vSize="n",
+#             type="index")
 
 # Customized treemap
 data_tree <- 
@@ -222,23 +220,16 @@ data_tree <-
         vSize = "n",                       # Define the size based on 'n'
         vColor = "n",                      # Color based on frequency
         type = "index",                    # Type of treemap (index-based)
-        palette = "Blues",                   # Custom color palette
-        title = "Pathology Distribution",   # Custom title
-        fontsize.labels = 10,               # Adjust label font size
-        fontcolor.labels = "black",      # Label font color
-        align.labels = c("center", "center"),  # Align labels in the center
-        border.col = "white",              # Border color around boxes
-        border.lw = 2
+        # palette = "YlGnBu",                 # Custom color palette
+        # title = "Pathology Distribution",   # Custom title
+        # fontsize.labels = 10,               # Adjust label font size
+        # fontcolor.labels = "black",      # Label font color
+        # align.labels = c("center", "center"),  # Align labels in the center
+        # border.col = "white",              # Border color around boxes
+        # border.lw = 2
         )
 
-# More complex treemap (to be further defined)
-data_tree <- 
-  treemap(pathology_distribution,
-        index = "category_gen_pathology",  # Define the category to index by
-        vSize = "n",                       # Define the size based on 'n'
-        type = "index",                    # Type of treemap (index-based)
-        )
-
+# More refined treemap
 data_ggplot <- data_tree[["tm"]] %>%
   as_tibble() %>%
   arrange(desc(vSize)) %>%
@@ -246,42 +237,40 @@ data_ggplot <- data_tree[["tm"]] %>%
     rank = row_number(),
     xmax = x0 + w,
     ymax = y0 + h,
-    label_pathology = str_glue("{category_gen_pathology}\n({vSize})")
+    label_pathology = str_glue("{category_gen_pathology}\n(n={vSize})")
   )
 
-p1 <- ggplot(data_ggplot) +
-  geom_rect(
-    aes(
-      xmin = x0,
-      ymin = y0,
-      xmax = xmax,
-      ymax = ymax,
-      fill = category_gen_pathology
-    ),
-    size = 0.1,
-    colour = "#1E1D23",
-    alpha = 0.9
-  ) +
-  geom_text(
-    aes(x = (x0 + xmax) / 2,     # Position text in the middle horizontally
-      y = (y0 + ymax) / 2,       # Position text in the middle vertically
-      label = label_pathology),
-    size = 3,                    # Font size of the labels
-    color = "black",             # Font color
-    fontface = "bold"            # Bold font
-            ) +
-  scale_fill_manual(values = c("Burns" = "#FF6347",
-                               "Congenital Malformations" = "#FFD700",
-                               "Trauma" = "#00BFFF",
-                               "Infectious Conditions" = "#32CD32",
-                               "Cyst, Tumor & Cancer" = "turquoise")
-                    ) +  # Customize colors
-  labs(title = "Pathologies") +
-  theme_void() + # Remove axis and background 
-  theme(legend.position = "none")
+p1 <- 
+  ggplot(data_ggplot) +
+  geom_rect(aes(xmin = x0,
+                ymin = y0,
+                xmax = xmax,
+                ymax = ymax,
+                fill = category_gen_pathology),
+            size = 1,
+            colour = "white",
+            alpha = 0.9) +
+  geom_fit_text(aes(xmin = x0,
+                    xmax = xmax,
+                    ymin = y0,
+                    ymax = ymax,
+                    label = label_pathology),
+                color = ifelse(
+                  data_ggplot$category_gen_pathology == "Trauma", "white", "black"),
+                min.size = 1,   # Minimum font size to avoid tiny text
+                reflow = TRUE,   # Wrap text to fit the box
+                ) +
+  scale_fill_brewer(palette = "YlGnBu",
+                    direction = 1) +  
+  labs(title = "Distribution of Pathologies Requiring Reconstructive Surgery in Sub-Saharan Africa") +
+  theme_void() +
+  theme(legend.position = "none")  
 
-# Display the plot
-p1 # Normal plot
+# Display plot
+p1
+
+# Save treemap
+# ggsave(filename = here("images/general_treemap.png"))
 
 #ggplotly(p1) # Interactive plot (to be refined if needed)
 
