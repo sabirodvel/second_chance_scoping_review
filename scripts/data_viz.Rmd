@@ -115,7 +115,7 @@ publications_years
 
 ```
 
-```{r choropleth of study distribution_data_setup}
+```{r choropleth of study distribution}
 
 # Process data: Count occurrences per country
 country_counts <- cleaned_country_data %>% 
@@ -132,91 +132,59 @@ africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf
 # Merge study data with map
 africa_data <- africa %>%
   left_join(country_counts, by = c("name" = "Country"))
-```
 
-```{r choropleth of study distribution_labels}
-
-# Compute centroids for labels (single point per country)
-africa_data <- africa_data %>%
-  mutate(centroid = st_centroid(geometry))  # Get centroid of each country
-
-# Filter label data for top 5 countries
-label_data <- africa_data %>% filter(name %in% top_countries$Country)
-
-# Set spread-out angles and positions for different countries
-label_data <- label_data %>%
-  mutate(
-    # Spread-out angles for each country
-    angle = case_when(
-      name == "Ethiopia" ~ 60,    # Spread out angle for Ethiopia
-      name == "Uganda" ~ 15,      # Angle for Uganda
-      name == "Kenya" ~ -45,      # Angle for Kenya
-      name == "Tanzania" ~ -100,  # Angle for Tanzania
-      name == "Ghana" ~ 240,      # Angle for Ghana
-      TRUE ~ sample(c(45, 90, 135, -45, -90), size = 1)  # Random spread for others
-    ),
-    # Reasonable offsets to keep labels outside the map, without pushing too far
-    offset_x = case_when(
-      name == "Ethiopia" ~ 12,
-      name == "Uganda" ~ 18,  # Increase offset for Uganda to ensure it's outside the map
-      name == "Kenya" ~ 15,   # Slight adjustment for Kenya
-      name == "Tanzania" ~ 18, # Moderate increase for Tanzania
-      name == "Ghana" ~ 20,   # Moderate increase for Ghana
-      TRUE ~ runif(n(), min = 12, max = 18)  # Reasonable offsets for others
-    ),
-    offset_y = case_when(
-      name == "Ethiopia" ~ 20,
-      name == "Uganda" ~ 18,  # Increase offset for Uganda to move it outside
-      name == "Kenya" ~ 12,   # Keep Kenya's label from overlapping
-      name == "Tanzania" ~ 15, # Slight adjustment for Tanzania
-      name == "Ghana" ~ 18,   # Slight increase for Ghana
-      TRUE ~ runif(n(), min = 15, max = 18)  # Reasonable offsets for others
-    )
-  )
-
-# Adjust label positions based on the angle (labels will be outside the map)
-label_data <- label_data %>%
-  mutate(
-    label_x = st_coordinates(centroid)[,1] + offset_x * cos(pi * angle / 180),  # Apply the angle to adjust x position
-    label_y = st_coordinates(centroid)[,2] + offset_y * sin(pi * angle / 180)   # Apply the angle to adjust y position
-  )
+# Define color scale
+study_fill_scale <- scale_fill_distiller(
+  palette = "YlGnBu", 
+  na.value = "white", 
+  name = "Study Count",
+  direction = 1,
+  breaks = seq(0, max(country_counts$study_count), by = 2),  # Set custom breaks
+  labels = seq(0, max(country_counts$study_count), by = 2)  # Set custom labels
+)
 
 # Plot the refined choropleth map
 ggplot(data = africa_data) +
-  geom_sf(aes(fill = study_count), color = "black", size = 0.3) +
+  geom_sf(aes(fill = study_count), color = "gray50", size = 0.3) +
   study_fill_scale +
-  
-  # Draw arrows pointing from labels (outside) to the country centroids (inside the map)
-  geom_segment(data = label_data, 
-               aes(x = label_x, y = label_y, 
-                   xend = st_coordinates(centroid)[,1], yend = st_coordinates(centroid)[,2]),
-               color = "black", size = 0.5, arrow = arrow(length = unit(0.3, "cm"))) +  # Arrows starting from label
-  
-  # Add country labels at the positions outside the map
-  geom_text_repel(data = label_data,
-                  aes(x = label_x, y = label_y, 
-                      label = paste0(name, " (n=", study_count, ")")),
-                  size = 4, color = "black", direction = "both", 
-                  segment.color = NA, force = 2) +  # Labels placed at the butt end of arrows
-  
   labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-       subtitle = "Top 5 countries with the most studies.",
+       subtitle = "Top 10 Countries with the most studies.",
        caption = "Source: Covidence 'Data Charting' Dataset") +
   theme_minimal() +
   theme(legend.position = "top",
-        legend.justification = 0.5,
-        legend.key.size = unit(1.25, "cm"),
-        legend.key.width = unit(1.75, "cm"),
-        legend.text = element_text(size = 12),
         axis.text = element_blank(), 
         axis.ticks = element_blank(),
-        panel.grid = element_blank()) +
-   coord_sf(expand = FALSE)
+        panel.grid = element_blank()
+        )
 
 ```
 
+```{r barplot of study distribution}
 
+barplot_choro <- country_counts %>%
+  arrange(desc(study_count)) %>%
+  head(10) %>%
+  mutate(percentage = study_count / sum(study_count) * 100) %>%
+  ggplot(aes(x = reorder(Country, percentage), y = percentage, fill = percentage)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(9, "YlGnBu")) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            hjust = 5.0,
+            vjust = 0.5,
+            color = "black", 
+            fontface = "bold") +  
+  theme_minimal() +
+  labs(title = "Share of Studies by Country",
+       x = )+
+  coord_flip() +
+  theme(axis.text.x = element_blank(),  
+        axis.ticks = element_blank(),    
+        axis.title = element_blank(),
+        legend.position = "none",
+        panel.grid = element_blank(),)
+barplot_choro 
 
+```
 
 
 ```{r trends}
