@@ -32,7 +32,8 @@ pacman::p_load(tidyverse,
                plotly, 
                ggrepel,
                treemap, #package to create treemap
-               RRColorBrewer
+               RRColorBrewer,
+               patchwork
                )
 ```
 
@@ -144,7 +145,7 @@ study_fill_scale <- scale_fill_distiller(
 )
 
 # Plot the refined choropleth map
-ggplot(data = africa_data) +
+geo_distribution <- ggplot(data = africa_data) +
   geom_sf(aes(fill = study_count), color = "gray50", size = 0.3) +
   study_fill_scale +
   labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
@@ -156,6 +157,7 @@ ggplot(data = africa_data) +
         axis.ticks = element_blank(),
         panel.grid = element_blank()
         )
+geo_distribution 
 
 ```
 
@@ -169,13 +171,12 @@ barplot_choro <- country_counts %>%
   geom_bar(stat = "identity") +
   scale_fill_gradientn(colors = RColorBrewer::brewer.pal(9, "YlGnBu")) +
   geom_text(aes(label = paste0(round(percentage, 1), "%")), 
-            hjust = 5.0,
+            hjust = 2.5,
             vjust = 0.5,
             color = "black", 
             fontface = "bold") +  
   theme_minimal() +
-  labs(title = "Share of Studies by Country",
-       x = )+
+  labs(title = "Share of Studies") +
   coord_flip() +
   theme(axis.text.x = element_blank(),  
         axis.ticks = element_blank(),    
@@ -185,6 +186,13 @@ barplot_choro <- country_counts %>%
 barplot_choro 
 
 ```
+```{r choropleth and bar}
+combined_choro_bar <- 
+  geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
+                                   left = 0, bottom = 0, right = 0.5, top = 0.5 )
+combined_choro_bar
+```
+
 
 
 ```{r trends}
