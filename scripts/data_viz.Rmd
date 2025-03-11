@@ -1,8 +1,18 @@
 ---
 title: "Data Viz for March 27th Webinar"
+subtitle: "Activity Report"
 author: "VALERA Camille Beatrice"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output:
+  html_document:
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+    css: !expr here::here("scripts/toc_custom.css")
+editor_options: 
+  chunk_output_type: inline
+  markdown: 
+    wrap: none
 ---
 
 ```{r global_chunk options, include = F}
@@ -18,17 +28,61 @@ pacman::p_load(tidyverse,
                sf, 
                rnaturalearth, 
                reactable,
+               countrycode,
                plotly, 
                ggrepel,
-               treemap #package to create treemap
+               treemap, #package to create treemap
+               RRColorBrewer
                )
 ```
 
 ```{r dataset_load}
 included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
-
 extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
 ```
+
+```{r choropleth cleaning country names, include = F}
+#Filter dataset to keep only rows where Reviewer Name is "Consensus"
+filtered_consensus <- extracted_studies_mar10 %>%
+  filter(`Reviewer Name` == "Consensus") %>%
+  distinct(`Covidence #`, .keep_all = TRUE)
+
+unique(filtered_consensus$"Country")
+
+# Build a vector of valid country names using the countrycode package
+valid_countries <- unique(c(
+  countrycode::codelist$country.name.en,   # Standard country names
+  countrycode::codelist$country.name.en.regex  # Alternative names
+))
+
+# Function to extract country names from mixed text.
+# If no valid country is found, it returns the original text (trimmed).
+extract_countries <- function(text) {
+  if (is.na(text) || text == "") return(text)  # Instead of NA, return the original text
+  
+# Split the countries by common delimiters (commas, semicolons, parentheses, colons)
+split_countries <- unlist(str_split(text, "[;,():]"))
+split_countries <- str_trim(split_countries)  # Remove extra whitespace
+  
+# Filter counrties that are recognized as valid country names
+extracted <- split_countries[split_countries %in% valid_countries]
+  
+# If at least one valid country is found, return unique valid names.
+# Otherwise, return the original text (preserving regional responses)
+  if (length(extracted) > 0) {
+    return(unique(extracted))
+  } else {
+    return(text)
+  }
+}
+
+# Apply the extraction function to the main dataframe without dropping other columns.
+# This keeps your "Covidence #" and other columns intact.
+cleaned_country_data <- filtered_consensus %>%
+  mutate(Country = lapply(Country, extract_countries)) %>%  # Process each cell in Country column
+  unnest(Country)  # Expand list-column so each country is its own row
+```
+
 
 # Preliminary Findings
 
@@ -43,7 +97,7 @@ publications_over_time <- included_studies_mar10 %>%
 # Static plot
 publications_years <- publications_over_time %>%
   ggplot(aes(x = `Published Year`, y = Count)) +
-  geom_line(color = "#1F968BFF", size = 1) +
+  geom_line(color = "#1F968BFF", linewidth = 1) +
   geom_smooth(color = "darkgray", fill = "lightgray", size = 1, method = "loess") + # Add smooth line to show trend
   geom_point(color = "#440154FF", size = 2) +
   scale_x_continuous(breaks = seq(min(publications_over_time$`Published Year`), max(publications_over_time$`Published Year`), by = 5)) +  # Set x-axis in 5-year increments
@@ -55,17 +109,22 @@ publications_years <- publications_over_time %>%
   ) +
   theme_minimal()
 publications_years
- 
+
 # Interactive plot
-ggplotly(publications_years)
+# ggplotly(publications_years) 
+
 ```
 
-```{r choropleth of study distribution}
+```{r choropleth of study distribution_data_setup}
 
 # Process data: Count occurrences per country
-country_counts <- extracted_studies_mar10 %>%
-  separate_rows(Country, sep = ", ") %>%  # Separate multiple countries in one entry
-  count(Country, name = "study_count")
+country_counts <- cleaned_country_data %>% 
+  count(Country, name = "study_count") %>%
+  arrange(desc(study_count))  # Sort by study count
+
+# Identify the top 5 countries with the highest study counts
+top_countries <- country_counts %>% 
+  slice_max(study_count, n = 5, with_ties = FALSE)
 
 # Load African map data
 africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
@@ -73,34 +132,97 @@ africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf
 # Merge study data with map
 africa_data <- africa %>%
   left_join(country_counts, by = c("name" = "Country"))
+```
 
-# Define subregion colors
-subregion_colors <- c(
-  "Northern Africa" = "purple",
-  "Western Africa" = "yellowgreen",
-  "Central Africa" = "lightgray",
-  "Eastern Africa" = "slategray",
-  "Southern Africa" = "red"
-)
+```{r choropleth of study distribution_labels}
 
-# Plot the choropleth map
-country_distribution <- 
-  ggplot() +
-  geom_sf(data = africa_data, aes(fill = study_count), color = "black", size = 0.3) +
-  scale_fill_gradient(low = "lightgray", high = "darkred", na.value = "white", name = "Study Count") +
-  geom_text_repel(data = africa_data, aes(label = ifelse(!is.na(study_count), paste0(name, " (n=", study_count, ")"), ""), geometry = geometry),
-                  stat = "sf_coordinates", size = 3, color = "black") +
-  labs(title = "Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-       subtitle = "Based on extracted literature",
-       caption = "Source: Covidence Dataset") +
+# Compute centroids for labels (single point per country)
+africa_data <- africa_data %>%
+  mutate(centroid = st_centroid(geometry))  # Get centroid of each country
+
+# Filter label data for top 5 countries
+label_data <- africa_data %>% filter(name %in% top_countries$Country)
+
+# Set spread-out angles and positions for different countries
+label_data <- label_data %>%
+  mutate(
+    # Spread-out angles for each country
+    angle = case_when(
+      name == "Ethiopia" ~ 60,    # Spread out angle for Ethiopia
+      name == "Uganda" ~ 15,      # Angle for Uganda
+      name == "Kenya" ~ -45,      # Angle for Kenya
+      name == "Tanzania" ~ -100,  # Angle for Tanzania
+      name == "Ghana" ~ 240,      # Angle for Ghana
+      TRUE ~ sample(c(45, 90, 135, -45, -90), size = 1)  # Random spread for others
+    ),
+    # Reasonable offsets to keep labels outside the map, without pushing too far
+    offset_x = case_when(
+      name == "Ethiopia" ~ 12,
+      name == "Uganda" ~ 18,  # Increase offset for Uganda to ensure it's outside the map
+      name == "Kenya" ~ 15,   # Slight adjustment for Kenya
+      name == "Tanzania" ~ 18, # Moderate increase for Tanzania
+      name == "Ghana" ~ 20,   # Moderate increase for Ghana
+      TRUE ~ runif(n(), min = 12, max = 18)  # Reasonable offsets for others
+    ),
+    offset_y = case_when(
+      name == "Ethiopia" ~ 20,
+      name == "Uganda" ~ 18,  # Increase offset for Uganda to move it outside
+      name == "Kenya" ~ 12,   # Keep Kenya's label from overlapping
+      name == "Tanzania" ~ 15, # Slight adjustment for Tanzania
+      name == "Ghana" ~ 18,   # Slight increase for Ghana
+      TRUE ~ runif(n(), min = 15, max = 18)  # Reasonable offsets for others
+    )
+  )
+
+# Adjust label positions based on the angle (labels will be outside the map)
+label_data <- label_data %>%
+  mutate(
+    label_x = st_coordinates(centroid)[,1] + offset_x * cos(pi * angle / 180),  # Apply the angle to adjust x position
+    label_y = st_coordinates(centroid)[,2] + offset_y * sin(pi * angle / 180)   # Apply the angle to adjust y position
+  )
+
+# Plot the refined choropleth map
+ggplot(data = africa_data) +
+  geom_sf(aes(fill = study_count), color = "black", size = 0.3) +
+  study_fill_scale +
+  
+  # Draw arrows pointing from labels (outside) to the country centroids (inside the map)
+  geom_segment(data = label_data, 
+               aes(x = label_x, y = label_y, 
+                   xend = st_coordinates(centroid)[,1], yend = st_coordinates(centroid)[,2]),
+               color = "black", size = 0.5, arrow = arrow(length = unit(0.3, "cm"))) +  # Arrows starting from label
+  
+  # Add country labels at the positions outside the map
+  geom_text_repel(data = label_data,
+                  aes(x = label_x, y = label_y, 
+                      label = paste0(name, " (n=", study_count, ")")),
+                  size = 4, color = "black", direction = "both", 
+                  segment.color = NA, force = 2) +  # Labels placed at the butt end of arrows
+  
+  labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+       subtitle = "Top 5 countries with the most studies.",
+       caption = "Source: Covidence 'Data Charting' Dataset") +
   theme_minimal() +
-  theme(legend.position = "right")
-country_distribution
+  theme(legend.position = "top",
+        legend.justification = 0.5,
+        legend.key.size = unit(1.25, "cm"),
+        legend.key.width = unit(1.75, "cm"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+   coord_sf(expand = FALSE)
 
 ```
 
+
+
+
+
 ```{r trends}
 #!! Requires to run `extracted_data_cleaning` to obtain categorized pathologies !!
+# Adding source code here - C.V.
+source(here("scripts/extracted_data_cleaning.R"))
 
 # Create frequency table, removing NA values directly in summarize
 pathology_distribution <- categorized_general_pathology %>% 

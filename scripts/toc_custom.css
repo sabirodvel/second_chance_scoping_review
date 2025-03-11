@@ -1,0 +1,12 @@
+div#toc {
+  margin-top: 30px;
+}
+
+div.toc {
+  position: relative;
+  z-index: 999;
+}
+
+body {
+  margin-top: 100px;
+}
