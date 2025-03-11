@@ -83,7 +83,6 @@ cleaned_country_data <- filtered_consensus %>%
   unnest(Country)  # Expand list-column so each country is its own row
 ```
 
-
 # Preliminary Findings
 
 ## Research Distribution & Trends
@@ -214,10 +213,6 @@ ggplot(data = africa_data) +
    coord_sf(expand = FALSE)
 
 ```
-
-
-
-
 
 ```{r trends}
 #!! Requires to run `extracted_data_cleaning` to obtain categorized pathologies !!
