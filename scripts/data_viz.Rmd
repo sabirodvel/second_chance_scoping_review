@@ -33,8 +33,13 @@ pacman::p_load(tidyverse,
                ggrepel,
                treemap, #package to create treemap
                RRColorBrewer,
+<<<<<<< Updated upstream
                patchwork,
                ggfittext
+=======
+               ggfittext,
+               grid
+>>>>>>> Stashed changes
                )
 ```
 
@@ -161,7 +166,8 @@ geo_distribution
 
 ```
 
-```{r barplot of study distribution}
+
+```{r barplot of study distribution, eval = F}
 
 barplot_choro <- country_counts %>%
   arrange(desc(study_count)) %>%
@@ -182,7 +188,7 @@ barplot_choro <- country_counts %>%
         axis.ticks = element_blank(),    
         axis.title = element_blank(),
         legend.position = "none",
-        panel.grid = element_blank(),)
+        panel.grid = element_blank())
 barplot_choro 
 
 ```
@@ -194,7 +200,7 @@ combined_choro_bar
 ```
 
 
-```{r treemap of pathologies trends}
+```{r treemap of general pathologies prep, include = F}
 # Adding source code here - C.V.
 source(here("scripts/extracted_data_cleaning.R"))
 
@@ -214,11 +220,9 @@ pathology_distribution <- categorized_general_pathology %>%
 #             type="index")
 
 # Customized treemap
-data_tree <- 
-  treemap(pathology_distribution,
+data_tree <- treemap(pathology_distribution,
         index = "category_gen_pathology",  # Define the category to index by
         vSize = "n",                       # Define the size based on 'n'
-        vColor = "n",                      # Color based on frequency
         type = "index",                    # Type of treemap (index-based)
         # palette = "YlGnBu",                 # Custom color palette
         # title = "Pathology Distribution",   # Custom title
@@ -239,7 +243,10 @@ data_ggplot <- data_tree[["tm"]] %>%
     ymax = y0 + h,
     label_pathology = str_glue("{category_gen_pathology}\n(n={vSize})")
   )
+```
 
+
+```{r treemap of general pathologies graph}
 p1 <- 
   ggplot(data_ggplot) +
   geom_rect(aes(xmin = x0,
@@ -247,7 +254,7 @@ p1 <-
                 xmax = xmax,
                 ymax = ymax,
                 fill = category_gen_pathology),
-            size = 1,
+            size = 2,
             colour = "white",
             alpha = 0.9) +
   geom_fit_text(aes(xmin = x0,
@@ -273,5 +280,54 @@ p1
 # ggsave(filename = here("images/general_treemap.png"))
 
 #ggplotly(p1) # Interactive plot (to be refined if needed)
-
 ```
+
+```{r treemap subgroup}
+# Add source code
+source(here("scripts/extracted_data_cleaning.R"))
+
+# Create frequency table 
+specific_pathology_distribution <- categorized_specific_pathology %>% 
+  separate_rows(category_specific_pathology, sep = "; ") %>%
+  filter(!is.na(category_specific_pathology)) %>%  # Remove NA values
+  group_by(category_specific_pathology) %>% 
+  summarize(n = n()) %>%
+  ungroup() %>% 
+  arrange(desc(n)) %>% 
+  mutate(category_gen_pathology = 
+           case_when(category_specific_pathology == "Cleft & Craniofacial" |
+                       category_specific_pathology == "Limb Deformities"
+                     ~ "Congenital Malformations",
+                     category_specific_pathology == "Contractures" |
+                      category_specific_pathology == "Acute Burns" |
+                       category_specific_pathology == "Burn Scars"
+                      ~ "Burns",
+                     category_specific_pathology == "Severe Injuries" |
+                       category_specific_pathology == "Soft Tissue Injuries"
+                     ~ "Trauma",
+                     category_specific_pathology == "Noma" |
+                      category_specific_pathology == "Other Infections" 
+                     ~ "Infectious Conditions",
+                     category_specific_pathology == "Cancer" |
+                       category_specific_pathology == "Other Neoplasms" 
+                     ~ "Neoplasms"))
+
+
+# Create the treemap plot
+data_tree_2 <- treemap(specific_pathology_distribution,
+        index = c("category_gen_pathology", "category_specific_pathology"),
+        vSize = "n",                       
+        type = "index",                    
+        palette = "YlGnBu",
+        bg.labels = rgb(1, 1, 1, alpha = 0.1),  # Make background of labels transparent
+        align.labels = list(
+              c("left", "top"),  # Alignment for general group
+              c("center", "center")  # Alignment for specific pathology
+        ),
+        fontsize.labels = c(12,9),  # Adjust label font size
+        fontcolor.labels = c("white","white"),  # Label font color
+        border.col = "white",  # Border color for all boxes
+        border.lwds = c(4, 2)
+)
+```
+
