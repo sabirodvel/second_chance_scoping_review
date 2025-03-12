@@ -34,7 +34,8 @@ pacman::p_load(tidyverse,
                treemap, #package to create treemap
                RRColorBrewer,
                patchwork,
-               ggfittext
+               ggfittext,
+               patchwork
                )
 ```
 
@@ -162,7 +163,7 @@ geo_distribution
 ```
 
 
-```{r barplot of study distribution, eval = F}
+```{r barplot of study distribution, include = F}
 
 barplot_choro <- country_counts %>%
   arrange(desc(study_count)) %>%
@@ -185,15 +186,14 @@ barplot_choro <- country_counts %>%
         legend.position = "none",
         panel.grid = element_blank())
 barplot_choro 
-
 ```
+
 ```{r choropleth and bar}
 combined_choro_bar <- 
   geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
                                    left = 0, bottom = 0, right = 0.5, top = 0.5 )
 combined_choro_bar
 ```
-
 
 ```{r treemap of general pathologies prep, include = F}
 # Adding source code here - C.V.
