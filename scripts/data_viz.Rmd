@@ -34,8 +34,7 @@ pacman::p_load(tidyverse,
                treemap, #package to create treemap
                RRColorBrewer,
                patchwork,
-               ggfittext,
-               patchwork
+               ggfittext
                )
 ```
 
@@ -195,6 +194,10 @@ combined_choro_bar <-
 combined_choro_bar
 ```
 
+# Pathologies
+
+## General Pathologies
+
 ```{r treemap of general pathologies prep, include = F}
 # Adding source code here - C.V.
 source(here("scripts/extracted_data_cleaning.R"))
@@ -204,7 +207,9 @@ pathology_distribution <- categorized_general_pathology %>%
   separate_rows(category_gen_pathology, sep = "; ") %>%
   filter(!is.na(category_gen_pathology)) %>%  # Remove NA values
   group_by(category_gen_pathology) %>% 
-  summarize(n = n()) %>%
+  summarize(n = n(),
+            percentage = 
+              round(100 * n() / nrow(categorized_general_pathology), 2)) %>%
   ungroup() %>% 
   arrange(desc(n))
 
@@ -277,6 +282,8 @@ p1
 #ggplotly(p1) # Interactive plot (to be refined if needed)
 ```
 
+## Specific Pathologies
+
 ```{r treemap subgroup}
 # Add source code
 source(here("scripts/extracted_data_cleaning.R"))
@@ -286,7 +293,9 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
   separate_rows(category_specific_pathology, sep = "; ") %>%
   filter(!is.na(category_specific_pathology)) %>%  # Remove NA values
   group_by(category_specific_pathology) %>% 
-  summarize(n = n()) %>%
+  summarize(n = n(),
+            percentage = 
+              round(100 * n() / nrow(categorized_specific_pathology), 2)) %>%
   ungroup() %>% 
   arrange(desc(n)) %>% 
   mutate(category_gen_pathology = 
@@ -324,5 +333,52 @@ data_tree_2 <- treemap(specific_pathology_distribution,
         border.col = "white",  # Border color for all boxes
         border.lwds = c(4, 2)
 )
+```
+
+# Procedures & Surgeries Performed
+
+```{r lollipop surgeries}
+
+# Create frequency table
+surgery_distribution <- categorized_surgeries %>% 
+  separate_rows(category_surgery, sep = "; ") %>%
+  filter(!is.na(category_surgery)) %>%  # Remove NA values
+  group_by(category_surgery) %>% 
+  summarize(n = n(),
+            percentage = 
+              round(100 * n() / nrow(categorized_surgeries), 2)) %>%
+  ungroup() %>% 
+  arrange(desc(n))
+
+# Create the lollipop plot
+lollipop <- 
+  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
+  geom_segment(aes(xend = category_surgery, yend = 0), color = "gray") +  # Line segment
+  geom_point(size = 4, color = "#238AB0") +  # Circular lollipop head
+  coord_flip() +  # Flip axes for better readability
+  labs(title = "Distribution of Categorized Surgical Procedures",
+       x = "Surgical Procedures",
+       y = "Count") +
+  scale_y_continuous(breaks = seq(0, 15, 2)) +
+  theme_minimal()
+
+# Highlight procedures
+lollipop_highlight <- 
+  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
+  geom_segment(aes(xend = category_surgery, yend = 0), 
+               linewidth = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 1, 0.5),
+               color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "gray")) +  # Line segment
+  geom_point(size = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 4, 2), 
+             color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "#238AB0")) +
+  coord_flip() +  # Flip axes for better readability
+  labs(title = "Distribution of Categorized Surgical Procedures",
+       x = "Surgical Procedures",
+       y = "Count") +
+  scale_y_continuous(breaks = seq(0, 15, 2)) +
+  theme_minimal()
+
+# Save image
+ggsave(filename = here("images/surgeries_lollipop_highlight.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+
 ```
 

@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 03/11/2025
+## Updated: 03/12/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -17,6 +17,7 @@ pacman::p_load(tidyverse, janitor, lubridate, here, stringr)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load data ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # Load the CSV file
 extracted_studies_raw <- read_csv(here("data/extracted_studies_march_10.csv")) 
 # THIS DATA IS NOT CONSENSUS. INCLUDES ALL EXTRACTION NEED TO REMOVE DUPLICATES?!
@@ -51,7 +52,9 @@ extracted_studies_joined <- full_join(studies_with_consensus, studies_without_co
 extracted_studies_clean <- clean_names(extracted_studies_joined) %>% 
   # Convert to lower for easier reading
   mutate(general_category_of_pathology = str_to_lower(general_category_of_pathology),
-         specific_pathology = str_to_lower(specific_pathology))
+         specific_pathology = str_to_lower(specific_pathology),
+         types_of_surgical_procedure_performed = str_to_lower(types_of_surgical_procedure_performed)
+         )
 
 # View unique general pathologies values
 df <- extracted_studies_clean %>% 
@@ -66,6 +69,14 @@ df <- extracted_studies_clean %>%
   mutate(specific_pathology = str_trim(specific_pathology)) %>% 
   group_by(specific_pathology) %>% 
   count()
+
+# View unique surgeries values
+df <- extracted_studies_clean %>% 
+  separate_rows(types_of_surgical_procedure_performed, sep = ",|;|&") %>%  # Escape '+' properly
+  mutate(types_of_surgical_procedure_performed = str_trim(types_of_surgical_procedure_performed)) %>% 
+  distinct(types_of_surgical_procedure_performed, .keep_all = TRUE) %>%  # Ensure uniqueness before counting
+  count(types_of_surgical_procedure_performed, name = "frequency")  # Count occurrences properly
+
 
 # Identify NAs
 pathology_missing <- extracted_studies_clean[is.na(extracted_studies_clean$general_category_of_pathology), ]
@@ -217,3 +228,40 @@ categorized_specific_pathology <- extracted_studies_clean %>%
   select(study_id, title_3, general_category_of_pathology, specific_pathology, category_specific_pathology)
 
 
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Categorize surgeries performed ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Define surgery categories
+categories_surgery <- list(
+  "Burn Management & Reconstruction" = c("acute burn care", "burn surgeries", "burn contracture surgery", "burn management", "contracture release", "contracture release and skin grafting", "escharotomy", "excision", "excision \\+ graft", "excision with secondary intension", "wound debridement", "surgical debridement", "burn scars"),
+  "Cleft & Craniofacial Surgeries" = c("cleft lip repair", "cleft palate repair", "cleft lip", "cleft palate", "cleft lip/palate", "cleft lip and/or palate", "combo \\(cleft lip and cleft palate\\)", "commissuroplasty", "millard variants", "primary lip \\+ palate repair", "secondary cleft palate surgery"),
+  "Amputation & Limb Procedures" = c("amputation", "amputations", "tendon transfer", "ankylosis release", "limb reconstruction", "primary repair of cut achilles tendon"),
+  "Soft Tissue & Skin Procedures" = c("skin grafting", "split skin graft", "split-thickness skin grafting", "full thickness replacement", "local flap", "muscle/fasciocutaneous flap", "random pattern fasciocutaneous", "scar revision", "z-plasty", "y-v flap", "flap cover", "nasolabial and tongue flaps"),
+  "Trauma & Fracture Management" = c("open fracture management", "open reduction", "open treatment of fracture", "orif", "k-wire fixation", "primary repair of nerve injury", "trauma operations"),
+  "Cancer & Mastectomy" = c("mastectomy", "subcutaneous mastectomy", "reduction mammoplasty"),
+  "General Reconstructive Surgery" = c("facial reconstruction", "various flaps", "wound debridement", "reconstructive surgery", "exploration and repair", "primary repair", "free tissue transfer")
+)
+
+# Function to categorize surgeries
+categorize_surgeries <- function(surgery, categories) {
+  if (is.na(surgery) || surgery == "") return(NA_character_)  # Handle missing values
+  
+  surgery <- str_to_lower(surgery)  # Convert to lowercase
+  
+  assigned <- names(categories)[sapply(categories, function(words) 
+    any(str_detect(surgery, paste0("\\b(", paste(words, collapse = "|"), ")\\b", collapse = ""))))]  # Match categories
+  
+  if (length(assigned) > 0) {
+    return(paste(assigned, collapse = "; "))  # Return multiple categories if applicable
+  }
+  
+  return("Other")  # Default category
+}
+
+# Apply categorization to original dataset
+categorized_surgeries <- extracted_studies_clean %>%
+  mutate(category_surgery = mapply(categorize_surgeries, 
+                                   types_of_surgical_procedure_performed, 
+                                   MoreArgs = list(categories = categories_surgery))) %>% 
+  select(study_id, title_3, general_category_of_pathology, specific_pathology, types_of_surgical_procedure_performed, category_surgery)
