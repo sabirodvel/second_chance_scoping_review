@@ -1,6 +1,5 @@
 ---
 title: "Data Viz for March 27th Webinar"
-subtitle: "Activity Report"
 author: "VALERA Camille Beatrice"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -32,16 +31,46 @@ pacman::p_load(tidyverse,
                plotly, 
                ggrepel,
                treemap, #package to create treemap
-               RRColorBrewer,
+               RColorBrewer,
                patchwork,
                ggfittext,
                patchwork
                )
 ```
 
-```{r dataset_load}
+```{r dataset_load, include = F}
 included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
 extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
+```
+
+# Preliminary Findings
+## Research Distribution & Trends
+
+```{r publications over time}
+publications_over_time <- included_studies_mar10 %>%
+  group_by(`Published Year`) %>%
+  summarise(Count = n()) %>%
+  arrange(`Published Year`)
+
+# Static plot
+publications_years <- publications_over_time %>%
+  ggplot(aes(x = `Published Year`, y = Count)) +
+  geom_line(color = "#1F968BFF", linewidth = 1) +
+  geom_smooth(color = "darkgray", fill = "lightgray", size = 1, method = "loess") + # Add smooth line to show trend
+  geom_point(color = "#440154FF", size = 2) +
+  scale_x_continuous(breaks = seq(min(publications_over_time$`Published Year`), max(publications_over_time$`Published Year`), by = 5)) +  # Set x-axis in 5-year increments
+  labs(
+    title = "Research Output on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+    subtitle = "Tracking the number of studies published over time to understand growth \n of Plastic Reconstructive Surgery Research in SSA.",
+    x = "Publication Year (5-year intervals)",
+    y = "Number of Published Studies"
+  ) +
+  theme_minimal()
+publications_years
+
+# Interactive plot
+# ggplotly(publications_years) 
+
 ```
 
 ```{r choropleth cleaning country names, include = F}
@@ -84,37 +113,6 @@ extracted <- split_countries[split_countries %in% valid_countries]
 cleaned_country_data <- filtered_consensus %>%
   mutate(Country = lapply(Country, extract_countries)) %>%  # Process each cell in Country column
   unnest(Country)  # Expand list-column so each country is its own row
-```
-
-# Preliminary Findings
-
-## Research Distribution & Trends
-
-```{r publications over time}
-publications_over_time <- included_studies_mar10 %>%
-  group_by(`Published Year`) %>%
-  summarise(Count = n()) %>%
-  arrange(`Published Year`)
-
-# Static plot
-publications_years <- publications_over_time %>%
-  ggplot(aes(x = `Published Year`, y = Count)) +
-  geom_line(color = "#1F968BFF", linewidth = 1) +
-  geom_smooth(color = "darkgray", fill = "lightgray", size = 1, method = "loess") + # Add smooth line to show trend
-  geom_point(color = "#440154FF", size = 2) +
-  scale_x_continuous(breaks = seq(min(publications_over_time$`Published Year`), max(publications_over_time$`Published Year`), by = 5)) +  # Set x-axis in 5-year increments
-  labs(
-    title = "Research Output on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-    subtitle = "Tracking the number of studies published over time to understand growth \n of Plastic Reconstructive Surgery Research in SSA.",
-    x = "Publication Year (5-year intervals)",
-    y = "Number of Published Studies"
-  ) +
-  theme_minimal()
-publications_years
-
-# Interactive plot
-# ggplotly(publications_years) 
-
 ```
 
 ```{r choropleth of study distribution}
@@ -161,7 +159,6 @@ geo_distribution <- ggplot(data = africa_data) +
 geo_distribution 
 
 ```
-
 
 ```{r barplot of study distribution, include = F}
 
@@ -239,7 +236,6 @@ data_ggplot <- data_tree[["tm"]] %>%
     label_pathology = str_glue("{category_gen_pathology}\n(n={vSize})")
   )
 ```
-
 
 ```{r treemap of general pathologies graph}
 p1 <- 
@@ -324,5 +320,163 @@ data_tree_2 <- treemap(specific_pathology_distribution,
         border.col = "white",  # Border color for all boxes
         border.lwds = c(4, 2)
 )
+```
+
+## Barriers to Surgical/Reconstructive Surgical 
+
+```{r barriers cleaning, include = F}
+
+filtered_barriers <- filtered_consensus %>% 
+  select(`Covidence #`,
+         `Health System Barrier`,
+         `Financial  Barrier`,
+         `Geograhic/Accessibility Barrier`,
+         `Sociocultural Barrier`,
+         `Patient-Related  Barrier`,
+         `Policy/Governance  Barrier`,
+         `Education/Training Barrier`,
+         `Other Barrier`)
+
+#Transform multiple responses into separate rows
+barriers_clean <- filtered_barriers %>%
+  pivot_longer(cols = -`Covidence #`, names_to = "Barrier_Type", values_to = "Response") %>%
+  filter(!is.na(Response) & Response != "") %>% 
+  mutate(Response = str_split(Response, ",|;")) %>%
+  unnest(Response) %>%
+  mutate(Response = str_trim(Response) %>%
+           str_to_lower()
+         )
+```
+
+```{r barriers response management}
+
+# Manual mapping for each response category within Education/Training Barrier
+mapping_list <- list(
+   "Education/Training Barrier" = c(
+     "lack of trained staff" = "training gaps",
+     "surgeon training gaps" = "training gaps",
+     "training gaps" = "training gaps",
+     "training program in plastic surgery" = "training gaps",
+     "educated staff" = "uneducated staff",
+     "uneducated" = "uneducated staff"
+  ),
+  "Financial  Barrier" = c(
+    "indirect cost" = "indirect costs",
+    "transportation costs" = "indirect costs",
+    "direct medical costs" = "direct costs",
+    "out-of-pocket costs" = "direct costs",
+    "service costs" = "direct costs"
+  ),
+  "Geograhic/Accessibility Barrier" = c(
+    "distance" = "physical distance",
+    "travel time" = "physical distance",
+    "transportation" = "transportation issues",
+    "transportations issues" = "transportation issues",
+    "travel" = "physical distance"
+  ),
+  "Health System Barrier" = c(
+    "anaesthesia" = "infrastructure limitations",
+    "blood bank" = "infrastructure limitations",
+    "electricity" = "infrastructure limitations",
+    "health system inefficiencies" = "health system inefficiencies",
+    "health system inneficiencies" = "health system inefficiencies",
+    "human resource shortage" = "human resource shortages",
+    "human resource shortages" = "human resource shortages",
+    "inpatient capacity" = "infrastructure limitations",
+    "limited infrastructure" = "infrastructure limitations",
+    "limited surgical infrastructure" = "infrastructure limitations",
+    "number of plastic surgeons" = "human resource shortages",
+    "operating rooms" = "infrastructure limitations",
+    "referral system" = "referral system issues",
+    "referral system issues" = "referral system issues",
+    "specialized care" = "infrastructure limitations",
+    "treatment delay" = "health system inefficiencies"
+  ),
+  "Patient-Related  Barrier" = c(
+    "appraisal delay" = "perceived need for surgery",
+    "fear" = "fear",
+    "fear of hospitals" = "fear",
+    "late presentation" = "perceived need for surgery",
+    "literacy" = "perceived need for surgery",
+    "perceived need" = "perceived need for surgery",
+    "perceived need for surgery" = "perceived need for surgery",
+    "perceived-need for surgery" = "perceived need for surgery"
+  ),
+  "Sociocultural Barrier" = c(
+    "awareness" = "health literacy",
+    "cultural beliefs" = "stigma and cultural beliefs",
+    "delayed health seeking behavior" = "health literacy",
+    "health literacy" = "health literacy",
+    "medical literacy" = "health literacy",
+    "religious belief" = "stigma and cultural beliefs",
+    "stigma and cultural beliefs" = "stigma and cultural beliefs",
+    "traditional medicine" = "stigma and cultural beliefs"
+  )
+)
+
+# A helper function that replaces responses based on a named mapping vector:
+assign_group <- function(responses, mapping) {
+  # For each pattern in the mapping, vectorized replacement is applied.
+  grouped <- responses
+  for (pattern in names(mapping)) {
+    # Use fixed() for exact string matching ignoring case
+    grouped <- if_else(str_detect(responses, fixed(pattern, ignore_case = TRUE)),
+                       mapping[[pattern]], grouped)
+  }
+  grouped
+}
+
+# Apply grouping per Barrier_Type if mapping exists; otherwise keep the original response.
+barriers_clean_2 <- barriers_clean %>%
+  group_by(Barrier_Type) %>%
+  mutate(Grouped_Response = if (Barrier_Type[1] %in% names(mapping_list)) {
+      assign_group(Response, mapping_list[[Barrier_Type[1]]])
+    } else Response) %>%
+  ungroup()
+
+# Count occurrences
+barrier_counts <- barriers_clean_2 %>%
+  count(Barrier_Type, Grouped_Response)
+
+# Create an extended palette similar to YlGnBu
+unique_groups <- unique(barrier_counts$Grouped_Response)
+num_groups <- length(unique_groups)
+my_palette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_groups)
+
+```
+
+```{r barrier stacked bar}
+# Ensure the order of Barrier_Type is as specified
+combined_barrier_data <- filtered_counts %>%
+  mutate(Barrier_Type = fct_relevel(Barrier_Type,
+                                    "Health System Barrier", 
+                                    "Geograhic/Accessibility Barrier", 
+                                    "Financial  Barrier", 
+                                    "Education/Training Barrier", 
+                                    "Policy/Governance  Barrier", 
+                                    "Patient-Related  Barrier", 
+                                    "Sociocultural Barrier"))
+
+# Create the plot with counts displayed as 'n = <count>' and grouping by Barrier_Type
+stackedbar_combined <- ggplot(combined_barrier_data, aes(x = Barrier_Type, y = n, fill = Grouped_Response)) +
+  geom_bar(stat = "identity") +
+  # Add counts with the 'n = ' prefix, centered in each segment
+  geom_text(aes(label = paste("n = ", n)),
+            position = position_stack(vjust = 0.5), size = 5, color = "black") +
+  scale_fill_manual(values = my_palette) +
+  theme_minimal() +
+  labs(title = "Barriers to Surgical Care",
+       x = "Types of Barriers",
+       y = "Number of Responses",
+       fill = "Grouped Response") +  # Change legend title to 'Grouped Response'
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+        axis.title = element_text(size = 14),                         
+        plot.title = element_text(size = 16, face = "bold"),          
+        legend.position = "top",                                      
+        panel.grid = element_blank())                                 
+
+# Display the plot
+stackedbar_combined
+
 ```
 
