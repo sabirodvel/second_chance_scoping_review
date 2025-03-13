@@ -331,6 +331,53 @@ data_tree_2 <- treemap(specific_pathology_distribution,
 )
 ```
 
+# Surgical Procedures 
+
+```{r lollipop surgeries}
+
+# Create frequency table
+surgery_distribution <- categorized_surgeries %>% 
+  separate_rows(category_surgery, sep = "; ") %>%
+  filter(!is.na(category_surgery)) %>%  # Remove NA values
+  group_by(category_surgery) %>% 
+  summarize(n = n(),
+            percentage = 
+              round(100 * n() / nrow(categorized_surgeries), 2)) %>%
+  ungroup() %>% 
+  arrange(desc(n))
+
+# Create the lollipop plot
+lollipop <- 
+  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
+  geom_segment(aes(xend = category_surgery, yend = 0), color = "gray") +  # Line segment
+  geom_point(size = 4, color = "#238AB0") +  # Circular lollipop head
+  coord_flip() +  # Flip axes for better readability
+  labs(title = "Distribution of Categorized Surgical Procedures",
+       x = "Surgical Procedures",
+       y = "Count") +
+  scale_y_continuous(breaks = seq(0, 15, 2)) +
+  theme_minimal()
+
+# Highlight procedures
+lollipop_highlight <- 
+  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
+  geom_segment(aes(xend = category_surgery, yend = 0), 
+               linewidth = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 1, 0.5),
+               color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "gray")) +  # Line segment
+  geom_point(size = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 4, 2), 
+             color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "#238AB0")) +
+  coord_flip() +  # Flip axes for better readability
+  labs(title = "Distribution of Categorized Surgical Procedures",
+       x = "Surgical Procedures",
+       y = "Count") +
+  scale_y_continuous(breaks = seq(0, 15, 2)) +
+  theme_minimal()
+
+# Save image
+# ggsave(filename = here("images/surgeries_lollipop_highlight.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+```
+
+# Barriers
 
 ## Barriers to Surgical/Reconstructive Surgical 
 
@@ -489,50 +536,44 @@ stackedbar_combined <- ggplot(combined_barrier_data, aes(x = Barrier_Type, y = n
 stackedbar_combined
 ```
 
+# DALYs 
 
-## Surgical Procedures 
+## Orofacial Clefts
 
-```{r lollipop surgeries}
+```{r orofacial cleft dalys}
+# Load African map data
+africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
 
-# Create frequency table
-surgery_distribution <- categorized_surgeries %>% 
-  separate_rows(category_surgery, sep = "; ") %>%
-  filter(!is.na(category_surgery)) %>%  # Remove NA values
-  group_by(category_surgery) %>% 
-  summarize(n = n(),
-            percentage = 
-              round(100 * n() / nrow(categorized_surgeries), 2)) %>%
-  ungroup() %>% 
-  arrange(desc(n))
+# Quick clean of data
+burden_orofacialcleft <- burden_orofacialcleft %>% 
+  filter(!country %in%  c("Central Africa", "Saharan Africa"))
 
-# Create the lollipop plot
-lollipop <- 
-  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
-  geom_segment(aes(xend = category_surgery, yend = 0), color = "gray") +  # Line segment
-  geom_point(size = 4, color = "#238AB0") +  # Circular lollipop head
-  coord_flip() +  # Flip axes for better readability
-  labs(title = "Distribution of Categorized Surgical Procedures",
-       x = "Surgical Procedures",
-       y = "Count") +
-  scale_y_continuous(breaks = seq(0, 15, 2)) +
-  theme_minimal()
+# Join data + map values
+africa_burden_cleft <- right_join(burden_orofacialcleft, africa, by = c("country" = "name"))
 
-# Highlight procedures
-lollipop_highlight <- 
-  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
-  geom_segment(aes(xend = category_surgery, yend = 0), 
-               linewidth = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 1, 0.5),
-               color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "gray")) +  # Line segment
-  geom_point(size = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 4, 2), 
-             color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "#238AB0")) +
-  coord_flip() +  # Flip axes for better readability
-  labs(title = "Distribution of Categorized Surgical Procedures",
-       x = "Surgical Procedures",
-       y = "Count") +
-  scale_y_continuous(breaks = seq(0, 15, 2)) +
-  theme_minimal()
+# Define color scale
+study_fill_scale <- scale_fill_distiller(
+  palette = "YlGnBu",
+  na.value = "white",
+  name = "DALYs per 100,000 people",
+  direction = 1,
+  breaks = seq(15, max(burden_orofacialcleft$dalys), 5),  # Set custom breaks
+  labels = seq(15, max(burden_orofacialcleft$dalys), 5)  # Set custom labels
+)
 
-# Save image
-ggsave(filename = here("images/surgeries_lollipop_highlight.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+# Plot the refined choropleth map
+geo_orofacial_dalys <- ggplot(data = africa_burden_cleft) +
+  geom_sf(aes(fill = dalys), color = "gray50", size = 0.3) +
+  study_fill_scale +
+  labs(title = "Burden of Orofacial Clefts in Sub-Saharan Africa",
+       caption = "Source: Kantar R.S., 2023") +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()
+        )
+
+ggsave(filename = here("images/orofacial_cleft_dalys.png"), plot = geo_orofacial_dalys, bg = "white", height = 6)
 ```
 

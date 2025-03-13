@@ -265,3 +265,53 @@ categorized_surgeries <- extracted_studies_clean %>%
                                    types_of_surgical_procedure_performed, 
                                    MoreArgs = list(categories = categories_surgery))) %>% 
   select(study_id, title_3, general_category_of_pathology, specific_pathology, types_of_surgical_procedure_performed, category_surgery)
+
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Organize DALYs Info ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+daly_subset <- extracted_studies_clean %>% 
+  filter(!is.na(disability_adjusted_life_years_dal_ys)) 
+
+# Extract countries
+country_daly <- daly_subset %>%  
+  # Identify countries
+  separate_rows(country, sep = ";|,") %>% 
+  mutate(country = str_trim(country)) %>% 
+  distinct(country) %>% 
+  pull()
+
+# Extract pathologies
+pathology_daly <- daly_subset %>% 
+  separate_rows(general_category_of_pathology, sep = ";|,") %>% 
+  mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) %>% 
+  separate_rows(specific_pathology, sep = ";|,") %>% 
+  mutate(specific_pathology = str_trim(specific_pathology)) %>% 
+  mutate(specific_pathology = case_when(
+    specific_pathology %in% c("cleft lip", "cleft palate", "cleft lip and palate", "cleft care", "orofacial clefts") ~ "orofacial clefts",
+    str_detect(specific_pathology, "burn") | specific_pathology == "contractures" ~ "burns",
+    TRUE ~ specific_pathology
+  ))
+
+# Find studies on clefts
+df <- pathology_daly %>% 
+  filter(specific_pathology == "orofacial clefts") %>% 
+  select(covidence_number, title_3, general_category_of_pathology, 
+         specific_pathology, disability_adjusted_life_years_dal_ys) %>% 
+  distinct(covidence_number, .keep_all = TRUE)
+
+### Orofacial clefts ----
+
+# Extract countries and DALYs
+burden_orofacialcleft <- df %>%
+  mutate(extracted_info = str_extract_all(disability_adjusted_life_years_dal_ys, 
+                                          "-\\s*([A-Za-z\\s]+)\\s*\\((\\d+\\.\\d+)\\s*DALYs")) %>%
+  unnest(extracted_info) %>%
+  mutate(
+    country = str_trim(str_extract(extracted_info, "[A-Za-z\\s]+")),  # Extract country name
+    dalys = as.numeric(str_extract(extracted_info, "\\d+\\.\\d+"))  # Extract DALY values
+  ) %>%
+  select(country, dalys)  # Remove temporary column
+
+  
