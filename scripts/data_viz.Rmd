@@ -319,13 +319,13 @@ data_tree_2 <- treemap(specific_pathology_distribution,
         vSize = "n",                       
         type = "index",                    
         palette = "YlGnBu",
-        bg.labels = rgb(1, 1, 1, alpha = 0.1),  # Make background of labels transparent
+        bg.labels = rgb(0.5, 0.5, 0, alpha = 0.2),  # Make background of labels transparent
         align.labels = list(
               c("left", "top"),  # Alignment for general group
               c("center", "center")  # Alignment for specific pathology
         ),
         fontsize.labels = c(12,9),  # Adjust label font size
-        fontcolor.labels = c("white","white"),  # Label font color
+        fontcolor.labels = c("white", "white"),
         border.col = "white",  # Border color for all boxes
         border.lwds = c(4, 2)
 )
@@ -538,6 +538,47 @@ stackedbar_combined
 
 # DALYs 
 
+```{r general daly pie chart}
+
+# Create summary data
+daly_data <- pathology_daly %>% 
+  group_by(general_category_of_pathology) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  mutate(general_category_of_pathology =
+           case_when(general_category_of_pathology == "general pediatric surgery pathology" ~ "other",
+                     TRUE ~ general_category_of_pathology))
+
+# Compute the position of labels
+daly_data <- daly_data %>% 
+  arrange(desc(general_category_of_pathology)) %>%
+  mutate(prop = n / sum(daly_data$n) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+
+# Basic piechart
+daly_piechart <- 
+  ggplot(daly_data, aes(x="", y=prop, fill=general_category_of_pathology)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, 
+                label = str_to_title(general_category_of_pathology)),
+                color = if_else(daly_data$general_category_of_pathology == 
+                                  "other", "darkgray", "white"),
+            size=7) +
+  scale_fill_brewer(palette="YlGnBu",
+                    direction = -1)
+#Display graph
+daly_piechart
+
+# Save graph
+# ggsave(filename = here("images/daly_piechart.png"), plot = daly_piechart)
+
+```
+
+
 ## Orofacial Clefts
 
 ```{r orofacial cleft dalys}
@@ -574,6 +615,57 @@ geo_orofacial_dalys <- ggplot(data = africa_burden_cleft) +
         panel.grid = element_blank()
         )
 
-ggsave(filename = here("images/orofacial_cleft_dalys.png"), plot = geo_orofacial_dalys, bg = "white", height = 6)
+# Display graph
+geo_orofacial_dalys
+
+# Save image
+# ggsave(filename = here("images/orofacial_cleft_dalys.png"), plot = geo_orofacial_dalys, bg = "white", height = 6)
 ```
+
+## Burns
+
+```{r dalys burns}
+# Create the combined plot
+burn_combined_plot <- burn_daly %>%
+  ggplot(aes(x = time)) +
+  
+  # First line (Disability Score)
+  geom_line(data = burn_daly %>% filter(score == "disability"), 
+            aes(y = value), color = "#1F968BFF", linewidth = 1) +
+  geom_point(data = burn_daly %>% filter(score == "disability"), 
+             aes(y = value), color = "#440154FF", size = 2) +
+  
+  # Second line (Quality of Life Score) scaled to a secondary axis
+  geom_line(data = burn_daly %>% filter(score == "quality of life"), 
+            aes(y = value), color = "#92D050", linewidth = 1) +
+  geom_point(data = burn_daly %>% filter(score == "quality of life"), 
+             aes(y = value), color = "#482677FF", size = 2) +
+  
+  # X-axis settings
+  scale_x_continuous(breaks = seq(0, 12, 3)) +
+  
+  # Y-axis settings
+  scale_y_continuous(
+    name = "Disability Score (WHODAS 2.0)", 
+    sec.axis = sec_axis(~ ., name = "Quality of Life Score"),
+    breaks = seq(0.00, 1.00, by = 0.25),
+    limits = c(0,1)
+  ) +
+  
+  labs(x = "Time (Months)") +
+  theme_minimal() +
+  
+  # Adjust theme for better readability
+  theme(
+    axis.title.y.left = element_text(color = "#1F968BFF"),
+    axis.title.y.right = element_text(color = "#92D050")
+  )
+
+burn_combined_plot
+
+# Save plot
+ggsave(filename = here("images/disability_qol_plot.png"), plot = burn_combined_plot, height = 4, width = 5,  bg = "white")
+
+```
+
 

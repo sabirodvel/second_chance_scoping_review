@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 03/12/2025
+## Updated: 03/13/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -292,19 +292,20 @@ pathology_daly <- daly_subset %>%
     specific_pathology %in% c("cleft lip", "cleft palate", "cleft lip and palate", "cleft care", "orofacial clefts") ~ "orofacial clefts",
     str_detect(specific_pathology, "burn") | specific_pathology == "contractures" ~ "burns",
     TRUE ~ specific_pathology
-  ))
+  )) %>% 
+  distinct(covidence_number, .keep_all = TRUE)
+
+### Orofacial clefts ----
 
 # Find studies on clefts
-df <- pathology_daly %>% 
+cleft_daly <- pathology_daly %>% 
   filter(specific_pathology == "orofacial clefts") %>% 
   select(covidence_number, title_3, general_category_of_pathology, 
          specific_pathology, disability_adjusted_life_years_dal_ys) %>% 
   distinct(covidence_number, .keep_all = TRUE)
 
-### Orofacial clefts ----
-
 # Extract countries and DALYs
-burden_orofacialcleft <- df %>%
+burden_orofacialcleft <- daly_subset %>%
   mutate(extracted_info = str_extract_all(disability_adjusted_life_years_dal_ys, 
                                           "-\\s*([A-Za-z\\s]+)\\s*\\((\\d+\\.\\d+)\\s*DALYs")) %>%
   unnest(extracted_info) %>%
@@ -313,5 +314,26 @@ burden_orofacialcleft <- df %>%
     dalys = as.numeric(str_extract(extracted_info, "\\d+\\.\\d+"))  # Extract DALY values
   ) %>%
   select(country, dalys)  # Remove temporary column
+
+### Burns ----
+
+# Find studies on burns
+burn_daly <- pathology_daly %>% 
+  filter(specific_pathology == "burns") %>% 
+  select(covidence_number, title_3, country, general_category_of_pathology, 
+         specific_pathology, disability_adjusted_life_years_dal_ys) %>% 
+  distinct(covidence_number, .keep_all = TRUE)
+
+# Create dataset based on extraction
+burn_daly <- data.frame(
+  score = c("disability", "disability", "disability", "disability", "disability", "quality of life", "quality of life", "quality of life", "quality of life", "quality of life"),
+  time = c(0, 1, 3, 6, 12, 0, 1, 3, 6, 12),
+  value = c(0.22, 0.13, 0.06, 0.05, 0.03, 0.69, 0.79, 0.86, 0.89, 0.93)
+)
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Organize Cost Info ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
   
