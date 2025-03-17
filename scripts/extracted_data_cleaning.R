@@ -352,6 +352,10 @@ cost_subset <- full_join(cost_1, cost_2) %>%
          specific_pathology, cost_to_government_cost_in_usd_or_other_currency, 
          cost_to_individuals_cost_in_usd_or_other_currency)
 
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Organize Surgical Capacity Info ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
   
