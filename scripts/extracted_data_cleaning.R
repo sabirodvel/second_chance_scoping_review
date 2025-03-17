@@ -335,5 +335,17 @@ burn_daly <- data.frame(
 ## Organize Cost Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+cost_1 <- extracted_studies_clean %>% 
+  filter(!is.na(cost_to_individuals_cost_in_usd_or_other_currency))
+
+cost_2 <- extracted_studies_clean %>% 
+  filter(!is.na(cost_to_government_cost_in_usd_or_other_currency))
+
+cost_subset <- full_join(cost_1, cost_2) %>% 
+  select(covidence_number, title_3, country, general_category_of_pathology, 
+         specific_pathology, cost_to_government_cost_in_usd_or_other_currency, 
+         cost_to_individuals_cost_in_usd_or_other_currency)
+
+
 
   
