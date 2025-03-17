@@ -295,6 +295,12 @@ pathology_daly <- daly_subset %>%
   )) %>% 
   distinct(covidence_number, .keep_all = TRUE)
 
+# Create summary table
+summary_path_daly <- pathology_daly %>% 
+  group_by(general_category_of_pathology) %>% 
+  summarize(n = n()) %>% 
+  mutate(percentage = n / sum(n) * 100) 
+
 ### Orofacial clefts ----
 
 # Find studies on clefts
