@@ -191,6 +191,82 @@ combined_choro_bar <-
 combined_choro_bar
 ```
 
+# Greyed out African Countries
+
+```{r}
+
+# Define Sub-Saharan Africa countries (excluding South Africa)
+ssa_countries <- c("Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", 
+                   "Cabo Verde", "Cameroon", "Central African Republic", "Chad", 
+                   "Comoros", "Congo", "Democratic Republic of the Congo", "Djibouti", 
+                   "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon", 
+                   "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast", "Kenya", 
+                   "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", 
+                   "Mauritius", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", 
+                   "São Tomé and Príncipe", "Senegal", "Seychelles", "Sierra Leone", 
+                   "Somalia", "South Sudan", "Sudan", "Tanzania", "Togo", "Uganda", 
+                   "Zambia", "Zimbabwe")
+
+# Load African map data
+africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
+
+# Process data: Count occurrences per country
+country_counts <- cleaned_country_data %>% 
+  count(Country, name = "study_count") %>%
+  arrange(desc(study_count))
+
+# Merge study data with Africa map
+africa_data <- africa %>%
+  left_join(country_counts, by = c("name" = "Country")) %>%
+  mutate(
+    is_ssa = name %in% ssa_countries,  # Flag SSA countries
+    is_south_africa = name == "South Africa",  # Flag South Africa
+    has_study = !is.na(study_count)  # Flag countries with studies
+  )
+
+# Define color scale for SSA countries
+study_fill_scale <- scale_fill_distiller(
+  palette = "YlGnBu", 
+  na.value = "white",  # SSA countries without studies should be white
+  name = "Study Count",
+  direction = 1,
+  breaks = seq(0, max(country_counts$study_count, na.rm = TRUE), by = 2),
+  labels = seq(0, max(country_counts$study_count, na.rm = TRUE), by = 2)
+)
+
+# Plot refined choropleth map
+geo_distribution <- ggplot(data = africa_data) +
+  # Color only SSA countries with studies
+  geom_sf(aes(fill = ifelse(is_ssa & has_study, study_count, NA)), 
+          color = "gray50", size = 0.3) +  
+  # Grey out South Africa
+  geom_sf(data = africa_data %>% filter(is_south_africa), 
+          fill = "gray", color = "gray50", size = 0.3) +  
+  # Grey out non-SSA countries that have studies
+  geom_sf(data = africa_data %>% filter(!is_ssa & has_study), 
+          fill = "gray", color = "gray50", size = 0.3) +  
+  study_fill_scale +
+  labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+       subtitle = "Only Sub-Saharan African countries with studies are colored.",
+       caption = "Source: Covidence 'Data Charting' Dataset") +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.grid = element_blank())
+
+geo_distribution
+
+
+```
+```{r}
+combined_choro_bar <- 
+  geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
+                                   left = 0, bottom = 0, right = 0.5, top = 0.5 )
+combined_choro_bar
+```
+
+
 # Pathologies
 
 ## General Pathologies
