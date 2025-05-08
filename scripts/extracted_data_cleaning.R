@@ -49,7 +49,7 @@ extracted_studies_joined <- full_join(studies_with_consensus, studies_without_co
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Clean column names (pathologies)
-extracted_studies_clean <- clean_names(extracted_studies_joined) %>% 
+extracted_studies_clean <- clean_names(studies_with_consensus) %>% 
   # Convert to lower for easier reading
   mutate(general_category_of_pathology = str_to_lower(general_category_of_pathology),
          specific_pathology = str_to_lower(specific_pathology),
@@ -58,17 +58,25 @@ extracted_studies_clean <- clean_names(extracted_studies_joined) %>%
 
 # View unique general pathologies values
 df <- extracted_studies_clean %>% 
-  separate_rows(general_category_of_pathology, sep = ",|;| and") %>%
+  separate_rows(general_category_of_pathology, sep = ",|;|and") %>%
   distinct(general_category_of_pathology) %>% 
   mutate(general_category_of_pathology = str_trim(general_category_of_pathology))
 
 # View unique specific pathologies values
 df <- extracted_studies_clean %>% 
-  separate_rows(specific_pathology, sep = ",|;| and") %>%
-  distinct(specific_pathology) %>% 
+  # Remove digits-only rows and trim whitespace
+  filter(!str_detect(specific_pathology, "^\\d+$")) %>%
+  # Remove "(e.g." and all content in parentheses
+  mutate(specific_pathology = str_remove_all(specific_pathology, "\\(.*?\\)")) %>%
+  separate_rows(specific_pathology, sep = ",|;|\\band\\/or\\b|\\band\\b|\\n|\\r\\n") %>% 
+  distinct(specific_pathology, .keep_all = TRUE) %>% 
   mutate(specific_pathology = str_trim(specific_pathology)) %>% 
   group_by(specific_pathology) %>% 
   count()
+
+# # View unique cleaned pathologies
+# unique_pathologies <- clean_pathologies$specific_pathology
+
 
 # View unique surgeries values
 df <- extracted_studies_clean %>% 
@@ -97,7 +105,7 @@ pathology_missing <- extracted_studies_clean[is.na(extracted_studies_clean$gener
 #   "Neoplastic Conditions" = c("skin cancer", "cyst", "neoplasm")
 #   )
 
-#         UPDATED LIST (05/07/2025)
+# UPDATED LIST (05/07/2025)
 categories_gp <- list(
   "Burns" = c("burn", "burns", "burn complications"),
   "Congenital Malformations" = c(
@@ -171,44 +179,68 @@ categorized_general_pathology <- extracted_studies_clean %>%
 ## Categorize specific pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Create groups/categories for specific pathology
+# Updated list of categories with expanded keywords for specific pathologies
 categories_sp <- list(
-  "Acute Burns" = c("burns", "acute burn injuries caused by hot liquids", "acute burns", "chemical burns", "scald burns", 
-                    "flame burns", "electrical burns", "contact burns", "burn injuries", 
-                    "burn management"),
+  "Acute Burns" = c(
+    "burns", "burn", "acute burns", "acute burn", "chemical burns", "contact burns", "electrical burns", "flame burns", "scald burn", 
+    "scald burns", "inhalation burns", "mixed or full thickness accidental burns"
+  ),
   
-  "Contractures" = c("burn contracture", "burn contractures", "contractures", "contractures after burn injury", 
-                     "post-burn contractures (pbc)", "dupytren contracture"),
+  "Contractures" = c(
+    "contractures", "contractures after burn injury", "contractures of various etiologies", 
+    "post-burn contractures"
+  ),
   
-  "Burn Scars" = c("burn scars", "burn scar contractures", "scar revision", "scar secondary to burn"),
+  "Burn Scars" = c(
+    "burn scars", "scar revision", "scar secondary to burn", "facial scar revision", "hypertrophic scars", 
+    "keloid", "keloid surgery", "keloids", "scarring"
+  ),
   
-  "Severe Injuries" = c("amputation", "amputation secondary to burn", "gunshot injury", "trauma", "trauma-related conditions", 
-                        "traumatic injuries", "fracture hand bones", "fractures", "crush hand", "thumb amputation", 
-                        "ring avulsion injury", "cut achilles tendon", "cut extensor", "cut wrist", "cuts over the face", 
-                        "fingertip injury", "open fractures", "lower limb trauma", "nerve injury"),
+  "Severe Injuries" = c(
+    "amputation", "thumb amputation", "fracture hand bones", "fractures", "open fractures", 
+    "road traffic injuries", "gunshot injury", "ring avulsion injury", "fingertip injury", 
+    "crush hand", "cut extensor", "cut wrist", "cuts over the face", "neglected hand injury", 
+    "trauma", "trauma-related injuries", "trauma-related conditions", "traumatic injuries"
+  ),
   
-  "Soft Tissue Injuries" = c("wounds", "necrotizing fasciitis", "granulating wound", "granulating wound secondary to burn", 
-                             "diabetic foot ulcers", "lipohypertrophy", "human bites", "keloids", 
-                             "lipoma", "osteomyelitis", "mycetoma foot", "mycetoma hand", "hypertrophic scars", "keloid surgery", "complications to soft tissues"),
+  "Soft Tissue Injuries" = c(
+    "wounds", "granulating wound", "granulating wound secondary to burn", "chronic ulcer secondary to burn", 
+    "diabetic foot ulcers", "lipohypertrophy", "human bites", "osteomyelitis", "mycetoma foot", 
+    "mycetoma hand", "pressure injuries", "discharging sinus", "necrotizing fasciitis", 
+    "soft tissue injuries", "cystic hygroma", "dermoid cysts", "lipoma", "lipomas", "fibromas"
+  ),
   
-  "Cleft & Craniofacial" = c("cleft lip", "cleft palate", "orofacial clefts", "craniofacial miscellaneous (e.g.)", 
-                             "facial clefts", "cleft care", "microtia", "spina bifida", "syndactyly", 
-                             "other craniofacial anomalies (e.g.)", "nasal defect", "ectopic eyelid", "tongue deformities"),
+  "Cleft & Craniofacial" = c(
+    "cleft care", "cleft lip", "cleft lip/palate", "cleft lips", "cleft palate", "cleft palates", 
+    "facial clefts", "orofacial clefts", "craniofacial miscellaneous"
+  ),
   
-  "Limb Deformities" = c("club foot", "polydactyl", "polydactyly", "bifid digits", "hypoplastic hand", 
-                         "congenital talipes equinovarus", "arthrogryposis", "camptodactyly"),
+  "Limb Deformities" = c(
+    "club foot", "clubfoot", "congenital talipes equinovarus", "syndactyly", "polydactyl", 
+    "polydactyly", "congenital anomalies", "congenital deformities", "limb miscellaneous", 
+    "other limb anomalies"
+  ),
   
-  "Cancer" = c("basal cell carcinoma", "breast cancer", "malignant melanoma", "marjolin’s ulcer", "soft tissue sarcoma", 
-               "squamous cell carcinoma"),
+  "Cancer" = c(
+    "malignant melanoma", "squamous cell carcinoma", "basal cell carcinoma", "marjolin’s ulcer", 
+    "soft tissue sarcoma", "stromal tumor", "neoplasms", "tumors"
+  ),
   
-  "Other Neoplasms" = c("stromal tumor", "neurofibroma", "lymphangioma", "hemangioma"),
+  "Other Neoplasms" = c(
+    "neurofibroma", "lymphangioma", "hemangioma", "lipoma", "fibromas", "cystic hygroma", 
+    "ganglia", "masses"
+  ),
   
-  "Noma" = c("noma", "cancrum oris"),
+  "Noma" = c(
+    "noma", "cancrum oris"
+  ),
   
-  "Other Infections" = c("anthrax", "appendicitis", "fournier’s gangrene", "infections (e.g.)", "human bites (lip)", 
-                         "steven johnson’s syndrome")
+  "Other Infections" = c(
+    "fournier’s gangrene", "infections", "infectious conditions", "anthrax", "appendicitis", 
+    "human bites", "intraabdominal masses", "mycetoma foot", "mycetoma hand", "pyomyositis", 
+    "necrotizing fasciitis", "soft tissue infections"
+  )
 )
-
 
 # Function to categorize 
 categorize_specific_path <- function(specific_pathology, categories) {
