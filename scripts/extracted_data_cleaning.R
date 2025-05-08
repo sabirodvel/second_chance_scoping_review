@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 03/13/2025
+## Updated: 05/07/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -19,7 +19,7 @@ pacman::p_load(tidyverse, janitor, lubridate, here, stringr)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Load the CSV file
-extracted_studies_raw <- read_csv(here("data/extracted_studies_march_10.csv")) 
+extracted_studies_raw <- read_csv(here("data/extracted_studies_may_07.csv")) 
 # THIS DATA IS NOT CONSENSUS. INCLUDES ALL EXTRACTION NEED TO REMOVE DUPLICATES?!
 
 # Create consensus column
@@ -86,15 +86,39 @@ pathology_missing <- extracted_studies_clean[is.na(extracted_studies_clean$gener
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Create groups/categories for general pathology
+# categories_gp <- list(
+#   "Burns" = c("burn", "burns", "burn contractures", "burn and burn complications", "burn management"),
+#   "Congenital Malformations" = c("congenital malformation", "congenital malformations", 
+#                                  "congenital anomalies", "congenital abnormalities", "congenital deformities", 
+#                                  "congenital conditions", "acquired deformities", "cleft lip", 
+#                                  "cleft palate", "orofacial clefts", "craniofacial disorders"),
+#   "Trauma" = c("trauma", "injury", "ulcers", "wounds", "wound", "scars", "trauma-related", "fracture", "fractures"),
+#   "Infectious Conditions" = c("noma"),
+#   "Neoplastic Conditions" = c("skin cancer", "cyst", "neoplasm")
+#   )
+
+#         UPDATED LIST (05/07/2025)
 categories_gp <- list(
-  "Burns" = c("burn", "burns", "burn contractures", "burn and burn complications", "burn management"),
-  "Congenital Malformations" = c("congenital malformation", "congenital malformations", 
-                                 "congenital anomalies", "congenital conditions", "cleft lip", 
-                                 "cleft palate", "orofacial clefts", "craniofacial disorders"),
-  "Trauma" = c("trauma", "injury", "ulcers", "wounds", "wound", "scars", "trauma-related", "fracture", "fractures"),
-  "Infectious Conditions" = c("noma"),
-  "Neoplastic Conditions" = c("skin cancer", "cyst", "neoplasm")
+  "Burns" = c("burn", "burns", "burn complications"),
+  "Congenital Malformations" = c(
+    "congenital malformations", "congenital malformation", "congenital anomalies",
+    "congenital conditions", "congenital abnormalities", "congenital deformities",
+    "acquired deformities", "craniofacial disorders"
+  ),
+  "Trauma" = c("trauma", "injury", "injuries", "ulcers", "wounds", "chronic wounds", "scars"),
+  "Infectious Conditions" = c("noma", "infections", "infectious diseases", "neck infection"),
+  "Neoplastic Conditions" = c("tumor", "cyst", "neoplasm", "neoplasms", "cancer (tumor)", "skin cancer", "cancer", "neck cancer"),
+  "Other" = c(
+    "aesthetics", "pediatric surgical cases", "acquired conditions",
+    "pediatric surgical emergencies", "NA", "head", "cosmetic",
+    "general pediatric surgery pathology", "emergency", "essential surgical care",
+    "head", "musculoskeletal impairment (tmsi)", "pediatric surgical procedure",
+    "pediatric general surgery", "paediatric surgical conditions", 
+    "paediatric surgical cases", "oral/maxillofacial surgical cases", 
+    "broad (rural surgical outreach program)"
   )
+)
+
 
 # Function to categorize based on categories
 categorize_gen_path <- function(general_pathology, specific_pathology, categories) {
