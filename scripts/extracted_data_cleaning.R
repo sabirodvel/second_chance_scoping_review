@@ -93,18 +93,6 @@ pathology_missing <- extracted_studies_clean[is.na(extracted_studies_clean$gener
 ## Categorize general pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Create groups/categories for general pathology
-# categories_gp <- list(
-#   "Burns" = c("burn", "burns", "burn contractures", "burn and burn complications", "burn management"),
-#   "Congenital Malformations" = c("congenital malformation", "congenital malformations", 
-#                                  "congenital anomalies", "congenital abnormalities", "congenital deformities", 
-#                                  "congenital conditions", "acquired deformities", "cleft lip", 
-#                                  "cleft palate", "orofacial clefts", "craniofacial disorders"),
-#   "Trauma" = c("trauma", "injury", "ulcers", "wounds", "wound", "scars", "trauma-related", "fracture", "fractures"),
-#   "Infectious Conditions" = c("noma"),
-#   "Neoplastic Conditions" = c("skin cancer", "cyst", "neoplasm")
-#   )
-
 # UPDATED LIST (05/07/2025)
 categories_gp <- list(
   "Burns" = c("burn", "burns", "burn complications"),
@@ -182,32 +170,32 @@ categorized_general_pathology <- extracted_studies_clean %>%
 # Updated list of categories with expanded keywords for specific pathologies
 categories_sp <- list(
   "Acute Burns" = c(
-    "burns", "burn", "acute burns", "acute burn", "chemical burns", "contact burns", "electrical burns", "flame burns", "scald burn", 
-    "scald burns", "inhalation burns", "mixed or full thickness accidental burns"
+    "acute burns", "acute burn", "chemical burns", "contact burns", "electrical burns", "flame burns", "scald burn", 
+    "scald burns", "inhalation burns", "mixed or full thickness accidental burns", "scalds, fire, contact", "burn management", "burns and contractures"
   ),
   
   "Contractures" = c(
-    "contractures", "contractures after burn injury", "contractures of various etiologies", 
-    "post-burn contractures"
+    "burn contracture", "contractures", "contractures after burn injury", "contractures of various etiologies", 
+    "post-burn contractures", "burn scar contractures"
   ),
   
   "Burn Scars" = c(
     "burn scars", "scar revision", "scar secondary to burn", "facial scar revision", "hypertrophic scars", 
-    "keloid", "keloid surgery", "keloids", "scarring"
+    "keloid", "keloid surgery", "keloids", "scarring", "burn scar contractures"
   ),
   
   "Severe Injuries" = c(
     "amputation", "thumb amputation", "fracture hand bones", "fractures", "open fractures", 
     "road traffic injuries", "gunshot injury", "ring avulsion injury", "fingertip injury", 
     "crush hand", "cut extensor", "cut wrist", "cuts over the face", "neglected hand injury", 
-    "trauma", "trauma-related injuries", "trauma-related conditions", "traumatic injuries"
+    "trauma", "trauma-related injuries", "trauma-related conditions", "traumatic injuries", "injury/orthopaedic"
   ),
   
   "Soft Tissue Injuries" = c(
     "wounds", "granulating wound", "granulating wound secondary to burn", "chronic ulcer secondary to burn", 
     "diabetic foot ulcers", "lipohypertrophy", "human bites", "osteomyelitis", "mycetoma foot", 
     "mycetoma hand", "pressure injuries", "discharging sinus", "necrotizing fasciitis", 
-    "soft tissue injuries", "cystic hygroma", "dermoid cysts", "lipoma", "lipomas", "fibromas"
+    "soft tissue injuries", "cystic hygroma", "dermoid cysts", "lipoma", "lipomas", "fibromas", "ulcers"
   ),
   
   "Cleft & Craniofacial" = c(
@@ -223,7 +211,7 @@ categories_sp <- list(
   
   "Cancer" = c(
     "malignant melanoma", "squamous cell carcinoma", "basal cell carcinoma", "marjolin’s ulcer", 
-    "soft tissue sarcoma", "stromal tumor", "neoplasms", "tumors"
+    "soft tissue sarcoma", "stromal tumor", "neoplasms", "tumors", "tumor"
   ),
   
   "Other Neoplasms" = c(
@@ -282,7 +270,6 @@ categorized_specific_pathology <- extracted_studies_clean %>%
                                               specific_pathology, 
                                               MoreArgs = list(categories = categories_sp))) %>%
   select(study_id, title_3, general_category_of_pathology, specific_pathology, category_specific_pathology)
-
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize surgeries performed ----

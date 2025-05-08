@@ -400,7 +400,7 @@ data_tree_2 <- treemap(specific_pathology_distribution,
               c("left", "top"),  # Alignment for general group
               c("center", "center")  # Alignment for specific pathology
         ),
-        fontsize.labels = c(12,9),  # Adjust label font size
+        fontsize.labels = c(10,9),  # Adjust label font size
         fontcolor.labels = c("white", "white"),
         border.col = "white",  # Border color for all boxes
         border.lwds = c(4, 2)
