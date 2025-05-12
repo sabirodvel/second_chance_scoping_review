@@ -77,16 +77,32 @@ df <- extracted_studies_clean %>%
 # # View unique cleaned pathologies
 # unique_pathologies <- clean_pathologies$specific_pathology
 
-
 # View unique surgeries values
+
+  # Specify rows to drop from surgical procedures (after distinct) EDIT AS NEEDED
+rows_to_drop <- c(29, 31:40, 43:124, 203, 215, 244, 257)
+
 df <- extracted_studies_clean %>% 
-  separate_rows(types_of_surgical_procedure_performed, sep = ",|;|&") %>%  # Escape '+' properly
-  mutate(types_of_surgical_procedure_performed = str_trim(types_of_surgical_procedure_performed)) %>% 
-  distinct(types_of_surgical_procedure_performed, .keep_all = TRUE) %>%  # Ensure uniqueness before counting
-  count(types_of_surgical_procedure_performed, name = "frequency")  # Count occurrences properly
+  separate_rows(types_of_surgical_procedure_performed, sep = ",|;|&") %>%
+  mutate(sorted_surgeries = str_trim(types_of_surgical_procedure_performed)) %>% 
+  distinct(sorted_surgeries, .keep_all = TRUE) %>% # Ensure uniqueness before counting
+  select(sorted_surgeries) %>% 
+  filter(!row_number() %in% rows_to_drop) %>% 
+  mutate(sorted_surgeries = case_when(
+    row_number() == 1 ~ "modified millard; manchester repair; mullikens repair; furlows z plasty; tunrover flaps; unipedicle; mucoperiostal flaps",
+    row_number() == 32 ~ "flaps; thickness skin grafts",
+    row_number() == 95 ~ "cleft palate repair",
+    row_number() == 98 ~ "skin graft; debridement; amputation; muscle flap; local flap",
+    row_number() == 193 ~ "maxillo-mandibular fixation; debridement",
+    TRUE ~ sorted_surgeries)
+    ) %>% 
+  separate_rows(sorted_surgeries, sep = ",|;|&") %>% 
+  mutate(sorted_surgeries = str_trim(sorted_surgeries)) %>% 
+  distinct(sorted_surgeries) %>% 
+  count(sorted_surgeries, name = "frequency")  # Count occurrences properly
 
 
-# Identify NAs
+  # Identify NAs
 pathology_missing <- extracted_studies_clean[is.na(extracted_studies_clean$general_category_of_pathology), ]
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -277,13 +293,57 @@ categorized_specific_pathology <- extracted_studies_clean %>%
 
 # Define surgery categories
 categories_surgery <- list(
-  "Burn Management & Reconstruction" = c("acute burn care", "burn surgeries", "burn contracture surgery", "burn management", "contracture release", "contracture release and skin grafting", "escharotomy", "excision", "excision \\+ graft", "excision with secondary intension", "wound debridement", "surgical debridement", "burn scars"),
-  "Cleft & Craniofacial Surgeries" = c("cleft lip repair", "cleft palate repair", "cleft lip", "cleft palate", "cleft lip/palate", "cleft lip and/or palate", "combo \\(cleft lip and cleft palate\\)", "commissuroplasty", "millard variants", "primary lip \\+ palate repair", "secondary cleft palate surgery"),
-  "Amputation & Limb Procedures" = c("amputation", "amputations", "tendon transfer", "ankylosis release", "limb reconstruction", "primary repair of cut achilles tendon"),
-  "Soft Tissue & Skin Procedures" = c("skin grafting", "split skin graft", "split-thickness skin grafting", "full thickness replacement", "local flap", "muscle/fasciocutaneous flap", "random pattern fasciocutaneous", "scar revision", "z-plasty", "y-v flap", "flap cover", "nasolabial and tongue flaps"),
-  "Trauma & Fracture Management" = c("open fracture management", "open reduction", "open treatment of fracture", "orif", "k-wire fixation", "primary repair of nerve injury", "trauma operations"),
-  "Cancer & Mastectomy" = c("mastectomy", "subcutaneous mastectomy", "reduction mammoplasty"),
-  "General Reconstructive Surgery" = c("facial reconstruction", "various flaps", "wound debridement", "reconstructive surgery", "exploration and repair", "primary repair", "free tissue transfer")
+  "Cleft & Craniofacial Surgeries" = c(
+    "cleft lip repair", "cleft palate repair", "cleft lip", "cleft palate", 
+    "cleft lip/palate", "cleft lip and/or palate", "combo \\(cleft lip and cleft palate\\)", 
+    "commissuroplasty", "cleft lip revision", "cleft rhinoplasty", "cleft nose", 
+    "cleft palate closure", "cleft fistula", "primary lip \\+ palate repair", 
+    "primary repair of a bilateral lip deformity", "primary palate only repair", 
+    "palatal fistula", "palatoplasty", "furlows z plasty", "furlow.s palatoplasty", 
+    "mullikens repair", "millard", "millard variants", "millard forked flap", 
+    "millard rotation advancement", "tennison randal", "modified millard"
+  ),
+  "Amputation & Limb Procedures" = c(
+    "amputation", "amputations", "amputation and grafting", 
+    "escharotomy fingers or limbs amputations", "primary repair of cut achilles tendon", 
+    "ankylosis release", "tendon transfer", "plaster of paris"
+  ),
+  "Soft Tissue & Skin Procedures" = c(
+    "skin graft", "skin grafting", "split skin graft", "split-thickness skin grafting", 
+    "full thickness skin graft", "partial thickness skin graft", 
+    "flap", "flaps", "flap cover", "local flap", "muscle flap", 
+    "muscle/fasciocutaneous flap", "myocutaneous flap", "nasolabial flap", 
+    "nasolabial and tongue flaps", "forehead flap", "parascapular flap", 
+    "preputial skin flap", "glabella flaps", "camille-bernard flap", 
+    "estlander flap", "webster flap", "composite flap", "direct closure repair", 
+    "primary closure", "y-v flap", "z-plasty", "scar revision", "general procedures skin graft",
+    "acute burn care", "acute burn management", "burn contracture", "burn contracture surgery", 
+    "burn excision", "burn management", "burn surgeries", "burn scars",
+    "contracture release", "contracture release and skin grafting", "contracture release/skin graft",
+    "delayed excision with skin grafting", "delayed split skin grafting", 
+    "early excision with skin grafting", "primary excision and skin grafting", 
+    "excision \\+ graft", "excision with secondary intension", 
+    "full thickness skin grafts", "partial thickness skin grafts", "skin grafts", 
+    "grafting", "pinch grafting", "grafting of cutaneous ulcers", 
+    "escharotomy"
+  ),
+  "Trauma & Fracture Management" = c(
+    "fracture treatment", "open fracture management", "open reduction", 
+    "closed reduction", "k-wire fixation", "orif", "open treatment of fracture", 
+    "exploration and repair", "primary repair of nerve injury", 
+    "maxillo-mandibular fixation"
+  ),
+  "Cancer & Tumor Surgery" = c(
+    "mastectomy", "subcutaneous mastectomy", "breast lump excision", 
+    "ganglionectomy", "nephrectomy", "tumor excision", 
+    "exploratory laparotomy", "cyst excision", "biopsy", 
+    "lymph node biopsy", "enucleation of cyst/tumor"
+  ),
+  "Other" = c(
+    "cosmetic procedures", "fasciectomy", 
+    "facial scar revision", "lip reconstruction", "nose reconstruction", 
+    "primary closed rhinoplasty", "facial reconstruction", "gasps"
+  )
 )
 
 # Function to categorize surgeries
@@ -328,15 +388,25 @@ country_daly <- daly_subset %>%
 # Extract pathologies
 pathology_daly <- daly_subset %>% 
   separate_rows(general_category_of_pathology, sep = ";|,") %>% 
-  mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) %>% 
+  mutate(
+    general_category_of_pathology = str_trim(general_category_of_pathology),
+    general_category_of_pathology = if_else(
+      general_category_of_pathology == "congenital malformations and acquired conditions", 
+      "congenital malformations", 
+      general_category_of_pathology
+    )
+  ) %>% 
   separate_rows(specific_pathology, sep = ";|,") %>% 
-  mutate(specific_pathology = str_trim(specific_pathology)) %>% 
-  mutate(specific_pathology = case_when(
-    specific_pathology %in% c("cleft lip", "cleft palate", "cleft lip and palate", "cleft care", "orofacial clefts") ~ "orofacial clefts",
-    str_detect(specific_pathology, "burn") | specific_pathology == "contractures" ~ "burns",
-    TRUE ~ specific_pathology
-  )) %>% 
+  mutate(
+    specific_pathology = str_trim(specific_pathology),
+    specific_pathology = case_when(
+      specific_pathology %in% c("cleft lip", "cleft palate", "cleft lip and palate", "cleft care", "orofacial clefts") ~ "orofacial clefts",
+      str_detect(specific_pathology, "burn") | specific_pathology == "contractures" ~ "burns",
+      TRUE ~ specific_pathology
+    )
+  ) %>% 
   distinct(covidence_number, .keep_all = TRUE)
+
 
 # Create summary table
 summary_path_daly <- pathology_daly %>% 
@@ -368,17 +438,17 @@ burden_orofacialcleft <- daly_subset %>%
 
 # Find studies on burns
 burn_daly <- pathology_daly %>% 
-  filter(specific_pathology == "burns") %>% 
-  select(covidence_number, title_3, country, general_category_of_pathology, 
+  filter(general_category_of_pathology == "burns") %>% 
+  select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
          specific_pathology, disability_adjusted_life_years_dal_ys) %>% 
   distinct(covidence_number, .keep_all = TRUE)
 
-# Create dataset based on extraction
-burn_daly <- data.frame(
-  score = c("disability", "disability", "disability", "disability", "disability", "quality of life", "quality of life", "quality of life", "quality of life", "quality of life"),
-  time = c(0, 1, 3, 6, 12, 0, 1, 3, 6, 12),
-  value = c(0.22, 0.13, 0.06, 0.05, 0.03, 0.69, 0.79, 0.86, 0.89, 0.93)
-)
+# # Create dataset based on extraction
+# burn_daly <- data.frame(
+#   score = c("disability", "disability", "disability", "disability", "disability", "quality of life", "quality of life", "quality of life", "quality of life", "quality of life"),
+#   time = c(0, 1, 3, 6, 12, 0, 1, 3, 6, 12),
+#   value = c(0.22, 0.13, 0.06, 0.05, 0.03, 0.69, 0.79, 0.86, 0.89, 0.93)
+# )
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Cost Info ----
@@ -394,6 +464,14 @@ cost_subset <- full_join(cost_1, cost_2) %>%
   select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
          specific_pathology, cost_to_government_cost_in_usd_or_other_currency, 
          cost_to_individuals_cost_in_usd_or_other_currency)
+
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Combine Cost & DALYs Info ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Join both subsets
+cost_daly_subset <- left_join(cost_subset, burn_daly, by = c("study_id"))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Surgical Capacity Info ----

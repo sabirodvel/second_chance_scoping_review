@@ -443,26 +443,29 @@ lollipop <-
   labs(title = "Distribution of Categorized Surgical Procedures",
        x = "Surgical Procedures",
        y = "Count") +
-  scale_y_continuous(breaks = seq(0, 15, 2)) +
-  theme_minimal()
+  scale_y_continuous(breaks = seq(0, 42, 2)) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),  # Remove minor grid lines
+  )
 
 # Highlight procedures
-lollipop_highlight <- 
-  ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
-  geom_segment(aes(xend = category_surgery, yend = 0), 
-               linewidth = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 1, 0.5),
-               color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "gray")) +  # Line segment
-  geom_point(size = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 4, 2), 
-             color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "#238AB0")) +
-  coord_flip() +  # Flip axes for better readability
-  labs(title = "Distribution of Categorized Surgical Procedures",
-       x = "Surgical Procedures",
-       y = "Count") +
-  scale_y_continuous(breaks = seq(0, 15, 2)) +
-  theme_minimal()
+# lollipop_highlight <- 
+#   ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
+#   geom_segment(aes(xend = category_surgery, yend = 0), 
+#                linewidth = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 1, 0.5),
+#                color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "gray")) +  # Line segment
+#   geom_point(size = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", 4, 2), 
+#              color = if_else(surgery_distribution$category_surgery == "Soft Tissue & Skin Procedures", "#264C9F", "#238AB0")) +
+#   coord_flip() +  # Flip axes for better readability
+#   labs(title = "Distribution of Categorized Surgical Procedures",
+#        x = "Surgical Procedures",
+#        y = "Count") +
+#   scale_y_continuous(breaks = seq(0, 15, 2)) +
+#   theme_minimal()
 
 # Save image
-# ggsave(filename = here("images/surgeries_lollipop_highlight.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+# ggsave(filename = here("images/surgeries_lollipop.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
 ```
 
 # Barriers
@@ -968,40 +971,44 @@ ggsave(filename = here("images/barriers_to_care_may_12.png"), plot = stackedbar_
 ```{r general daly pie chart}
 
 # Create summary data
-daly_data <- pathology_daly %>% 
-  group_by(general_category_of_pathology) %>% 
-  summarize(n = n()) %>% 
-  ungroup() %>% 
-  mutate(general_category_of_pathology =
-           case_when(general_category_of_pathology == "general pediatric surgery pathology" ~ "other",
-                     TRUE ~ general_category_of_pathology))
+daly_data <- pathology_daly %>%
+  mutate(
+    general_category_of_pathology =
+      case_when(
+        general_category_of_pathology == "general pediatric surgery pathology" |
+          general_category_of_pathology == "pediatric surgical cases" ~ "general surgery",
+        TRUE ~ general_category_of_pathology
+      )
+    ) %>% 
+  group_by(general_category_of_pathology) %>%
+  summarize(n = n()) %>%
+  ungroup()
 
 # Compute the position of labels
 daly_data <- daly_data %>% 
   arrange(desc(general_category_of_pathology)) %>%
-  mutate(prop = n / sum(daly_data$n) *100) %>%
-  mutate(ypos = cumsum(prop)- 0.5*prop )
+  mutate(prop = n / sum(daly_data$n) * 100) %>%
+  mutate(ypos = cumsum(prop)- 0.51 * prop)
 
 # Basic piechart
 daly_piechart <- 
-  ggplot(daly_data, aes(x="", y=prop, fill=general_category_of_pathology)) +
+  ggplot(daly_data, aes(x="", y = prop, fill=general_category_of_pathology)) +
   geom_bar(stat="identity", width=1, color="white") +
   coord_polar("y", start=0) +
   theme_void() + 
   theme(legend.position="none") +
-  
   geom_text(aes(y = ypos, 
                 label = str_to_title(general_category_of_pathology)),
                 color = if_else(daly_data$general_category_of_pathology == 
-                                  "other", "darkgray", "white"),
-            size=7) +
+                                  "trauma", "darkgray", "white"),
+            size=4) +
   scale_fill_brewer(palette="YlGnBu",
                     direction = -1)
 #Display graph
 daly_piechart
 
 # Save graph
-# ggsave(filename = here("images/daly_piechart.png"), plot = daly_piechart)
+ggsave(filename = here("images/daly_piechart.png"), plot = daly_piechart)
 
 ```
 
