@@ -38,8 +38,11 @@ pacman::p_load(tidyverse,
 ```
 
 ```{r dataset_load, include = F}
-included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
-extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
+# included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
+# extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
+
+extracted_studies_may_12 <- read_csv(here("data/extracted_studies_may_12.csv"))
+
 ```
 
 # Preliminary Findings
@@ -74,7 +77,7 @@ publications_years
 
 ```{r choropleth cleaning country names, include = F}
 #Filter dataset to keep only rows where Reviewer Name is "Consensus"
-filtered_consensus <- extracted_studies_mar10 %>%
+filtered_consensus <- extracted_studies_may_12 %>%
   filter(`Reviewer Name` == "Consensus") %>%
   distinct(`Covidence #`, .keep_all = TRUE)
 
@@ -116,46 +119,49 @@ cleaned_country_data <- filtered_consensus %>%
 
 ```{r choropleth of study distribution}
 
-# Process data: Count occurrences per country
-country_counts <- cleaned_country_data %>% 
-  count(Country, name = "study_count") %>%
-  arrange(desc(study_count))  # Sort by study count
-
-# Identify the top 5 countries with the highest study counts
-top_countries <- country_counts %>% 
-  slice_max(study_count, n = 5, with_ties = FALSE)
-
-# Load African map data
-africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
-
-# Merge study data with map
-africa_data <- africa %>%
-  left_join(country_counts, by = c("name" = "Country"))
-
-# Define color scale
-study_fill_scale <- scale_fill_distiller(
-  palette = "YlGnBu", 
-  na.value = "white", 
-  name = "Study Count",
-  direction = 1,
-  breaks = seq(0, max(country_counts$study_count), by = 2),  # Set custom breaks
-  labels = seq(0, max(country_counts$study_count), by = 2)  # Set custom labels
-)
-
-# Plot the refined choropleth map
-geo_distribution <- ggplot(data = africa_data) +
-  geom_sf(aes(fill = study_count), color = "gray50", size = 0.3) +
-  study_fill_scale +
-  labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-       subtitle = "Top 10 Countries with the most studies.",
-       caption = "Source: Covidence 'Data Charting' Dataset") +
-  theme_minimal() +
-  theme(legend.position = "top",
-        axis.text = element_blank(), 
-        axis.ticks = element_blank(),
-        panel.grid = element_blank()
-        )
-geo_distribution 
+# # Process data: Count occurrences per country
+# country_counts <- cleaned_country_data %>% 
+#   count(Country, name = "study_count") %>%
+#   arrange(desc(study_count))  # Sort by study count
+# 
+# # Identify the top 5 countries with the highest study counts
+# top_countries <- country_counts %>% 
+#   slice_max(study_count, n = 5, with_ties = FALSE)
+# 
+# # Load African map data
+# africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
+# 
+# # Merge study data with map
+# africa_data <- africa %>%
+#   left_join(country_counts, by = c("name" = "Country"))
+# 
+# # Define color scale
+# study_fill_scale <- scale_fill_distiller(
+#   palette = "YlGnBu", 
+#   na.value = "white", 
+#   name = "Study Count",
+#   direction = 1,
+#   breaks = seq(0, max(country_counts$study_count), by = 2),  # Set custom breaks
+#   labels = seq(0, max(country_counts$study_count), by = 2)  # Set custom labels
+# )
+# 
+# # Plot the refined choropleth map
+# geo_distribution <- ggplot(data = africa_data) +
+#   geom_sf(aes(fill = study_count), color = "gray50", size = 0.3) +
+#   study_fill_scale +
+#   labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+#        subtitle = "Top 10 Countries with the most studies.",
+#        caption = "Source: Covidence 'Data Charting' Dataset") +
+#   theme_minimal() +
+#   theme(legend.position = "top",
+#         axis.text = element_blank(), 
+#         axis.ticks = element_blank(),
+#         panel.grid = element_blank()
+#         )
+# geo_distribution 
+# 
+# # Save plot as image
+# # ggsave(filename = here("images/geo_distribution.png"))
 
 ```
 
@@ -163,32 +169,32 @@ geo_distribution
 
 barplot_choro <- country_counts %>%
   arrange(desc(study_count)) %>%
-  head(10) %>%
+  # head(10) %>%
   mutate(percentage = study_count / sum(study_count) * 100) %>%
   ggplot(aes(x = reorder(Country, percentage), y = percentage, fill = percentage)) +
   geom_bar(stat = "identity") +
   scale_fill_gradientn(colors = RColorBrewer::brewer.pal(9, "YlGnBu")) +
-  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+  geom_text(aes(label = paste0(round(percentage, 1), "%")),
             hjust = 2.5,
             vjust = 0.5,
-            color = "black", 
-            fontface = "bold") +  
+            color = "black",
+            fontface = "bold") +
   theme_minimal() +
   labs(title = "Share of Studies") +
   coord_flip() +
-  theme(axis.text.x = element_blank(),  
-        axis.ticks = element_blank(),    
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
         axis.title = element_blank(),
         legend.position = "none",
         panel.grid = element_blank())
-barplot_choro 
+barplot_choro
 ```
 
 ```{r choropleth and bar}
-combined_choro_bar <- 
-  geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
-                                   left = 0, bottom = 0, right = 0.5, top = 0.5 )
-combined_choro_bar
+# combined_choro_bar <- 
+#   geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
+#                                    left = 0, bottom = 0, right = 0.5, top = 0.5 )
+# combined_choro_bar
 ```
 
 # Greyed out African Countries
@@ -247,7 +253,7 @@ geo_distribution <- ggplot(data = africa_data) +
           fill = "gray", color = "gray50", size = 0.3) +  
   study_fill_scale +
   labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-       subtitle = "Only Sub-Saharan African countries with studies are colored.",
+       subtitle = "Countries in grey have been excluded from the mandate.",
        caption = "Source: Covidence 'Data Charting' Dataset") +
   theme_minimal() +
   theme(legend.position = "top",
@@ -257,13 +263,19 @@ geo_distribution <- ggplot(data = africa_data) +
 
 geo_distribution
 
+# Save plot as image
+# ggsave(filename = here("images/geo_distribution.png"))
 
 ```
-```{r}
+```{r geo_distribution}
 combined_choro_bar <- 
   geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
                                    left = 0, bottom = 0, right = 0.5, top = 0.5 )
 combined_choro_bar
+
+# Save plot as image
+ggsave(filename = here("images/geo_distribution_may_12.png"), plot = combined_choro_bar, height = 10, width = 13, bg = "white")
+
 ```
 
 
@@ -459,7 +471,7 @@ lollipop_highlight <-
 
 ```{r barriers cleaning, include = F}
 
-filtered_barriers <- filtered_consensus %>% 
+filtered_barriers <- filtered_consensus %>%
   select(`Covidence #`,
          `Health System Barrier`,
          `Financial  Barrier`,
@@ -472,7 +484,9 @@ filtered_barriers <- filtered_consensus %>%
 
 #Transform multiple responses into separate rows
 barriers_clean <- filtered_barriers %>%
-  pivot_longer(cols = -`Covidence #`, names_to = "Barrier_Type", values_to = "Response") %>%
+  pivot_longer(cols = -`Covidence #`,
+               names_to = "Barrier_Type", 
+               values_to = "Response") %>%
   filter(!is.na(Response) & Response != "") %>% 
   mutate(Response = str_split(Response, ",|;")) %>%
   unnest(Response) %>%
@@ -481,31 +495,44 @@ barriers_clean <- filtered_barriers %>%
          )
 ```
 
-```{r barriers response management}
+```{r barriers response management OG}
 
-# Manual mapping for each response category within Education/Training Barrier
+# Manual mapping for each response category within Barrier_Type
 mapping_list <- list(
    "Education/Training Barrier" = c(
      "lack of trained staff" = "training gaps",
      "surgeon training gaps" = "training gaps",
      "training gaps" = "training gaps",
+     "lack of training" = "training gaps",
      "training program in plastic surgery" = "training gaps",
-     "educated staff" = "uneducated staff",
-     "uneducated" = "uneducated staff"
+     "educated staff" = "training gaps",
+     "uneducated" = "training gaps",
+     "health illiteracy" = "training gaps",
+     "misrepresentation from health workers" = "training gaps",
+     "not enough maxillofacial surgeon" = "training gaps"
   ),
   "Financial  Barrier" = c(
     "indirect cost" = "indirect costs",
     "transportation costs" = "indirect costs",
     "direct medical costs" = "direct costs",
     "out-of-pocket costs" = "direct costs",
-    "service costs" = "direct costs"
+    "service costs" = "direct costs",
+    "financial-based delays in surgical care" = "direct costs",
+    "low socio‐economic status" = "direct costs",
+    "high cost of materials" = "direct costs",
+    "insurance related barriers" = "direct costs"
+    
   ),
   "Geograhic/Accessibility Barrier" = c(
     "distance" = "physical distance",
     "travel time" = "physical distance",
     "transportation" = "transportation issues",
     "transportations issues" = "transportation issues",
-    "travel" = "physical distance"
+    "direct medical costs" = "transportation issues",
+    "travel" = "physical distance",
+    "limited number of facilities providing burn care services" = "rural vs. urban disparities",
+    "poor access" = "rural vs. urban disparities",
+    "referral vs. district hospital disparities"= "rural vs. urban disparities"
   ),
   "Health System Barrier" = c(
     "anaesthesia" = "infrastructure limitations",
@@ -515,6 +542,8 @@ mapping_list <- list(
     "health system inneficiencies" = "health system inefficiencies",
     "human resource shortage" = "human resource shortages",
     "human resource shortages" = "human resource shortages",
+    "human resource limitation" = "human resource shortages",
+    "shortage of pediatric surgeons" = "human resource shortages",
     "inpatient capacity" = "infrastructure limitations",
     "limited infrastructure" = "infrastructure limitations",
     "limited surgical infrastructure" = "infrastructure limitations",
@@ -523,8 +552,12 @@ mapping_list <- list(
     "referral system" = "referral system issues",
     "referral system issues" = "referral system issues",
     "specialized care" = "infrastructure limitations",
-    "treatment delay" = "health system inefficiencies"
+    "treatment delay" = "health system inefficiencies",
+    "limited access to physiotherapy and post post-operative rehabilitation" = "health system inefficiencies",
+    "low government support for burn patientss" = "health system inefficiencies",
+    "access to post-operation care" = "health system inefficiencies"
   ),
+  
   "Patient-Related  Barrier" = c(
     "appraisal delay" = "perceived need for surgery",
     "fear" = "fear",
@@ -533,9 +566,15 @@ mapping_list <- list(
     "literacy" = "perceived need for surgery",
     "perceived need" = "perceived need for surgery",
     "perceived need for surgery" = "perceived need for surgery",
-    "perceived-need for surgery" = "perceived need for surgery"
+    "perceived-need for surgery" = "perceived need for surgery",
+    "awareness" = "lack of service awareness",
+    "commobidities" = "comorbidities",
+    "education" = "lack of service awareness",
+    "lack of awareness of available treatment options." = "lack of service awareness",
+    "lack of service awareness" = "lack of service awareness",
+    "time" = "perceived need for surgery"
   ),
-  "Sociocultural Barrier" = c(
+   "Sociocultural Barrier" = c(
     "awareness" = "health literacy",
     "cultural beliefs" = "stigma and cultural beliefs",
     "delayed health seeking behavior" = "health literacy",
@@ -543,47 +582,140 @@ mapping_list <- list(
     "medical literacy" = "health literacy",
     "religious belief" = "stigma and cultural beliefs",
     "stigma and cultural beliefs" = "stigma and cultural beliefs",
-    "traditional medicine" = "stigma and cultural beliefs"
+    "traditional medicine" = "stigma and cultural beliefs",
+    "sociocultural handicaps"= "stigma and cultural beliefs",
+    "traditional healers" = "stigma and cultural beliefs"
+  ),
+  "Policy/Governance  Barrier" = c(
+    "iinadequate investment in surgical training" = "funding gaps",
+    "lack of awareness" = "regulatory issues",
+    "lack of strategy" = "regulatory issues"
   )
 )
 
-# A helper function that replaces responses based on a named mapping vector:
+# helper to assign grouped responses via exact pattern matching
 assign_group <- function(responses, mapping) {
-  # For each pattern in the mapping, vectorized replacement is applied.
   grouped <- responses
   for (pattern in names(mapping)) {
-    # Use fixed() for exact string matching ignoring case
-    grouped <- if_else(str_detect(responses, fixed(pattern, ignore_case = TRUE)),
-                       mapping[[pattern]], grouped)
+    grouped <- if_else(
+      str_detect(responses, fixed(pattern, ignore_case = TRUE)),
+      mapping[[pattern]],
+      grouped
+    )
   }
   grouped
 }
 
-# Apply grouping per Barrier_Type if mapping exists; otherwise keep the original response.
+# 
+# # Apply grouping per Barrier_Type if mapping exists; otherwise keep the original response.
+# barriers_clean_2 <- barriers_clean %>%
+#   group_by(Barrier_Type) %>%
+#   mutate(Grouped_Response = if (Barrier_Type[1] %in% names(mapping_list)) {
+#       assign_group(Response, mapping_list[[Barrier_Type[1]]])
+#     } else Response) %>%
+#   ungroup()
+# 
+# # Count occurrences
+# barrier_counts <- barriers_clean_2 %>%
+#   count(Barrier_Type, Grouped_Response)
+# 
+# # Create an extended palette similar to YlGnBu
+# unique_groups <- unique(barrier_counts$Grouped_Response)
+# num_groups <- length(unique_groups)
+# my_palette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_groups)
+
+# --- 5. Apply mapping per Barrier_Type, keep original if no mapping defined ---
 barriers_clean_2 <- barriers_clean %>%
   group_by(Barrier_Type) %>%
-  mutate(Grouped_Response = if (Barrier_Type[1] %in% names(mapping_list)) {
+  mutate(
+    Grouped_Response = if (Barrier_Type[1] %in% names(mapping_list)) {
       assign_group(Response, mapping_list[[Barrier_Type[1]]])
-    } else Response) %>%
+    } else {
+      Response
+    }
+  ) %>%
   ungroup()
 
-# Count occurrences
+# --- 6. Count occurrences (initial, if you want to inspect) ---
 barrier_counts <- barriers_clean_2 %>%
-  count(Barrier_Type, Grouped_Response)
+  count(Barrier_Type, Grouped_Response, name = "n")
 
-# Create an extended palette similar to YlGnBu
-unique_groups <- unique(barrier_counts$Grouped_Response)
-num_groups <- length(unique_groups)
-my_palette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_groups)
+# --- 7. Collapse *all* "Other Barrier" into one single group and re-count ---
+barrier_counts2 <- barriers_clean_2 %>%
+  mutate(
+    Grouped_Response = if_else(
+      Barrier_Type == "Other Barrier",
+      "other barriers",
+      Grouped_Response
+    )
+  ) %>%
+  count(Barrier_Type, Grouped_Response, name = "n")
+
+# --- 8. Re-order Barrier_Type factor (placing Other Barrier last) ---
+combined_barrier_data <- barrier_counts2 %>%
+  mutate(
+    Barrier_Type = fct_relevel(Barrier_Type,
+      "Health System Barrier",
+      "Geograhic/Accessibility Barrier",
+      "Financial  Barrier",
+      "Education/Training Barrier",
+      "Policy/Governance  Barrier",
+      "Patient-Related  Barrier",
+      "Sociocultural Barrier",
+      "Other Barrier"
+    )
+  )
+
+# --- 9. Build a color palette matching the number of groups ---
+unique_groups <- unique(combined_barrier_data$Grouped_Response)
+my_palette     <- colorRampPalette(brewer.pal(9, "YlGnBu"))(length(unique_groups))
+
+# --- 10. Plot: stacked bar, only label segments where n > 1 ---
+stackedbar_combined <- ggplot(combined_barrier_data,
+                              aes(x = Barrier_Type,
+                                  y = n,
+                                  fill = Grouped_Response)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(
+    label = if_else(n > 1, paste0("n = ", n), "")
+  ),
+  position = position_stack(vjust = 0.5),
+  size = 5
+  ) +
+  scale_fill_manual(values = my_palette) +
+  theme_minimal() +
+  labs(
+    title = "Barriers to Surgical Care",
+    x     = "Types of Barriers",
+    y     = "Number of Responses",
+    fill  = "Grouped Response"
+  ) +
+  theme(
+    axis.text.x    = element_text(angle = 45, hjust = 1, size = 12),
+    axis.title     = element_text(size = 14),
+    plot.title     = element_text(size = 16, face = "bold"),
+    legend.position = "top",
+    panel.grid     = element_blank()
+  )
+
+# --- 11. Display the plot and save to file ---
+print(stackedbar_combined)
+ggsave(
+  filename = here("images", "barriers_to_care_may_12_collapsed.png"),
+  plot     = stackedbar_combined,
+  height   = 10,
+  width    = 13,
+  bg       = "white"
+)
 
 ```
 
-```{r barrier stacked bar}
+```{r barrier stacked bar OG}
 # Ensure the order of Barrier_Type is as specified
-combined_barrier_data <- filtered_counts %>%
+combined_barrier_data <- barrier_counts %>%
   mutate(Barrier_Type = fct_relevel(Barrier_Type,
                                     "Health System Barrier", 
-                                    "Geograhic/Accessibility Barrier", 
+                                    "Geographic/Accessibility Barrier", 
                                     "Financial  Barrier", 
                                     "Education/Training Barrier", 
                                     "Policy/Governance  Barrier", 
@@ -610,7 +742,226 @@ stackedbar_combined <- ggplot(combined_barrier_data, aes(x = Barrier_Type, y = n
 
 # Display the plot
 stackedbar_combined
+
+# Save plot as image
+ggsave(filename = here("images/barriers_to_care_may_12.png"), plot = stackedbar_combined, height = 10, width = 13, bg = "white")
 ```
+
+```{r barriers test}
+# # Define clean, non-overlapping mappings, including a combined Patient/Sociocultural list
+# mapping_list <- list(
+#    "Education/Training Barrier" = c(
+#      "lack of trained staff" = "training gaps",
+#      "surgeon training gaps" = "training gaps",
+#      "training gaps" = "training gaps",
+#      "lack of training" = "training gaps",
+#      "training program in plastic surgery" = "training gaps",
+#      "educated staff" = "training gaps",
+#      "uneducated" = "training gaps",
+#      "health illiteracy" = "training gaps",
+#      "misrepresentation from health workers" = "training gaps",
+#      "not enough maxillofacial surgeon" = "training gaps"
+#   ),
+#   "Financial  Barrier" = c(
+#     "indirect cost" = "indirect costs",
+#     "transportation costs" = "indirect costs",
+#     "direct medical costs" = "direct costs",
+#     "out-of-pocket costs" = "direct costs",
+#     "service costs" = "direct costs",
+#     "financial-based delays in surgical care" = "direct costs",
+#     "low socio‐economic status" = "direct costs",
+#     "high cost of materials" = "direct costs",
+#     "insurance related barriers" = "direct costs"
+# 
+#   ),
+#   "Geograhic/Accessibility Barrier" = c(
+#     "distance" = "physical distance",
+#     "travel time" = "physical distance",
+#     "transportation" = "transportation issues",
+#     "transportations issues" = "transportation issues",
+#     "direct medical costs" = "transportation issues",
+#     "travel" = "physical distance",
+#     "limited number of facilities providing burn care services" = "rural vs. urban disparities",
+#     "poor access" = "rural vs. urban disparities",
+#     "referral vs. district hospital disparities"= "rural vs. urban disparities"
+#   ),
+#   "Health System Barrier" = c(
+#     "anaesthesia" = "infrastructure limitations",
+#     "blood bank" = "infrastructure limitations",
+#     "electricity" = "infrastructure limitations",
+#     "health system inefficiencies" = "health system inefficiencies",
+#     "health system inneficiencies" = "health system inefficiencies",
+#     "human resource shortage" = "human resource shortages",
+#     "human resource shortages" = "human resource shortages",
+#     "human resource limitation" = "human resource shortages",
+#     "shortage of pediatric surgeons" = "human resource shortages",
+#     "inpatient capacity" = "infrastructure limitations",
+#     "limited infrastructure" = "infrastructure limitations",
+#     "limited surgical infrastructure" = "infrastructure limitations",
+#     "number of plastic surgeons" = "human resource shortages",
+#     "operating rooms" = "infrastructure limitations",
+#     "referral system" = "referral system issues",
+#     "referral system issues" = "referral system issues",
+#     "specialized care" = "infrastructure limitations",
+#     "treatment delay" = "health system inefficiencies",
+#     "limited access to physiotherapy and post post-operative rehabilitation" = "health system inefficiencies",
+#     "low government support for burn patientss" = "health system inefficiencies",
+#     "access to post-operation care" = "health system inefficiencies"
+#   ),
+#   "Patient/Sociocultural  Barrier" = c(
+#     #from Patient-related barriers
+#     "appraisal delay" = "perceived need for surgery",
+#     "fear" = "fear",
+#     "fear of hospitals" = "fear",
+#     "late presentation" = "perceived need for surgery",
+#     "literacy" = "perceived need for surgery",
+#     "perceived need" = "perceived need for surgery",
+#     "perceived need for surgery" = "perceived need for surgery",
+#     "perceived-need for surgery" = "perceived need for surgery",
+#     "awareness" = "lack of service awareness",
+#     "commobidities" = "comorbidities",
+#     "education" = "lack of service awareness",
+#     "lack of awareness of available treatment options." = "lack of service awareness",
+#     "lack of service awareness" = "lack of service awareness",
+#     "time" = "perceived need for surgery",
+#     #from Sociocultural Barriers
+#     "awareness" = "health literacy",
+#     "cultural beliefs" = "stigma and cultural beliefs",
+#     "delayed health seeking behavior" = "health literacy",
+#     "health literacy" = "health literacy",
+#     "medical literacy" = "health literacy",
+#     "religious belief" = "stigma and cultural beliefs",
+#     "stigma and cultural beliefs" = "stigma and cultural beliefs",
+#     "traditional medicine" = "stigma and cultural beliefs",
+#     "sociocultural handicaps"= "stigma and cultural beliefs",
+#     "traditional healers" = "stigma and cultural beliefs"
+#   ),
+#   "Policy/Governance  Barrier" = c(
+#     "iinadequate investment in surgical training" = "funding gaps",
+#     "lack of awareness" = "regulatory issues",
+#     "lack of strategy" = "regulatory issues"
+#   )
+# )
+# 
+# assign_group <- function(responses, mapping) {
+#   out <- responses
+#   for(pat in names(mapping)) {
+#     out <- if_else(
+#       str_detect(responses, fixed(pat, ignore_case = TRUE)),
+#       mapping[[pat]],
+#       out
+#     )
+#   }
+#   out
+# }
+# 
+# # ------------------------------------------------------------------------------
+# # 3. Map, count, collapse singletons, and re-aggregate
+# #    Assumes you have a data frame `barriers_clean` with columns:
+# #    - Barrier_Type (character/factor)
+# #    - Response     (character)
+# # ------------------------------------------------------------------------------
+# counts_raw <- barriers_clean %>%
+#   # normalize spacing and merge Patient-Related + Sociocultural
+#   mutate(
+#     Barrier_Type = str_squish(Barrier_Type),
+#     Barrier_Type = case_when(
+#       Barrier_Type %in% c("Patient-Related Barrier", "Sociocultural Barrier") ~
+#         "Patient/Sociocultural Barrier",
+#       TRUE ~ Barrier_Type
+#     )
+#   ) %>%
+#   # apply the appropriate mapping if available
+#   group_by(Barrier_Type) %>%
+#   mutate(
+#     Grouped_Response = if (Barrier_Type[1] %in% names(mapping_list)) {
+#       assign_group(Response, mapping_list[[Barrier_Type[1]]])
+#     } else {
+#       Response
+#     }
+#   ) %>%
+#   ungroup() %>%
+#   # initial count by Barrier_Type + Grouped_Response
+#   count(Barrier_Type, Grouped_Response)
+# 
+# # collapse any one-off "n == 1" into an "Other" category
+# counts_collapsed <- counts_raw %>%
+#   group_by(Barrier_Type) %>%
+#   mutate(
+#     Grouped_Response = if_else(n == 1, "Other", Grouped_Response)
+#   ) %>%
+#   ungroup()
+# 
+# # re-aggregate so that all the "Other" pieces are summed together
+# barrier_counts2 <- counts_collapsed %>%
+#   group_by(Barrier_Type, Grouped_Response) %>%
+#   summarise(n = sum(n), .groups = "drop")
+# 
+# # ------------------------------------------------------------------------------
+# # 4. Build a color palette and set the x-axis order
+# # ------------------------------------------------------------------------------
+# my_palette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(
+#   length(unique(barrier_counts2$Grouped_Response))
+# )
+# 
+# barrier_plot_data <- barrier_counts2 %>%
+#   mutate(
+#     Barrier_Type = factor(
+#       Barrier_Type,
+#       levels = c(
+#         "Health System Barrier",
+#         "Geographic/Accessibility Barrier",
+#         "Financial Barrier",
+#         "Education/Training Barrier",
+#         "Policy/Governance Barrier",
+#         "Patient/Sociocultural Barrier"
+#       )
+#     )
+#   )
+# 
+# # ------------------------------------------------------------------------------
+# # 5. Create and save the stacked bar plot
+# # ------------------------------------------------------------------------------
+# stackedbar_combined <- ggplot(
+#   barrier_plot_data,
+#   aes(x = Barrier_Type, y = n, fill = Grouped_Response)
+# ) +
+#   geom_bar(stat = "identity") +
+#   geom_text(
+#     aes(label = paste0("n = ", n)),
+#     position = position_stack(vjust = 0.5),
+#     size = 5, color = "black"
+#   ) +
+#   scale_fill_manual(values = my_palette) +
+#   theme_minimal() +
+#   labs(
+#     title = "Barriers to Surgical Care",
+#     x     = "Types of Barriers",
+#     y     = "Number of Responses",
+#     fill  = "Grouped Response"
+#   ) +
+#   theme(
+#     axis.text.x     = element_text(angle = 45, hjust = 1, size = 12),
+#     axis.title      = element_text(size = 14),
+#     plot.title      = element_text(size = 16, face = "bold"),
+#     legend.position = "top",
+#     panel.grid      = element_blank()
+#   )
+# 
+# # Display the plot
+# print(stackedbar_combined)
+# 
+# # Save the plot to disk
+# ggsave(
+#   filename = here("images/barriers_to_care_fixed.png"),
+#   plot     = stackedbar_combined,
+#   height   = 10,
+#   width    = 13,
+#   bg       = "white"
+# )
+
+```
+
 
 # DALYs 
 
