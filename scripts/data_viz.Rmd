@@ -971,15 +971,9 @@ ggsave(filename = here("images/barriers_to_care_may_12.png"), plot = stackedbar_
 ```{r general daly pie chart}
 
 # Create summary data
-daly_data <- pathology_daly %>%
-  mutate(
-    general_category_of_pathology =
-      case_when(
-        general_category_of_pathology == "general pediatric surgery pathology" |
-          general_category_of_pathology == "pediatric surgical cases" ~ "general surgery",
-        TRUE ~ general_category_of_pathology
-      )
-    ) %>% 
+daly_data <- pathology_daly %>% 
+  separate_rows(general_category_of_pathology, sep = ";") %>%
+  mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) %>%
   group_by(general_category_of_pathology) %>%
   summarize(n = n()) %>%
   ungroup()
@@ -1001,7 +995,7 @@ daly_piechart <-
                 label = str_to_title(general_category_of_pathology)),
                 color = if_else(daly_data$general_category_of_pathology == 
                                   "trauma", "darkgray", "white"),
-            size=4) +
+            size=5) +
   scale_fill_brewer(palette="YlGnBu",
                     direction = -1)
 #Display graph
@@ -1016,6 +1010,57 @@ ggsave(filename = here("images/daly_piechart.png"), plot = daly_piechart)
 ## Orofacial Clefts
 
 ```{r orofacial cleft dalys}
+ssa_iso3 <- c(
+  "AGO", # Angola
+  "BEN", # Benin
+  "BWA", # Botswana
+  "BFA", # Burkina Faso
+  "BDI", # Burundi
+  "CPV", # Cabo Verde
+  "CMR", # Cameroon
+  "CAF", # Central African Republic
+  "TCD", # Chad
+  "COM", # Comoros
+  "COG", # Congo
+  "COD", # Democratic Republic of the Congo
+  "DJI", # Djibouti
+  "GNQ", # Equatorial Guinea
+  "ERI", # Eritrea
+  "SWZ", # Eswatini
+  "ETH", # Ethiopia
+  "GAB", # Gabon
+  "GMB", # Gambia
+  "GHA", # Ghana
+  "GIN", # Guinea
+  "GNB", # Guinea-Bissau
+  "CIV", # Ivory Coast
+  "KEN", # Kenya
+  "LSO", # Lesotho
+  "LBR", # Liberia
+  "MDG", # Madagascar
+  "MWI", # Malawi
+  "MLI", # Mali
+  "MRT", # Mauritania
+  "MUS", # Mauritius
+  "MOZ", # Mozambique
+  "NAM", # Namibia
+  "NER", # Niger
+  "NGA", # Nigeria
+  "RWA", # Rwanda
+  "STP", # São Tomé and Príncipe
+  "SEN", # Senegal
+  "SYC", # Seychelles
+  "SLE", # Sierra Leone
+  "SOM", # Somalia
+  "SSD", # South Sudan
+  "SDN", # Sudan
+  "TZA", # Tanzania
+  "TGO", # Togo
+  "UGA", # Uganda
+  "ZMB", # Zambia
+  "ZWE"  # Zimbabwe
+)
+
 # Load African map data
 africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
 
@@ -1024,7 +1069,11 @@ burden_orofacialcleft <- burden_orofacialcleft %>%
   filter(!country %in%  c("Central Africa", "Saharan Africa"))
 
 # Join data + map values
-africa_burden_cleft <- right_join(burden_orofacialcleft, africa, by = c("country" = "name"))
+africa_burden_cleft <- left_join(africa, burden_orofacialcleft, by = c("name" = "country")) %>% 
+  mutate(
+    is_ssa = iso_a3 %in% ssa_iso3,  # Flag SSA countries
+    # is_south_africa = country == "South Africa",  # Flag South Africa
+  )
 
 # Define color scale
 study_fill_scale <- scale_fill_distiller(
@@ -1038,7 +1087,11 @@ study_fill_scale <- scale_fill_distiller(
 
 # Plot the refined choropleth map
 geo_orofacial_dalys <- ggplot(data = africa_burden_cleft) +
+  # Color SSA studies
   geom_sf(aes(fill = dalys), color = "gray50", size = 0.3) +
+  # Gray out non-SSA countries
+  geom_sf(data = africa_burden_cleft %>% filter(!is_ssa), 
+          fill = "gray", color = "gray50", size = 0.3)+
   study_fill_scale +
   labs(title = "Burden of Orofacial Clefts in Sub-Saharan Africa",
        caption = "Source: Kantar R.S., 2023") +
@@ -1053,7 +1106,7 @@ geo_orofacial_dalys <- ggplot(data = africa_burden_cleft) +
 geo_orofacial_dalys
 
 # Save image
-# ggsave(filename = here("images/orofacial_cleft_dalys.png"), plot = geo_orofacial_dalys, bg = "white", height = 6)
+ggsave(filename = here("images/orofacial_cleft_dalys.png"), plot = geo_orofacial_dalys, bg = "white", height = 6)
 ```
 
 ## Burns

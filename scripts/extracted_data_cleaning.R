@@ -390,10 +390,12 @@ pathology_daly <- daly_subset %>%
   separate_rows(general_category_of_pathology, sep = ";|,") %>% 
   mutate(
     general_category_of_pathology = str_trim(general_category_of_pathology),
-    general_category_of_pathology = if_else(
-      general_category_of_pathology == "congenital malformations and acquired conditions", 
+    general_category_of_pathology = case_when(
+      general_category_of_pathology == "congenital malformations and acquired conditions" ~ 
       "congenital malformations", 
-      general_category_of_pathology
+      general_category_of_pathology == "pediatric surgical cases" ~ "other",
+      general_category_of_pathology == "general pediatric surgery pathology" ~ "burns; trauma",
+      TRUE ~ general_category_of_pathology
     )
   ) %>% 
   separate_rows(specific_pathology, sep = ";|,") %>% 
