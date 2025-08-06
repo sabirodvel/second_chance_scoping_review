@@ -1,0 +1,57 @@
+---
+title: "data_chart_wip"
+output: html_document
+date: "2025-08-06"
+---
+
+
+```{r global_chunk options, include = F}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+```
+
+```{r initial_setup}
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, 
+               here, 
+               janitor, 
+               reactable, 
+               sf, 
+               rnaturalearth, 
+               reactable,
+               countrycode,
+               plotly, 
+               ggrepel,
+               treemap, #package to create treemap
+               RColorBrewer,
+               patchwork,
+               ggfittext
+               )
+```
+
+```{r dataset_load, include = F}
+# included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
+# extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
+# extracted_studies_may_12 <- read_csv(here("data/extracted_studies_may_12.csv"))
+
+extracted_studies_aug_06 <- read_csv(here("data/extracted_studies_aug_06.csv")) %>% 
+  clean_names
+
+```
+
+```{r}
+
+mini_aug06 <- extracted_studies_aug_06 %>%
+  select(country, author, date_of_publication, title_3, study_design, study_timeframe, sources_of_data,
+         study_setting_location, hospital_service_coverage_area,
+         bed_capacity_number, operating_rooms_number, burn_unit_availability_yes_no, anesthesia_availability_yes_no, ventilator_availability_yes_no, blood_bank_availability_yes_no, laboratory_services_available_yes_no, imaging_services_available_yes_no, sterilization_facilities_yes_no,
+         surveillance_system_yes_no, surveillance_system_details, health_information_system_yes_no, health_information_system_details,
+         surgeons_number, surgeons_description, anesthetists_number, anesthetists_description, nurses_number, nurses_description, other_healthcare_providers_number, other_healthcare_providers_description, affiliation_of_surgeons_other_healthcare_providers_number, affiliation_of_surgeons_other_healthcare_providers_description,
+         sample_size, prevalence_rate, incidence_rate, disability_adjusted_life_years_dal_ys,
+         cost_to_individuals_cost_in_usd_or_other_currency, cost_to_government_cost_in_usd_or_other_currency)
+
+```
+
+```{r}
+reactable(mini_aug06)
+```
+
