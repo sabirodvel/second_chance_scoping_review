@@ -26,6 +26,7 @@ pacman::p_load(tidyverse,
                reactable, 
                sf, 
                rnaturalearth, 
+               rnaturalearthdata,
                reactable,
                countrycode,
                plotly, 
@@ -33,7 +34,8 @@ pacman::p_load(tidyverse,
                treemap, #package to create treemap
                RColorBrewer,
                patchwork,
-               ggfittext
+               ggfittext,
+               stringi
                )
 ```
 
@@ -41,242 +43,324 @@ pacman::p_load(tidyverse,
 # included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
 # extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
 
-extracted_studies_may_12 <- read_csv(here("data/extracted_studies_may_12.csv"))
+final_df <- read_csv(here("data/final_df_aug_12.csv")) %>% 
+  clean_names()
 
 ```
 
-# Preliminary Findings
+
+
 ## Research Distribution & Trends
 
+### Publications Over Time
 ```{r publications over time}
-publications_over_time <- included_studies_mar10 %>%
-  group_by(`Published Year`) %>%
-  summarise(Count = n()) %>%
-  arrange(`Published Year`)
 
-# Static plot
-publications_years <- publications_over_time %>%
-  ggplot(aes(x = `Published Year`, y = Count)) +
+## ISOLATE THE YEAR OF PUBLICATION
+final_df<- final_df %>%
+  mutate(
+    date_str = str_squish(date_of_publication),
+    # accept either "YYYY" or "MM/YYYY" (with or without leading 0 on month)
+    pub_year = case_when(
+      str_detect(date_str, "^[0-9]{4}$") ~ as.integer(date_str), #accept YYYY format
+      str_detect(date_str, "^(0?[1-9]|1[0-2])/[0-9]{4}$") ~ #for MM/YYYY formats, extract JUST the year (4 digits at the end)
+        as.integer(str_extract(date_str, "[0-9]{4}$")),
+      TRUE ~ NA_integer_  # everything else becomes NA for review
+    )
+  )
+
+year_counts <- final_df %>%
+  filter(!is.na(pub_year)) %>%
+  count(pub_year, name = "n") 
+  # complete(pub_year = seq(min(pub_year), max(pub_year), by = 1), fill = list(n = 0)) ##if we want ALL years
+
+
+## CREATING LINE GRAPH
+publications_over_time <- year_counts %>%
+  ggplot(aes(x = pub_year, y = n)) +
   geom_line(color = "#1F968BFF", linewidth = 1) +
-  geom_smooth(color = "darkgray", fill = "lightgray", size = 1, method = "loess") + # Add smooth line to show trend
+  geom_smooth(color = "darkgray", fill = "lightgray", size = 1, method = "loess") + # add smoothing line to show trend
   geom_point(color = "#440154FF", size = 2) +
-  scale_x_continuous(breaks = seq(min(publications_over_time$`Published Year`), max(publications_over_time$`Published Year`), by = 5)) +  # Set x-axis in 5-year increments
+  scale_x_continuous(breaks = seq(min(year_counts$pub_year), max(year_counts$pub_year), by = 5)) +  # set x-axis in 5-year increments
+  scale_y_continuous(breaks = seq(0, max(year_counts$n), by = 5)) + # set y-axis in 5-year increments
   labs(
-    title = "Research Output on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-    subtitle = "Tracking the number of studies published over time to understand growth \n of Plastic Reconstructive Surgery Research in SSA.",
+    title = "Plastic Reconstructive Surgery Reasearch in Sub-Saharan Africa",
+    subtitle = "Total number of studies published yearly and overall trend",
     x = "Publication Year (5-year intervals)",
     y = "Number of Published Studies"
   ) +
-  theme_minimal()
-publications_years
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold", hjust = 0, margin = margin(b = 6)))
+publications_over_time
+
+ggsave(filename = here("images/publications_over_time.png"))
 
 # Interactive plot
 # ggplotly(publications_years) 
 
 ```
 
+
+### Geographic Distribution of Publications
 ```{r choropleth cleaning country names, include = F}
-#Filter dataset to keep only rows where Reviewer Name is "Consensus"
-filtered_consensus <- extracted_studies_may_12 %>%
-  filter(`Reviewer Name` == "Consensus") %>%
-  distinct(`Covidence #`, .keep_all = TRUE)
 
-unique(filtered_consensus$"Country")
+# unique(final_df$country)
+# 
+# # Build a vector of valid country names using the countrycode package
+# valid_countries <- unique(c(
+#   countrycode::codelist$country.name.en,   # Standard country names
+#   countrycode::codelist$country.name.en.regex  # Alternative names
+# ))
+# 
+# # Function to extract country names from mixed text.
+# # If no valid country is found, it returns the original text (trimmed).
+# extract_countries <- function(text) {
+#   if (is.na(text) || text == "") return(text)  # Instead of NA, return the original text
+#   
+# # Split the countries by common delimiters (commas, semicolons, parentheses, colons)
+# split_countries <- unlist(str_split(text, "[;,():]"))
+# split_countries <- str_trim(split_countries)  # Remove extra whitespace
+#   
+# # Filter counrties that are recognized as valid country names
+# extracted <- split_countries[split_countries %in% valid_countries]
+#   
+# # If at least one valid country is found, return unique valid names.
+# # Otherwise, return the original text (preserving regional responses)
+#   if (length(extracted) > 0) {
+#     return(unique(extracted))
+#   } else {
+#     return(text)
+#   }
+# }
+# 
+# # Apply the extraction function to the main dataframe without dropping other columns.
+# # This keeps your "Covidence #" and other columns intact.
+# cleaned_country_data <- final_df %>%
+#   mutate(country = lapply(country, extract_countries)) %>%  # Process each cell in Country column
+#   unnest(country)  # Expand list-column so each country is its own row
+```
 
-# Build a vector of valid country names using the countrycode package
-valid_countries <- unique(c(
-  countrycode::codelist$country.name.en,   # Standard country names
-  countrycode::codelist$country.name.en.regex  # Alternative names
-))
+### Greyed out African Countries
 
-# Function to extract country names from mixed text.
-# If no valid country is found, it returns the original text (trimmed).
-extract_countries <- function(text) {
-  if (is.na(text) || text == "") return(text)  # Instead of NA, return the original text
-  
-# Split the countries by common delimiters (commas, semicolons, parentheses, colons)
-split_countries <- unlist(str_split(text, "[;,():]"))
-split_countries <- str_trim(split_countries)  # Remove extra whitespace
-  
-# Filter counrties that are recognized as valid country names
-extracted <- split_countries[split_countries %in% valid_countries]
-  
-# If at least one valid country is found, return unique valid names.
-# Otherwise, return the original text (preserving regional responses)
-  if (length(extracted) > 0) {
-    return(unique(extracted))
-  } else {
-    return(text)
-  }
+#### New Tries
+
+```{r new_choro}
+
+# ---- INPUT ----
+# final_df <- df   # uncomment if your data frame is named df
+stopifnot("country" %in% names(final_df))
+
+# ---- MAP DATA ----
+africa <- rnaturalearth::ne_countries(scale = "medium", continent = "Africa", returnclass = "sf") %>%
+  st_transform(4326)
+
+# SSA by World Bank region; fallback = Africa minus Northern Africa
+if ("region_wb" %in% names(africa)) {
+  ssa_sf <- africa %>% filter(region_wb == "Sub-Saharan Africa")
+} else {
+  ssa_sf <- africa %>% filter(region_un == "Africa", !subregion %in% "Northern Africa")
 }
 
-# Apply the extraction function to the main dataframe without dropping other columns.
-# This keeps your "Covidence #" and other columns intact.
-cleaned_country_data <- filtered_consensus %>%
-  mutate(Country = lapply(Country, extract_countries)) %>%  # Process each cell in Country column
-  unnest(Country)  # Expand list-column so each country is its own row
-```
+# Exclude South Africa from overlay (kept gray)
+ssa_sf <- ssa_sf %>% filter(iso_a3 != "ZAF")
+ssa_iso <- ssa_sf$iso_a3
 
-```{r choropleth of study distribution}
+# ---- TOKENIZE & HARMONIZE TO ISO3 ----
+# separators include commas/semicolons/colons/parentheses/brackets/newlines and the word "and"
+split_pattern <- "[,;:\\(\\)\\[\\]\\n]|\\band\\b|\\/"
 
-# # Process data: Count occurrences per country
-# country_counts <- cleaned_country_data %>% 
-#   count(Country, name = "study_count") %>%
-#   arrange(desc(study_count))  # Sort by study count
-# 
-# # Identify the top 5 countries with the highest study counts
-# top_countries <- country_counts %>% 
-#   slice_max(study_count, n = 5, with_ties = FALSE)
-# 
-# # Load African map data
-# africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
-# 
-# # Merge study data with map
-# africa_data <- africa %>%
-#   left_join(country_counts, by = c("name" = "Country"))
-# 
-# # Define color scale
-# study_fill_scale <- scale_fill_distiller(
-#   palette = "YlGnBu", 
-#   na.value = "white", 
-#   name = "Study Count",
-#   direction = 1,
-#   breaks = seq(0, max(country_counts$study_count), by = 2),  # Set custom breaks
-#   labels = seq(0, max(country_counts$study_count), by = 2)  # Set custom labels
-# )
-# 
-# # Plot the refined choropleth map
-# geo_distribution <- ggplot(data = africa_data) +
-#   geom_sf(aes(fill = study_count), color = "gray50", size = 0.3) +
-#   study_fill_scale +
-#   labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-#        subtitle = "Top 10 Countries with the most studies.",
-#        caption = "Source: Covidence 'Data Charting' Dataset") +
-#   theme_minimal() +
-#   theme(legend.position = "top",
-#         axis.text = element_blank(), 
-#         axis.ticks = element_blank(),
-#         panel.grid = element_blank()
-#         )
-# geo_distribution 
-# 
-# # Save plot as image
-# # ggsave(filename = here("images/geo_distribution.png"))
-
-```
-
-```{r barplot of study distribution, include = F}
-
-barplot_choro <- country_counts %>%
-  arrange(desc(study_count)) %>%
-  # head(10) %>%
-  mutate(percentage = study_count / sum(study_count) * 100) %>%
-  ggplot(aes(x = reorder(Country, percentage), y = percentage, fill = percentage)) +
-  geom_bar(stat = "identity") +
-  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(9, "YlGnBu")) +
-  geom_text(aes(label = paste0(round(percentage, 1), "%")),
-            hjust = 2.5,
-            vjust = 0.5,
-            color = "black",
-            fontface = "bold") +
-  theme_minimal() +
-  labs(title = "Share of Studies") +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        legend.position = "none",
-        panel.grid = element_blank())
-barplot_choro
-```
-
-```{r choropleth and bar}
-# combined_choro_bar <- 
-#   geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
-#                                    left = 0, bottom = 0, right = 0.5, top = 0.5 )
-# combined_choro_bar
-```
-
-# Greyed out African Countries
-
-```{r}
-
-# Define Sub-Saharan Africa countries (excluding South Africa)
-ssa_countries <- c("Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", 
-                   "Cabo Verde", "Cameroon", "Central African Republic", "Chad", 
-                   "Comoros", "Congo", "Democratic Republic of the Congo", "Djibouti", 
-                   "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon", 
-                   "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast", "Kenya", 
-                   "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", 
-                   "Mauritius", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", 
-                   "São Tomé and Príncipe", "Senegal", "Seychelles", "Sierra Leone", 
-                   "Somalia", "South Sudan", "Sudan", "Tanzania", "Togo", "Uganda", 
-                   "Zambia", "Zimbabwe")
-
-# Load African map data
-africa <- ne_countries(scale = "medium", continent = "Africa", returnclass = "sf")
-
-# Process data: Count occurrences per country
-country_counts <- cleaned_country_data %>% 
-  count(Country, name = "study_count") %>%
-  arrange(desc(study_count))
-
-# Merge study data with Africa map
-africa_data <- africa %>%
-  left_join(country_counts, by = c("name" = "Country")) %>%
-  mutate(
-    is_ssa = name %in% ssa_countries,  # Flag SSA countries
-    is_south_africa = name == "South Africa",  # Flag South Africa
-    has_study = !is.na(study_count)  # Flag countries with studies
-  )
-
-# Define color scale for SSA countries
-study_fill_scale <- scale_fill_distiller(
-  palette = "YlGnBu", 
-  na.value = "white",  # SSA countries without studies should be white
-  name = "Study Count",
-  direction = 1,
-  breaks = seq(0, max(country_counts$study_count, na.rm = TRUE), by = 2),
-  labels = seq(0, max(country_counts$study_count, na.rm = TRUE), by = 2)
+# Custom synonyms → ISO3 (add here if you find new variants)
+custom_iso <- c(
+  "DRC" = "COD",
+  "Democratic Republic of Congo" = "COD",
+  "Democratic Republic of the Congo" = "COD",
+  "Congo" = "COG",                    # Republic of the Congo
+  "Ivory Coast" = "CIV",
+  "Cote d'Ivoire" = "CIV",
+  "Cote d’ivoire" = "CIV",
+  "Cape Verde" = "CPV",
+  "Cabo Verde" = "CPV",
+  "Sao Tome and Principe" = "STP",
+  "São Tomé and Príncipe" = "STP",
+  "Somaliland" = "SOM",
+  "Kenia" = "KEN",
+  "Gambia" = "GMB",                  # Natural Earth uses GMB (map name may read Gambia/The Gambia)
+   # Eswatini
+  "Kingdom of eSwatini" = "SWZ",
+  "Eswatini"            = "SWZ",
+  "eSwatini"            = "SWZ",
+  "Swaziland"           = "SWZ",
+  # Guinea-Bissau
+  "Guinea-Bissau"       = "GNB",
+  "Guinea Bissau"       = "GNB",
+  # Equatorial Guinea
+  "Equatorial Guinea"   = "GNQ",
+  "Eq. Guinea"          = "GNQ",
+  "Guinea Ecuatorial"   = "GNQ",
+  "Guinée équatoriale"  = "GNQ",
+  # Comoros
+  "Comoros"             = "COM",
+  "Union of the Comoros"= "COM",
+  "Union of Comoros"    = "COM",
+  # Central African Republic
+  "Central African Republic" = "CAF",
+  "CAR"                       = "CAF",
+  "République centrafricaine" = "CAF",
+  # Namibia (usually maps already, but harmless)
+  "Namibia"              = "NAM",
+  # Somaliland — choose ONE policy below (A or B)
+  # A) TREAT AS SOMALIA (recommended unless you want it separate):
+  # "Somaliland"           = "SOM"
+  # B) If you want Somaliland colored separately instead, use:
+  "Somaliland"         = "SOL"
 )
 
-# Plot refined choropleth map
-geo_distribution <- ggplot(data = africa_data) +
-  # Color only SSA countries with studies
-  geom_sf(aes(fill = ifelse(is_ssa & has_study, study_count, NA)), 
-          color = "gray50", size = 0.3) +  
-  # Grey out South Africa
-  geom_sf(data = africa_data %>% filter(is_south_africa), 
-          fill = "gray", color = "gray50", size = 0.3) +  
-  # Grey out non-SSA countries that have studies
-  geom_sf(data = africa_data %>% filter(!is_ssa & has_study), 
-          fill = "gray", color = "gray50", size = 0.3) +  
-  study_fill_scale +
-  labs(title = "Distribution of Studies on Plastic Reconstructive Surgery in Sub-Saharan Africa",
-       subtitle = "Countries in grey have been excluded from the mandate.",
-       caption = "Source: Covidence 'Data Charting' Dataset") +
+normalize_token <- function(x) {
+  x %>%
+    stringr::str_replace_all("[\u2018\u2019\u201C\u201D]", "'") %>%  # curly quotes → straight
+    stringr::str_replace_all("–|—", "-") %>%
+    stringr::str_squish()
+}
+
+tokens <- final_df %>%
+  transmute(raw = country) %>%
+  filter(!is.na(raw), raw != "") %>%
+  mutate(raw = stringr::str_replace_all(raw, split_pattern, ",")) %>%
+  mutate(parts = stringr::str_split(raw, ",")) %>%
+  select(parts) %>%
+  unnest(parts) %>%
+  transmute(token = normalize_token(parts)) %>%
+  filter(token != "") %>%
+  # Drop obvious non-country phrases
+  # filter(!stringr::str_detect(tolower(token), paste(c(
+  #   "sub-?saharan africa","africa","global","world","regional","overview",
+  #   "east(ern)?","west(ern)?","central","southern","northern",
+  #   "middle east","americas","eastern europe","west pacific","sea",
+  #   "lmi?cs?","low( |-)?and( |-)?middle","multi-?country","including",
+  #   "focus on","primarily","countries","\\d+\\s*countries"
+  # ), collapse = "|"))) %>%
+  # First hit custom synonyms; otherwise let countrycode guess
+  mutate(
+    iso3 = dplyr::recode(token, !!!custom_iso, .default = NA_character_),
+    iso3 = ifelse(is.na(iso3),
+                  countrycode(token, origin = "country.name", destination = "iso3c", warn = FALSE),
+                  iso3)
+  )
+
+# ---- DIAGNOSTICS: what didn't map? ----
+unmatched <- tokens %>% filter(is.na(iso3)) %>% distinct(token) %>% arrange(token)
+if (nrow(unmatched)) {
+  message("Unmatched tokens (add to custom_iso if they are countries):")
+  print(unmatched)
+}
+
+# Keep only tokens that map to real African ISO codes
+africa_iso <- africa$iso_a3
+tokens_africa <- tokens %>% filter(!is.na(iso3), iso3 %in% africa_iso)
+
+# ---- COUNT STUDIES (SSA only, South Africa excluded) ----
+country_counts <- tokens_africa %>%
+  filter(iso3 %in% ssa_iso) %>%
+  count(iso3, name = "study_count") %>%
+  arrange(desc(study_count))
+
+# Who in SSA got zero / never mentioned? (useful to understand "missing countries")
+ssa_missing <- setdiff(ssa_iso, country_counts$iso3)
+if (length(ssa_missing)) {
+  message("SSA countries present in the map but with 0 mentions in your data (will be white):")
+  print(ssa_sf %>% st_drop_geometry() %>% filter(iso_a3 %in% ssa_missing) %>% pull(name_long))
+}
+
+# ---- BARPLOT (labels via map names) ----
+labels_lookup <- africa %>% st_drop_geometry() %>% select(iso_a3, name_long)
+bar_df <- country_counts %>% left_join(labels_lookup, by = c("iso3" = "iso_a3"))
+
+# after you create `country_counts` and `labels_lookup` -----------------------
+
+total_n <- sum(country_counts$study_count, na.rm = TRUE)
+
+bar_df_top10 <- country_counts %>%
+  arrange(desc(study_count), iso3) %>%
+  slice_head(n = 10) %>%
+  left_join(labels_lookup, by = c("iso3" = "iso_a3")) %>%
+  mutate(
+    percentage  = 100 * study_count / total_n,
+    pct_label   = sprintf("%.1f%%", percentage),
+    # choose label color based on how dark the bar will be
+    label_color = if_else(percentage >= 8, "white", "black")  # tweak threshold if needed
+  )
+
+barplot_choro <- bar_df_top10 %>%
+  ggplot(aes(x = fct_reorder(name_long, study_count),  # order by value
+             y = percentage, fill = percentage)) +
+  geom_col(width = 0.8) +
+  # place text just inside the right edge; color varies by bar brightness
+  geom_text(aes(label = pct_label, color = label_color),
+            hjust = 0.98, vjust = 0.5, size = 3.2, fontface = "bold") +
+  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(9, "YlGnBu")) +
+  scale_color_identity() +  # use the colors already in the data
+  coord_flip(clip = "off") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.02))) +
+  labs(title = "Top 10 Contributors to Total Studies") +
   theme_minimal() +
-  theme(legend.position = "top",
-        axis.text = element_blank(), 
-        axis.ticks = element_blank(),
-        panel.grid = element_blank())
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks  = element_blank(),
+    axis.title  = element_blank(),
+    legend.position = "none",
+    panel.grid  = element_blank(),
+    plot.title.position = "plot",                 # <-- anchor to plot left edge
+    plot.title = element_text(size = 12, face = "bold", hjust = 0, margin = margin(b = 6)),
+    plot.margin = margin(t = 8, r = 10, b = 8, l = 2)  # <-- small left margin
+  )
 
-geo_distribution
+ggsave(filename = here("images/barplot_choro.png"))
 
-# Save plot as image
-# ggsave(filename = here("images/geo_distribution.png"))
+# ---- JOIN COUNTS TO SSA POLYGONS (by ISO3) ----
+ssa_joined <- ssa_sf %>%
+  left_join(country_counts, by = c("iso_a3" = "iso3"))
 
-```
-```{r geo_distribution}
-combined_choro_bar <- 
-  geo_distribution + inset_element(barplot_choro + theme(text = element_text(size = 8)),
-                                   left = 0, bottom = 0, right = 0.5, top = 0.5 )
+# ---- CHOROPLETH ----
+geo_distribution <- ggplot() +
+  geom_sf(data = africa, fill = "grey85", color = "black", linewidth = 0.2) +               # base (all Africa)
+  geom_sf(data = ssa_joined, aes(fill = study_count), color = "black", linewidth = 0.2) +   # SSA overlay (South Africa excluded)
+  scale_fill_distiller(
+    palette = "YlGnBu", direction = 1, name = "Study count",
+    na.value = "white"
+  ) +
+  labs(
+    title    = "Geographic Distribution of Research on Plastic Reconstructive Surgery in Sub-Saharan Africa",
+    subtitle = "Countries outside SSA (and South Africa) are shown in gray.",
+    caption  = "Source: Covidence 'Data Charting' dataset \n (*Note: Multi-country records are split and counted for each SSA country mentioned.)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "top",
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
+
+ggsave(filename = here("images/geo_distribution.png"))
+
+
+combined_choro_bar <-
+  geo_distribution +
+  inset_element(barplot_choro,
+                left = 0.04,
+                bottom = 0.10,
+                right = 0.50,
+                top = 0.52)
+
 combined_choro_bar
 
-# Save plot as image
-ggsave(filename = here("images/geo_distribution_may_12.png"), plot = combined_choro_bar, height = 10, width = 13, bg = "white")
-
+ggsave(filename = here::here("images/combined_choro_bar.png"),
+       plot = combined_choro_bar, height = 10, width = 13, bg = "white")
 ```
+
+
+
+
 
 
 # Pathologies
@@ -474,8 +558,8 @@ lollipop <-
 
 ```{r barriers cleaning, include = F}
 
-filtered_barriers <- filtered_consensus %>%
-  select(`Covidence #`,
+barriers_df <- final_df %>%
+  select(covidence_number,
          `Health System Barrier`,
          `Financial  Barrier`,
          `Geograhic/Accessibility Barrier`,
