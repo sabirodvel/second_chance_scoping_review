@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 05/07/2025
+## Updated: 08/11/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -19,7 +19,7 @@ pacman::p_load(tidyverse, janitor, lubridate, here, stringr)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Load the CSV file
-extracted_studies_raw <- read_csv(here("data/extracted_studies_may_07.csv")) 
+extracted_studies_raw <- read_csv(here("data/extracted_studies_aug_11.csv")) 
 # THIS DATA IS NOT CONSENSUS. INCLUDES ALL EXTRACTION NEED TO REMOVE DUPLICATES?!
 
 # Create consensus column

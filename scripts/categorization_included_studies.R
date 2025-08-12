@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 02/13/2025
-## Updated: 02/26/2025
+## Updated: 08/11/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -18,16 +18,19 @@ pacman::p_load(tidyverse, janitor, here, stringr, readr, openxlsx)
 ## Load data ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the CSV file
-included_studies <- read_csv(here("data/included_studies_february_26.csv"))
+included_studies <- read_csv(here("data/included_studies_aug_11.csv")) # References of studies
+extracted_studies <- read_csv(here("data/extracted_studies_aug_11.csv"))
 
 # Clean dataset
-df <- clean_names(included_studies)
+included_studies <- clean_names(included_studies)
+extracted_studies <- clean_names(extracted_studies)
+
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize studies based on Tags ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Identify studies without tags (Need to go back and give tag)
-df_na <- df[is.na(df$tags), ]
+included_studies_na <- included_studies[is.na(included_studies$tags), ] 
 
 # Define categories based on Tags
 tag_categories <- list(
@@ -54,7 +57,7 @@ categorize_by_tags <- function(tags, tag_categories) {
 }
 
 # Apply categorization to each row
-df <- df %>%
+cat_included <- included_studies %>%
   mutate(
     category_tags = sapply(tags, categorize_by_tags, tag_categories)
   )
@@ -63,11 +66,11 @@ df <- df %>%
 categories_of_interest <- c("Access & Barriers", "Burden & Outcome")
 
 # Create a summary table for two main categories
-summary_table <- df %>%
+summary_table <- cat_included %>%
   separate_rows(category_tags, sep = ", ") %>%
   filter(category_tags %in% categories_of_interest) %>%
   group_by(category_tags) %>%
-  summarise(count = n(), .groups = "drop") %>%
+  summarize(count = n(), .groups = "drop") %>%
   arrange(desc(count))
 
 # Save categorized results
@@ -121,42 +124,47 @@ categorize_by_tiab <- function(text, categories) {
 }
 
 # Apply categorization to each row
-df <- df %>%
+cat_included <- cat_included %>%
   mutate(
     category_tiab = mapply(categorize_by_tiab, paste(title, abstract), MoreArgs = list(categories)))
 
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Identify categories ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Extract studies on burden & outcomes
-burden_outcome <- df %>% 
+cat_included <- cat_included %>% 
   separate_rows(category_tags, sep = ", ") %>%
   separate_rows(category_tiab, sep = ", ") %>% 
   mutate(
     burden = case_when(
       category_tags == "Burden & Outcome" | category_tiab == "Burden & Outcome"
       ~ "Yes",
-      TRUE ~ "No")) %>% 
-  filter(burden == "Yes") %>% 
-  distinct(title, .keep_all = TRUE)  # Removes duplicate rows based on Title
-
-# Extract studies on barriers to care
-access_barriers <- df %>% 
-  separate_rows(category_tags, sep = ", ") %>%
-  separate_rows(category_tiab, sep = ", ") %>% 
-  mutate(
+      TRUE ~ "No"),
     access_barrier = case_when(
       category_tags == "Access & Barriers" | category_tiab == "Access & Barriers"
       ~ "Yes",
       TRUE ~ "No")) %>% 
-  filter(access_barrier == "Yes") %>% 
-  distinct(title, .keep_all = TRUE)  # Removes duplicate rows based on Title
+  distinct(title, .keep_all = TRUE) # Removes duplicate rows based on Title
 
-# Extract systematic reviews
-systematic_reviews <- df %>%
-  mutate(systematic_review = ifelse(str_detect(category_tiab, "Systematic Review"), "Yes", "No")) %>% 
-  filter(systematic_review == "Yes")
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Identify categories ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# # Extract studies on burden & outcomes
+# burden_outcome <- cat_included %>% 
+#   filter(burden == "Yes")
+# 
+# # Extract studies on barriers to care
+# access_barriers <- cat_included %>% 
+#   filter(access_barrier == "Yes")
+
+# # Extract systematic reviews
+# systematic_reviews <- df %>%
+#   mutate(systematic_review = ifelse(str_detect(category_tiab, "Systematic Review"), "Yes", "No")) %>% 
+#   filter(systematic_review == "Yes")
+
+# Create a summary table for two main categories
+summary_cat_table <- cat_included %>%
+  separate_rows(category_tags, sep = ", ") %>%
+  group_by(burden, access_barrier) %>%
+  summarize(count = n(), .groups = "drop") %>%
+  arrange(desc(count))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Save data ----
