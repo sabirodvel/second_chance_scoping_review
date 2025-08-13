@@ -19,24 +19,30 @@ pacman::p_load(tidyverse, janitor, here, stringr, readr, openxlsx)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the CSV file
 included_studies <- read_csv(here("data/included_studies_aug_11.csv")) # References of studies
-extracted_studies <- read_csv(here("data/extracted_studies_aug_11.csv"))
+extracted_studies <- read_csv(here("data/extracted_studies_aug_11.csv")) # Consensu of extracted studies
 
 # Clean dataset
-included_studies <- clean_names(included_studies)
+included_studies <- clean_names(included_studies) %>% 
+  mutate(covidence_number = as.numeric(str_extract(covidence_number, "\\d+")))
+
 extracted_studies <- clean_names(extracted_studies)
+
+# Join two datasets
+joined_studies <- left_join(extracted_studies, included_studies, by = "covidence_number")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize studies based on Tags ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Identify studies without tags (Need to go back and give tag)
-included_studies_na <- included_studies[is.na(included_studies$tags), ] 
+included_studies_na <- joined_studies[is.na(included_studies$tags), ] 
 
 # Define categories based on Tags
 tag_categories <- list(
   "Access & Barriers" = c("Access to Healthcare", "Barriers to Care", "Barriers to Reconstructive Surgeries", "Health Disparities", "Cost", "cost effectiveness", "Surgical Capacity"),
   "Burden & Outcome" = c("Burden", "Burden of Reconstructive Surgeries", "DALYs", "QALYs", "Surgical Complications"),
-  "Trauma" = c("Burns", "Fractures", "Post-Traumatic Injuries", "Mutilating Pathologies", "Deforming Pathologies", "Trauma", "Ulcers", "Road Traffic Accidents", "Post-War", "Natural Disasters"),
+  "Trauma" = c("Fractures", "Post-Traumatic Injuries", "Mutilating Pathologies", "Deforming Pathologies", "Trauma", "Ulcers", "Road Traffic Accidents", "Post-War", "Natural Disasters"),
+  "Burns" = c("Burns"),
   "Congenital Malformations" = c("Cleft Palate", "Clubfoot", "Congenital Malformations", "Maxillo-facial surgery"),
   "Infectious & Chronic Conditions" = c("Noma", "Hemagioma", "Skin Conditions", "Tumors", "Cancers"),
   "Population" = c("Children / Pediatric Population", "Elderly / Geriatric Population"),
@@ -57,24 +63,24 @@ categorize_by_tags <- function(tags, tag_categories) {
 }
 
 # Apply categorization to each row
-cat_included <- included_studies %>%
+cat_included <- joined_studies %>%
   mutate(
     category_tags = sapply(tags, categorize_by_tags, tag_categories)
   )
 
-## Define the categories of interest
-categories_of_interest <- c("Access & Barriers", "Burden & Outcome")
+# ## Define the categories of interest
+# categories_of_interest <- c("Access & Barriers", "Burden & Outcome")
+# 
+# # Create a summary table for two main categories
+# cat_included %>%
+#   separate_rows(category_tags, sep = ", ") %>%
+#   # filter(category_tags %in% categories_of_interest) %>%
+#   group_by(category_tags) %>%
+#   summarize(count = n(), .groups = "drop") %>%
+#   arrange(desc(count))
 
-# Create a summary table for two main categories
-summary_table <- cat_included %>%
-  separate_rows(category_tags, sep = ", ") %>%
-  filter(category_tags %in% categories_of_interest) %>%
-  group_by(category_tags) %>%
-  summarize(count = n(), .groups = "drop") %>%
-  arrange(desc(count))
-
-# Save categorized results
-write_csv(df, "categorized_studies_with_tags.csv")
+# # Save categorized results
+# write_csv(df, "categorized_studies_with_tags.csv")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize studies based on TiAB ----
@@ -98,8 +104,11 @@ categories <- list(
     "syndrome", "genetic disorder", "birth defect", "lip", "palate", "microtia", 
     "clubfoot", "congenital", "maxillofacial", "dysmorphology"
   ),
+  "Burns" = c(
+    "burn", "burns", "contracture", "contractures", "burn scars"
+  ),
   "Trauma" = c(
-    "burn", "burns", "fracture", "fractures", "post-traumatic injury", "post-traumatic injuries",  
+    "fracture", "fractures", "post-traumatic injury", "post-traumatic injuries",  
     "mutilating pathology", "mutilating pathologies", "deforming pathology", "deforming pathologies",  
     "trauma", "ulcer", "ulcers", "road traffic accident", "road traffic accidents",  
     "post-war", "natural disaster", "natural disasters", "injury", "injuries",  
@@ -109,7 +118,7 @@ categories <- list(
   ),
   "Systematic Review" = c(
     "systematic", "systematic review", "meta-analysis", 
-    "literature review", "scoping review"
+    "literature review", "scoping review", "narrative review"
   )
 )
 
@@ -128,70 +137,55 @@ cat_included <- cat_included %>%
   mutate(
     category_tiab = mapply(categorize_by_tiab, paste(title, abstract), MoreArgs = list(categories)))
 
-cat_included <- cat_included %>% 
-  separate_rows(category_tags, sep = ", ") %>%
-  separate_rows(category_tiab, sep = ", ") %>% 
+categorized_studies <- cat_included %>% 
   mutate(
     burden = case_when(
-      category_tags == "Burden & Outcome" | category_tiab == "Burden & Outcome"
-      ~ "Yes",
-      TRUE ~ "No"),
+      str_detect(category_tags, "(?i)burden & outcome") |
+        str_detect(category_tiab, "(?i)burden & outcome") ~ "Yes",
+      TRUE ~ "No"
+    ),
     access_barrier = case_when(
-      category_tags == "Access & Barriers" | category_tiab == "Access & Barriers"
-      ~ "Yes",
-      TRUE ~ "No")) %>% 
-  distinct(title, .keep_all = TRUE) # Removes duplicate rows based on Title
+      str_detect(category_tags, "(?i)access & barriers") |
+        str_detect(category_tiab, "(?i)access & barriers") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    burns = case_when(
+      str_detect(category_tags, "(?i)burns") |
+        str_detect(category_tiab, "(?i)burns") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    trauma = case_when(
+      str_detect(category_tags, "(?i)trauma") |
+        str_detect(category_tiab, "(?i)trauma") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    congenital_malformations = case_when(
+      str_detect(category_tags, "(?i)congenital malformations") |
+        str_detect(category_tiab, "(?i)congenital malformations") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    systematic_review = case_when(
+      str_detect(category_tiab, "(?i)systematic review") |
+        str_detect(study_design, "(?i)review") ~ "Yes",
+      TRUE ~ "No"
+    )
+  )
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Identify categories ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # # Extract studies on burden & outcomes
-# burden_outcome <- cat_included %>% 
+# burden_outcome <- categorized_studies %>%
 #   filter(burden == "Yes")
 # 
 # # Extract studies on barriers to care
-# access_barriers <- cat_included %>% 
+# access_barriers <- categorized_studies %>%
 #   filter(access_barrier == "Yes")
-
+# 
+# #Extract studies on trauma
+# trauma_outcome <- categorized_studies
+# 
 # # Extract systematic reviews
-# systematic_reviews <- df %>%
-#   mutate(systematic_review = ifelse(str_detect(category_tiab, "Systematic Review"), "Yes", "No")) %>% 
+# systematic_reviews <- categorized_studies %>%
 #   filter(systematic_review == "Yes")
-
-# Create a summary table for two main categories
-summary_cat_table <- cat_included %>%
-  separate_rows(category_tags, sep = ", ") %>%
-  group_by(burden, access_barrier) %>%
-  summarize(count = n(), .groups = "drop") %>%
-  arrange(desc(count))
-
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Save data ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# # Save categorized results
-# write_csv(df, "outputs/categorized_studies_feb_26.csv")
-# 
-# # Save systematic reviews list
-# write_csv(systematic_reviews, here("outputs/systematic_reviews_feb_26.csv"))
-# 
-# # Save access / barriers to care
-# write_csv(access_barriers, here("outputs/access_barriers_feb_26.csv"))
-# 
-# # Save burden & outcomes 
-# write_csv(burden_outcome, here("outputs/burden_outcome_feb_26.csv"))
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-# Save all datasets into excel sheet
-
-# mapping the data frames onto the list
-data_frames <- list("included_studies" = df, 
-                    "burden_outcomes" = burden_outcome,
-                    "access_barriers" = access_barriers,
-                    "systematic_reviews" = systematic_reviews)
-
-# writing the list of data frames onto the xlsx file
-write.xlsx(data_frames,
-           file = "outputs/included_studies_cat_feb_26.xlsx")

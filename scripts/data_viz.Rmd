@@ -381,8 +381,8 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
             percentage = 
               round(100 * n() / nrow(categorized_specific_pathology), 2)) %>%
   ungroup() %>% 
-  arrange(desc(n)) %>% 
-  mutate(category_gen_pathology = 
+  arrange(desc(n)) %>%
+  mutate(category_gen_pathology =
            case_when(category_specific_pathology == "Cleft & Craniofacial" |
                        category_specific_pathology == "Limb Deformities"
                      ~ "Congenital Malformations",
@@ -394,10 +394,10 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
                        category_specific_pathology == "Soft Tissue Injuries"
                      ~ "Trauma",
                      category_specific_pathology == "Noma" |
-                      category_specific_pathology == "Other Infections" 
+                      category_specific_pathology == "Other Infections"
                      ~ "Infectious Conditions",
                      category_specific_pathology == "Cancer" |
-                       category_specific_pathology == "Other Neoplasms" 
+                       category_specific_pathology == "Other Neoplasms"
                      ~ "Neoplasms"))
 
 
