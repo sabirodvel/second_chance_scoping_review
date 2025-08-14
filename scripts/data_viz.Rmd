@@ -359,16 +359,14 @@ ggsave(filename = here::here("images/combined_choro_bar.png"),
 ```
 
 
-
-
-
-
 # Pathologies
 
 ## General Pathologies
 
-```{r treemap of general pathologies prep, include = F}
-# Adding source code here - C.V.
+### Table
+
+```{r distribution of general pathologies}
+# Adding source code here
 source(here("scripts/extracted_data_cleaning.R"))
 
 # Create frequency table
@@ -382,11 +380,15 @@ pathology_distribution <- categorized_general_pathology %>%
   ungroup() %>% 
   arrange(desc(n))
 
-# # Create simple treemap
-# treemap(pathology_distribution,
-#             index="category_gen_pathology",
-#             vSize="n",
-#             type="index")
+```
+### Treemap
+
+```{r treemap of general pathologies prep, include = F}
+# Create simple treemap
+treemap(pathology_distribution,
+            index="category_gen_pathology",
+            vSize="n",
+            type="index")
 
 # Customized treemap
 data_tree <- treemap(pathology_distribution,
@@ -412,9 +414,7 @@ data_ggplot <- data_tree[["tm"]] %>%
     ymax = y0 + h,
     label_pathology = str_glue("{category_gen_pathology}\n(n={vSize})")
   )
-```
 
-```{r treemap of general pathologies graph}
 p1 <- 
   ggplot(data_ggplot) +
   geom_rect(aes(xmin = x0,
@@ -452,10 +452,9 @@ p1
 
 ## Specific Pathologies
 
-```{r treemap subgroup}
-# Add source code
-source(here("scripts/extracted_data_cleaning.R"))
+### Table
 
+```{r}
 # Create frequency table 
 specific_pathology_distribution <- categorized_specific_pathology %>% 
   separate_rows(category_specific_pathology, sep = "; ") %>%
@@ -465,7 +464,14 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
             percentage = 
               round(100 * n() / nrow(categorized_specific_pathology), 2)) %>%
   ungroup() %>% 
-  arrange(desc(n)) %>%
+  arrange(desc(n))
+```
+
+### Treemap
+
+```{r treemap subgroup}
+# Reorganize categories for treemap
+specific_pathology_distribution %>% 
   mutate(category_gen_pathology =
            case_when(category_specific_pathology == "Cleft & Craniofacial" |
                        category_specific_pathology == "Limb Deformities"
@@ -486,27 +492,28 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
 
 
 # Create the treemap plot
-data_tree_2 <- treemap(specific_pathology_distribution,
-        index = c("category_gen_pathology", "category_specific_pathology"),
-        vSize = "n",                       
-        type = "index",                    
-        palette = "YlGnBu",
-        bg.labels = rgb(0.5, 0.5, 0, alpha = 0.2),  # Make background of labels transparent
-        align.labels = list(
-              c("left", "top"),  # Alignment for general group
-              c("center", "center")  # Alignment for specific pathology
-        ),
-        fontsize.labels = c(10,9),  # Adjust label font size
-        fontcolor.labels = c("white", "white"),
-        border.col = "white",  # Border color for all boxes
-        border.lwds = c(4, 2)
-)
+# data_tree_2 <- treemap(specific_pathology_distribution,
+#         index = c("category_gen_pathology", "category_specific_pathology"),
+#         vSize = "n",                       
+#         type = "index",                    
+#         palette = "YlGnBu",
+#         bg.labels = rgb(0.5, 0.5, 0, alpha = 0.2),  # Make background of labels transparent
+#         align.labels = list(
+#               c("left", "top"),  # Alignment for general group
+#               c("center", "center")  # Alignment for specific pathology
+#         ),
+#         fontsize.labels = c(10,9),  # Adjust label font size
+#         fontcolor.labels = c("white", "white"),
+#         border.col = "white",  # Border color for all boxes
+#         border.lwds = c(4, 2)
+# )
 ```
 
 # Surgical Procedures 
 
-```{r lollipop surgeries}
+## Table
 
+```{r frequency table surgeries}
 # Create frequency table
 surgery_distribution <- categorized_surgeries %>% 
   separate_rows(category_surgery, sep = "; ") %>%
@@ -518,6 +525,11 @@ surgery_distribution <- categorized_surgeries %>%
   ungroup() %>% 
   arrange(desc(n))
 
+```
+
+## Lollipop Bar Graph
+
+```{r lollipop surgeries}
 # Create the lollipop plot
 lollipop <- 
   ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +

@@ -119,18 +119,19 @@ categories_gp <- list(
     "congenital abnormalities?", "congenital deformities?", "acquired deformities?", 
     "craniofacial disorders?"
   ),
-  "Trauma" = c("trauma", "injur(y|ies)", "ulcers?", "wounds?", "chronic wounds?", "scars?"),
+  "Trauma" = c("trauma", "injur(y|ies)", "wounds?", "chronic wounds?", "scars?"),
   "Infectious Conditions" = c(
-    c("noma", "infectious?", "infection(s)?", "infectious diseases?", "neck infection")
+    c("noma", "infectious?", "infection(s)?", "infectious diseases?", "neck infection", "buruli?", "bacteri?")
   ),
   "Neoplastic Conditions" = c(
     "tumor(s)?", "tumour(s)?", "cysts?", "neoplasms?", 
-    "cancer( \\(tumor\\))?", "skin cancer", "neck cancer"
+    "cancer( \\(tumor\\))?", "skin cancer", "neck cancer", "melanoma?"
   )
 )
 
 # Function to categorize general pathology
-categorize_gen_path <- function(general_pathology, specific_pathology, category_tags, category_tiab, categories) {
+categorize_gen_path <- function(general_pathology, specific_pathology, category_tags, 
+                                category_tiab, categories) {
   
   assign_categories <- function(text) {
     if (is.na(text) || text == "") return(NA_character_)
@@ -159,19 +160,20 @@ categorize_gen_path <- function(general_pathology, specific_pathology, category_
   category_specific <- assign_categories(specific_pathology)
   if (!is.na(category_specific)) return(category_specific)
   
-  # Then category_tags
-  category_tagss <- assign_categories(category_tags)
-  if (!is.na(category_tagss)) return(category_tagss)
-  
-  # Then category_tiab
-  category_tiabb <- assign_categories(category_tiab)
-  if (!is.na(category_tiabb)) return(category_tiabb)
+  # # Then category_tags
+  # category_tagss <- assign_categories(category_tags)
+  # if (!is.na(category_tagss)) return(category_tagss)
+  # 
+  # # Then category_tiab
+  # category_tiabb <- assign_categories(category_tiab)
+  # if (!is.na(category_tiabb)) return(category_tiabb)
   
   # If none matched but some text exists, assign "Other"
   if (( !is.na(general_pathology) && general_pathology != "" ) ||
-      ( !is.na(specific_pathology) && specific_pathology != "" ) ||
-      ( !is.na(category_tags) && category_tags != "" ) ||
-      ( !is.na(category_tiab) && category_tiab != "" )) {
+      ( !is.na(specific_pathology) && specific_pathology != "" ) #||
+      # ( !is.na(category_tags) && category_tags != "" ) ||
+      # ( !is.na(category_tiab) && category_tiab != "" )
+      ) {
     return("Other")
   }
   
@@ -186,10 +188,41 @@ categorized_general_pathology <- categorized_studies_clean %>%
                                          specific_pathology, 
                                          category_tags,
                                          category_tiab,
-                                         MoreArgs = list(categories = categories_gp))) %>%
-  select(study_id, covidence_number, title_3, general_category_of_pathology, specific_pathology, category_gen_pathology, 
-         category_tags, category_tiab, congenital_malformations, burns, trauma)
+                                         MoreArgs = list(categories = categories_gp))) #%>%
+  # select(study_id, covidence_number, title_3, general_category_of_pathology, specific_pathology, category_gen_pathology, 
+  #        category_tags, category_tiab, congenital_malformations, burns, trauma)
 
+# Create columns for easy filtering
+filtered_pathology <- categorized_general_pathology %>% 
+  mutate(
+    pathology_burns = case_when(
+      str_detect(category_gen_pathology, "(?i)burns") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    pathology_trauma = case_when(
+      str_detect(category_gen_pathology, "(?i)trauma") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    pathology_congenital_malformations = case_when(
+      str_detect(category_gen_pathology, "(?i)congenital malformations") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    pathology_infection = case_when(
+      str_detect(category_gen_pathology, "(?i)infectious") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    pathology_neoplasm = case_when(
+      str_detect(category_gen_pathology, "(?i)neoplastic") ~ "Yes",
+      TRUE ~ "No"
+    ),
+    pathology_other = case_when(
+      str_detect(category_gen_pathology, "(?i)other") ~ "Yes",
+      TRUE ~ "No"
+    )
+  )
+
+# Save to csv to view 
+write_csv(filtered_pathology, file = here("outputs/categorized_pathologies.csv"))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize specific pathologies ----
@@ -202,14 +235,14 @@ categories_sp <- list(
   "Contractures" = c("contracture(s)?", "post-burn contracture(s)?"),
   "Scars" = c("burn scar(s)?", "scar revision", "hypertrophic scar(s)?", "keloid(s)?", "cicatricial eyelid ectropion", "scarring?"),
   "Severe Injuries" = c("amputation(s)?", "mutilation(s)?", "fracture(s)?", "road traffic injur(y|ies)", "gunshot", "trauma", "blunt"),
-  "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "osteomyelitis", "diabetic foot syndrome?", "soft tissue injuries?"),
+  "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "diabetic foot syndrome?", "soft tissue injuries?"),
   "Cleft & Craniofacial" = c("cleft lip", "cleft palate", "orofacial cleft(s)?", "craniofacial"),
   "Limb Deformities" = c("club ?foot", "syndactyly", "polydactyl(y)?", "limb anomal(y|ies)"),
   "Cancer" = c("carcinoma", "sarcoma", "tumou?r(s)?", "tumor(s)?", "cancer(s)?", "dermatofibrosarcoma"),
   "Other Neoplasms" = c("mass(es)?", "lump(s)?", "growth(s)?", "tumor-like", "nodules?", "adenoma", "fibroma"),
   "Noma" = c("noma", "cancrum oris"),
   "Buruli Ulcer" = c("buruli", "mycobacterium ulcerans"),
-  "Other Infections" = c("infection(s)?", "anthrax", "appendicitis", "pyomyositis", "fasciitis")
+  "Other Infections" = c("infection(s)?", "anthrax", "pyomyositis", "fasciitis")
 )
 
 
