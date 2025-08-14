@@ -35,7 +35,10 @@ pacman::p_load(tidyverse,
                RColorBrewer,
                patchwork,
                ggfittext,
-               stringi
+               stringi,
+               flextable,
+               knitr,
+               officer
                )
 ```
 
@@ -378,7 +381,8 @@ pathology_distribution_abs <- categorized_general_pathology %>%
     n = n_distinct(covidence_number),  # unique studies mentioning category
     percentage = round(100 * n_distinct(covidence_number) / nrow(categorized_general_pathology), 2),
     .groups = "drop"
-  )
+  ) %>% 
+  arrange(desc(n)) 
 
 # Weighted frequency
 pathology_distribution_weighted <- categorized_general_pathology %>%
@@ -402,6 +406,15 @@ pathology_distribution_merged <- pathology_distribution_abs %>%
   arrange(desc(n))  # sort by absolute n (optional)
 
 pathology_distribution_merged
+
+# Turn into flextable 
+ft <- flextable(pathology_distribution_abs)
+ft <- autofit(ft)
+
+# Save as Word document
+doc <- read_docx() %>%
+  body_add_flextable(ft) %>%
+  print(target = "pathology_distribution_abs.docx")
 ```
 ### Treemap
 
@@ -487,6 +500,15 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
               round(100 * n() / nrow(categorized_specific_pathology), 2)) %>%
   ungroup() %>% 
   arrange(desc(n))
+
+# Turn to flextable
+ft_1 <- flextable(specific_pathology_distribution)
+ft_1 <- autofit(ft_1)
+
+# Save as Word Doc
+doc <- read_docx() %>%
+  body_add_flextable(ft_1) %>%
+  print(target = "specific_pathology_distribution.docx")
 ```
 
 ### Treemap

@@ -64,17 +64,17 @@ categorized_studies_clean <- clean_names(categorized_studies) %>%
 #   mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) %>%
 #   distinct(general_category_of_pathology)
 
-# View unique specific pathologies values
-df <- categorized_studies_clean %>% 
-  # Remove digits-only rows and trim whitespace
-  filter(!str_detect(specific_pathology, "^\\d+$")) %>%
-  # Remove "(e.g." and all content in parentheses
-  mutate(specific_pathology = str_remove_all(specific_pathology, "\\(.*?\\)")) %>%
-  separate_rows(specific_pathology, sep = ",|;|\\band\\/or\\b|\\band\\b|\\n|\\r\\n") %>% 
-  distinct(specific_pathology, .keep_all = TRUE) %>% 
-  mutate(specific_pathology = str_trim(specific_pathology)) %>% 
-  group_by(specific_pathology) %>% 
-  count()
+# # View unique specific pathologies values
+# df <- categorized_studies_clean %>% 
+#   # Remove digits-only rows and trim whitespace
+#   filter(!str_detect(specific_pathology, "^\\d+$")) %>%
+#   # Remove "(e.g." and all content in parentheses
+#   mutate(specific_pathology = str_remove_all(specific_pathology, "\\(.*?\\)")) %>%
+#   separate_rows(specific_pathology, sep = ",|;|\\band\\/or\\b|\\band\\b|\\n|\\r\\n") %>% 
+#   distinct(specific_pathology, .keep_all = TRUE) %>% 
+#   mutate(specific_pathology = str_trim(specific_pathology)) %>% 
+#   group_by(specific_pathology) %>% 
+#   count()
 
 # # View unique cleaned pathologies
 # unique_pathologies <- clean_pathologies$specific_pathology
@@ -221,28 +221,56 @@ filtered_pathology <- categorized_general_pathology %>%
     )
   )
 
-# Save to csv to view 
-write_csv(filtered_pathology, file = here("outputs/categorized_pathologies.csv"))
+# # Save to csv to view 
+# write_csv(filtered_pathology, file = here("outputs/categorized_pathologies.csv"))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize specific pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# UPDATED LIST (08/12/2025)
+# UPDATED LIST (08/14/2025)
 categories_sp <- list(
-  "Acute Burns" = c("acute burn(s| injuries?)?", "chemical burn(s)?", "contact burn(s)?", 
-                    "electrical burn(s)?", "flame burn(s)?", "scald burn(s)?", "inhalation burn(s)?", "burn(s)?", "scald(s)?", "flame(s)?"),
-  "Contractures" = c("contracture(s)?", "post-burn contracture(s)?"),
-  "Scars" = c("burn scar(s)?", "scar revision", "hypertrophic scar(s)?", "keloid(s)?", "cicatricial eyelid ectropion", "scarring?"),
-  "Severe Injuries" = c("amputation(s)?", "mutilation(s)?", "fracture(s)?", "road traffic injur(y|ies)", "gunshot", "trauma", "blunt"),
-  "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "diabetic foot syndrome?", "soft tissue injuries?"),
-  "Cleft & Craniofacial" = c("cleft lip", "cleft palate", "orofacial cleft(s)?", "craniofacial"),
-  "Limb Deformities" = c("club ?foot", "syndactyly", "polydactyl(y)?", "limb anomal(y|ies)"),
-  "Cancer" = c("carcinoma", "sarcoma", "tumou?r(s)?", "tumor(s)?", "cancer(s)?", "dermatofibrosarcoma"),
-  "Other Neoplasms" = c("mass(es)?", "lump(s)?", "growth(s)?", "tumor-like", "nodules?", "adenoma", "fibroma"),
+  
+  # Burns
+  "Acute Burns" = c("acute burn(s| injuries?)?", "chemical burn(s)?", "contact burn(s)?",
+                    "electrical burn(s)?", "flame burn(s)?", "open flame burn(s)?",
+                    "scald burn(s)?", "inhalation burn(s)?", 
+                    "burn(s)?", "scald(s)?", "thermal burn(s)?", "third-degree burn(s)?",
+                    "severe burns?"),
+  
+  # Contractures & Scars
+  "Post-Burn Contractures" = c("post-?burn contracture(s)?", "pbc", "contracture(s)?"),
+  "Scars" = c("burn scar(s)?", "scar revision", "hypertrophic scar(s)?", "keloid(s)?", 
+              "cicatricial eyelid ectropion", "pathological scar(s)?", "scarring"),
+  
+  # Trauma & Injuries
+  "Open Fractures" = c("open fracture(s)?", "open fractures of humerus", "open tibia fracture(s)?", 
+                                            "severe open tibia fracture(s)?"),
+  "Polytrauma" = c("polytrauma", "multiple injuries"),
+  "Road Traffic Injuries" = c("road traffic accident(s)?", "road traffic crash(es)?", 
+                              "road traf+ic injur(y|ies)", "rta"),
+  "Severe Injuries" = c("amputation(s)?", "mutilation(s)?",
+                        "gunshot", "trauma", "blunt"),
+  "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "soft tissue injur(y|ies)"),
+  "Ulcers" = c("pressure ulcer(s)?", "pressure injur(y|ies)", "venous ulcer(s)?", "traumatic ulcer(s)?", 
+               "posttraumatic ulcer(s)?", "\\bulcer(s)?\\b", "ulcerated"),
+  
+  # Specific Infections
+  "Buruli Ulcer" = c("buruli ulcer(s)?", "mycobacterium ulcerans"),
   "Noma" = c("noma", "cancrum oris"),
-  "Buruli Ulcer" = c("buruli", "mycobacterium ulcerans"),
-  "Other Infections" = c("infection(s)?", "anthrax", "pyomyositis", "fasciitis")
+  "Necrotizing Fasciitis" = c("necrotizing fasciitis", "fasciitis?"),
+  "Other Infections" = c("yaws", "osteomyelitis", "mycetoma?"),
+  
+  # Congenital & Craniofacial
+  "Cleft Lip & Palate" = c("cleft lip", "cleft palate", "non-syndromic cleft lip", "orofacial cleft(s)?"),
+  "Polydactyly & Syndactyly" = c("polydactyl(y)?", "preaxial polydactyly", "syndactyly"),
+  "Clubfoot" = c("club ?foot", "talipes deformit(y|ies)", "rocker bottom foot"),
+  "Other Malformations" = c("deformit(y|ies)", "congenital anomal(y|ies)"),
+  
+  # Neoplasms & Tumors
+  "Cancer" = c("cancer(s)?", "carcinoma", "sarcoma", "squamous cell carcinoma", "skin cancer(s)?",
+               "stromal tumor", "dermatofibrosarcoma", "scc in situ", "soft tissue sarcoma"),
+  "Other Neoplasms" = c("mass(es)?", "lump(s)?", "growth(s)?", "tumor-like", "nodule(s)?", 
+                        "adenoma", "fibroma", "teratomas", "schwannoma", "overgrowth")
 )
 
 
@@ -285,9 +313,14 @@ categorized_specific_pathology <- categorized_general_pathology %>%
   mutate(category_specific_pathology = mapply(categorize_specific_path, 
                                               specific_pathology, 
                                               MoreArgs = list(categories = categories_sp))) %>%
-  select(study_id, covidence_number, title_3, general_category_of_pathology, specific_pathology, 
-         category_specific_pathology, category_gen_pathology, category_tags, category_tiab, 
+  select(study_id, covidence_number, title_3, general_category_of_pathology, specific_pathology,
+         category_specific_pathology, category_gen_pathology, category_tags, category_tiab,
          congenital_malformations, burns, trauma)
+
+categorized_combined_pathology <- categorized_general_pathology %>%
+  mutate(category_specific_pathology = mapply(categorize_specific_path, 
+                                              specific_pathology, 
+                                              MoreArgs = list(categories = categories_sp)))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize surgeries performed ----
@@ -369,7 +402,7 @@ categorized_surgeries <- extracted_studies_clean %>%
   mutate(category_surgery = mapply(categorize_surgeries, 
                                    types_of_surgical_procedure_performed, 
                                    MoreArgs = list(categories = categories_surgery))) %>% 
-  select(study_id, title_3, general_category_of_pathology, specific_pathology, types_of_surgical_procedure_performed, category_surgery)
+  # select(study_id, title_3, general_category_of_pathology, specific_pathology, types_of_surgical_procedure_performed, category_surgery)
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
