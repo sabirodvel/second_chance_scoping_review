@@ -369,17 +369,39 @@ ggsave(filename = here::here("images/combined_choro_bar.png"),
 # Adding source code here
 source(here("scripts/extracted_data_cleaning.R"))
 
-# Create frequency table
-pathology_distribution <- categorized_general_pathology %>% 
+# Absolute frequency
+pathology_distribution_abs <- categorized_general_pathology %>% 
   separate_rows(category_gen_pathology, sep = "; ") %>%
-  filter(!is.na(category_gen_pathology)) %>%  # Remove NA values
-  group_by(category_gen_pathology) %>% 
-  summarize(n = n(),
-            percentage = 
-              round(100 * n() / nrow(categorized_general_pathology), 2)) %>%
-  ungroup() %>% 
-  arrange(desc(n))
+  filter(!is.na(category_gen_pathology)) %>%
+  group_by(category_gen_pathology) %>%
+  summarise(
+    n = n_distinct(covidence_number),  # unique studies mentioning category
+    percentage = round(100 * n_distinct(covidence_number) / nrow(categorized_general_pathology), 2),
+    .groups = "drop"
+  )
 
+# Weighted frequency
+pathology_distribution_weighted <- categorized_general_pathology %>%
+  separate_rows(category_gen_pathology, sep = "; ") %>%
+  filter(!is.na(category_gen_pathology)) %>%
+  distinct(covidence_number, category_gen_pathology, .keep_all = TRUE) %>%
+  group_by(covidence_number) %>%
+  mutate(num_categories = n(),
+         weight = 1 / num_categories) %>%
+  ungroup() %>%
+  group_by(category_gen_pathology) %>%
+  summarise(
+    weighted_n = round(sum(weight),2),
+    percentage_weighted = round(100 * sum(weight) / nrow(categorized_general_pathology), 2),
+    .groups = "drop"
+  )
+
+# Merge absolute and weighted into one table
+pathology_distribution_merged <- pathology_distribution_abs %>%
+  full_join(pathology_distribution_weighted, by = "category_gen_pathology") %>%
+  arrange(desc(n))  # sort by absolute n (optional)
+
+pathology_distribution_merged
 ```
 ### Treemap
 
