@@ -579,11 +579,12 @@ lollipop <-
   ggplot(surgery_distribution, aes(x = reorder(category_surgery, n), y = n)) +
   geom_segment(aes(xend = category_surgery, yend = 0), color = "gray") +  # Line segment
   geom_point(size = 4, color = "#238AB0") +  # Circular lollipop head
+  geom_text(aes(label = n), vjust = -1.5, size = 3) +
   coord_flip() +  # Flip axes for better readability
   labs(title = "Distribution of Categorized Surgical Procedures",
        x = "Surgical Procedures",
-       y = "Count") +
-  scale_y_continuous(breaks = seq(0, 42, 2)) +
+       y = "Number") +
+  scale_y_continuous(breaks = seq(0, 140, 20)) +
   theme_minimal() +
   theme(
     panel.grid.minor = element_blank(),  # Remove minor grid lines
@@ -605,7 +606,7 @@ lollipop <-
 #   theme_minimal()
 
 # Save image
-# ggsave(filename = here("images/surgeries_lollipop.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+# ggsave(filename = here("images/surgeries_lollipop_annotated.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
 ```
 
 # Barriers
