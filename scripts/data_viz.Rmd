@@ -407,13 +407,39 @@ pathology_distribution_abs <- categorized_general_pathology %>%
 # pathology_distribution_merged
 
 # Turn into flextable 
-ft <- flextable(pathology_distribution_abs)
-ft <- autofit(ft)
+# ft <- flextable(pathology_distribution_abs)
+# ft <- autofit(ft)
 
 # # Save as Word document
 # doc <- read_docx() %>%
 #   body_add_flextable(ft) %>%
 #   print(target = "pathology_distribution_abs.docx")
+
+# Turn into gt 
+gt <- pathology_distribution_abs %>%
+  gt() %>%
+  tab_header(
+    title = "Distribution of Studies by Pathology Category"
+  ) %>%
+  cols_label(
+    category_gen_pathology = "Pathology Category",
+    n = "N",
+    percentage = "%"
+  ) %>%
+  fmt_number(
+    columns = percentage,
+    decimals = 2
+  ) %>% 
+  cols_align(
+    align = "center",
+    columns = c(n, percentage)
+  )
+
+gt
+
+# # Save Table
+# gtsave(gt, here("images/gt_general_pathology.png"))
+
 ```
 
 ### Treemap
@@ -501,10 +527,9 @@ specific_pathology_distribution <- categorized_combined_pathology %>%
   ungroup() %>% 
   arrange(desc(n))
 
-# Turn to flextable
-ft_1 <- flextable(specific_pathology_distribution)
-ft_1 <- autofit(ft_1)
-
+# # Turn to flextable
+# ft_1 <- flextable(specific_pathology_distribution)
+# ft_1 <- autofit(ft_1)
 
 # Save as Word Doc
 # doc <- read_docx() %>%
@@ -513,7 +538,7 @@ ft_1 <- autofit(ft_1)
 ```
 
 
-### Combined Tables
+### gt Table
 
 ```{r}
 mapped_df <- categorized_final %>%
@@ -580,26 +605,26 @@ summary_mapped_pathology <- mapped_df %>%
   mutate(pct_overall = round(100 * N / nrow(mapped_df), 2)) %>%  # overall %
   arrange(mapped_pathology, desc(N))
 
-# Join absolute counts for label only
-summary_mapped_pathology <- summary_mapped_pathology %>%
-  left_join(
-    pathology_distribution_abs %>% 
-      rename(mapped_pathology = category_gen_pathology, group_N = n),
-    by = "mapped_pathology"
-  ) %>%
-  mutate(
-    mapped_label = paste0(mapped_pathology, " (N* = ", group_N, ")")
-  ) %>%
-  select(-c(group_N, mapped_pathology, percentage))  # remove group_N from final table
+# # Join absolute counts for label only
+# summary_mapped_pathology <- summary_mapped_pathology %>%
+#   left_join(
+#     pathology_distribution_abs %>% 
+#       rename(mapped_pathology = category_gen_pathology, group_N = n),
+#     by = "mapped_pathology"
+#   ) %>%
+#   mutate(
+#     mapped_label = paste0(mapped_pathology, " (N* = ", group_N, ")")
+#   ) %>%
+#   select(-c(group_N, mapped_pathology, percentage))  # remove group_N from final table
 
 # Build gt table using mapped_label as groupname_col
 gt_summary <- summary_mapped_pathology %>% 
   gt(
-    groupname_col = "mapped_label",
+    groupname_col = "mapped_pathology",
     rowname_col   = "category_specific_pathology"
   ) %>% 
   cols_label(
-    N = "n**",
+    N = "N",
     pct_domain = "% within domain",
     pct_overall = "% overall"
   ) %>% 
@@ -627,8 +652,8 @@ gt_summary <- summary_mapped_pathology %>%
 
 gt_summary
 
-# Save Table
-gtsave(gt_summary, here("images/gt_specific_pathology.png"))
+# # Save Table
+# gtsave(gt_summary, here("images/gt_specific_pathology.png"))
 
 # # Convert to flextable
 # ft <- flextable(summary_mapped_pathology)
@@ -679,7 +704,6 @@ specific_pathology_distribution %>%
 #         border.lwds = c(4, 2)
 # )
 ```
-
 
 ## Lollipop Bar Graph
 

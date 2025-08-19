@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 08/18/2025
+## Updated: 08/19/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -80,8 +80,8 @@ categorized_studies_clean <- right_join(categorized_studies, categorized_studies
 # # View unique general pathologies values
 # df <- categorized_studies_clean %>%
 #   separate_rows(general_category_of_pathology, sep = ",|;") %>%
-#   mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) %>%
-#   distinct(general_category_of_pathology)
+#   mutate(general_category_of_pathology = str_trim(general_category_of_pathology)) #%>%
+#   #distinct(general_category_of_pathology)
 
 # # View unique specific pathologies values
 # df <- categorized_studies_clean %>% 
@@ -108,21 +108,35 @@ categorized_studies_clean <- right_join(categorized_studies, categorized_studies
 ## Categorize general pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# UPDATED LIST (08/12/2025)
+# UPDATED LIST (08/19/2025)
 categories_gp <- list(
-  "Burns" = c("burns?", "burn complications"),
+  "Burns" = c(
+    "burns?", "burn complications"
+  ),
+  
   "Congenital Malformations" = c(
     "congenital malformations?", "congenital anomalies?", "congenital conditions?", 
     "congenital abnormalities?", "congenital deformities?", "acquired deformities?", 
-    "craniofacial disorders?"
+    "craniofacial disorders?", "craniofacial anomalies?"
   ),
-  "Trauma" = c("trauma", "injur(y|ies)", "wounds?", "chronic wounds?", "scars?"),
+  
+  "Trauma" = c(
+    "trauma", "injur(y|ies)", "wounds?", "chronic wounds?", "scars?", 
+    "ulcer(s)", "pressure ulcer(s)?", "venous ulcer(s)?", "arterial ulcer(s)?"
+  ),
+  
   "Infectious Conditions" = c(
-    c("noma", "infectious?", "infection(s)?", "infectious diseases?", "neck infection", "buruli?", "bacteri?")
+    "noma", "infectious?", "infection(s)?", "infectious diseases?", 
+    "neck infection", "buruli?", "bacteri?", "infected ulcer(s)?"
   ),
+  
   "Neoplastic Conditions" = c(
-    "tumor(s)?", "tumour(s)?", "cysts?", "neoplasms?", 
-    "cancer( \\(tumor\\))?", "skin cancer", "neck cancer", "melanoma?"
+    "tumor(s)?", "tumour(s)?", "neoplasms?", "cancer( \\(tumor\\))?", 
+    "skin cancer", "neck cancer", "melanoma?", "squamous cell carcinoma"
+  ),
+  
+  "Other Conditions" = c(
+    "cyst?"
   )
 )
 
@@ -157,19 +171,9 @@ categorize_gen_path <- function(general_pathology, specific_pathology, category_
   category_specific <- assign_categories(specific_pathology)
   if (!is.na(category_specific)) return(category_specific)
   
-  # # Then category_tags
-  # category_tagss <- assign_categories(category_tags)
-  # if (!is.na(category_tagss)) return(category_tagss)
-  # 
-  # # Then category_tiab
-  # category_tiabb <- assign_categories(category_tiab)
-  # if (!is.na(category_tiabb)) return(category_tiabb)
-  
   # If none matched but some text exists, assign "Other"
   if (( !is.na(general_pathology) && general_pathology != "" ) ||
-      ( !is.na(specific_pathology) && specific_pathology != "" ) #||
-      # ( !is.na(category_tags) && category_tags != "" ) ||
-      # ( !is.na(category_tiab) && category_tiab != "" )
+      ( !is.na(specific_pathology) && specific_pathology != "" )
       ) {
     return("Other")
   }
@@ -185,48 +189,13 @@ categorized_general_pathology <- categorized_studies_clean %>%
                                          specific_pathology, 
                                          category_tags,
                                          category_tiab,
-                                         MoreArgs = list(categories = categories_gp))) #%>%
-  # select(study_id, covidence_number, title_3, general_category_of_pathology, specific_pathology, category_gen_pathology, 
-  #        category_tags, category_tiab, congenital_malformations, burns, trauma)
-
-# # Create columns for easy filtering
-# filtered_pathology <- categorized_general_pathology %>% 
-#   mutate(
-#     pathology_burns = case_when(
-#       str_detect(category_gen_pathology, "(?i)burns") ~ "Yes",
-#       TRUE ~ "No"
-#     ),
-#     pathology_trauma = case_when(
-#       str_detect(category_gen_pathology, "(?i)trauma") ~ "Yes",
-#       TRUE ~ "No"
-#     ),
-#     pathology_congenital_malformations = case_when(
-#       str_detect(category_gen_pathology, "(?i)congenital malformations") ~ "Yes",
-#       TRUE ~ "No"
-#     ),
-#     pathology_infection = case_when(
-#       str_detect(category_gen_pathology, "(?i)infectious") ~ "Yes",
-#       TRUE ~ "No"
-#     ),
-#     pathology_neoplasm = case_when(
-#       str_detect(category_gen_pathology, "(?i)neoplastic") ~ "Yes",
-#       TRUE ~ "No"
-#     ),
-#     pathology_other = case_when(
-#       str_detect(category_gen_pathology, "(?i)other") ~ "Yes",
-#       TRUE ~ "No"
-#     )
-#   )
-
-# # Save to csv to view 
-# write_csv(filtered_pathology, file = here("outputs/categorized_pathologies.csv"))
+                                         MoreArgs = list(categories = categories_gp)))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize specific pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# UPDATED LIST (08/18/2025)
+# UPDATED LIST (08/19/2025)
 categories_sp <- list(
-  
   # Burns
   "Acute Burns" = c("acute burn(s| injuries?)?", "chemical burn(s)?", "contact burn(s)?",
                     "electrical burn(s)?", "flame burn(s)?", "open flame burn(s)?",
@@ -235,86 +204,145 @@ categories_sp <- list(
                     "severe burns?"),
   
   # Contractures & Scars
-  "Post-Burn Contractures & Scars" = c("burn scar(s)?", "post-?burn contracture(s)?", "pbc", "contracture(s)?"),
+  "Post-Burn Contractures & Scars" = c("burn scar(s)?", "post-?burn contracture(s)?", "pbc", 
+                                       "contracture(s)?"),
   "Scars" = c("scar revision", "hypertrophic scar(s)?", "keloid(s)?", 
               "cicatricial eyelid ectropion", "pathological scar(s)?", "scarring"),
   
   # Trauma & Injuries
-  "Open Fractures" = c("open fracture(s)?", "open fractures of humerus", "open tibia fracture(s)?", 
-                                            "severe open tibia fracture(s)?"),
+  "Open Fractures" = c("open fracture(s)?", "open fractures of humerus", "open tibia fracture(s)?"),
   "Polytrauma" = c("polytrauma", "multiple injuries"),
   "Road Traffic Injuries" = c("road traffic accident(s)?", "road traffic crash(es)?", 
                               "road traf+ic injur(y|ies)", "rta"),
   "Severe Injuries" = c("amputation(s)?", "mutilation(s)?",
                         "gunshot", "trauma", "blunt"),
-  "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "soft tissue injur(y|ies)"),
+  "Soft Tissue Injuries" = c("wound(s)?", "soft tissue injur(y|ies)"),
   "Ulcers" = c("pressure ulcer(s)?", "pressure injur(y|ies)", "venous ulcer(s)?", "traumatic ulcer(s)?", 
-               "posttraumatic ulcer(s)?", "\\bulcer(s)?\\b", "ulcerated"),
-  "General Fractures" = c("maxillofacial fractures","mandibular fractures","zygomatic complex fractures", "fractures"),
-  "Other Trauma" = c("human bites", "internal injuries", "hand injur(y|ies)", 
-                     "arterial and venous injuries", "orthopedic injuries", 
-                     "firearm injuries", "injury/orthopaedic", "injuries"),
+               "posttraumatic ulcer(s)?", "chronic leg ulcers (CLU)", 
+               "ulcerated"),
+  "General Fractures" = c("maxillofacial fractures","mandibular fractures",
+                          "zygomatic complex fractures", "fracture(s)"),
+  "Other Trauma" = c("human bites", "internal injuries", "hand injur(y|ies)"),
   
   # Specific Infections
   "Buruli Ulcer" = c("buruli ulcer(s)?", "mycobacterium ulcerans"),
   "Noma" = c("noma", "cancrum oris"),
   "Necrotizing Fasciitis" = c("necrotizing fasciitis", "fasciitis?"),
-  "Other Infections" = c("yaws", "osteomyelitis", "mycetoma?"),
   
   # Congenital & Craniofacial
-  "Cleft Lip & Palate" = c("cleft lip(s)?", "cleft palate(s)?", "non-syndromic cleft lip", "orofacial cleft(s)?", "craniofacial clefts"),
+  "Cleft Lip & Palate" = c("cleft lip(s)?", "cleft palate(s)?", "non-syndromic cleft lip", 
+                           "orofacial cleft(s)?", "craniofacial clefts", "cleft lip/palate"),
   "Polydactyly & Syndactyly" = c("polydactyl(y)?", "preaxial polydactyly", "syndactyly"),
-  "Clubfoot" = c("club ?foot", "talipes deformit(y|ies)", "rocker bottom foot", "congenital talipes equino varus"),
-  "Other Malformations" = c("deformit(y|ies)", "congenital anomal(y|ies)", "malignancies", 
-                            "exomphalous"),
+  "Clubfoot" = c("club ?foot", "talipes deformit(y|ies)", "rocker bottom foot", # Others
+                 "congenital talipes equino varus"),
   
   # Neoplasms & Tumors
   "Cancer" = c("cancer(s)?", "carcinoma", "sarcoma", "squamous cell carcinoma", "skin cancer(s)?",
-               "stromal tumor", "dermatofibrosarcoma", "scc in situ", "soft tissue sarcoma"),
-  "Other Neoplasms" = c("mass(es)?", "lump(s)?", "growth(s)?", "tumor-like", "nodule(s)?", 
-                        "adenoma", "fibroma", "teratomas", "schwannoma", "overgrowth", "tumor(s)", "hemangioma")
+               "stromal tumor", "dermatofibrosarcoma", "scc in situ", "soft tissue sarcoma")
 )
 
+# Mapping from specific → general category
+map_sp_to_gp <- list(
+  # Burns
+  "Acute Burns" = "Burns",
+  "Post-Burn Contractures & Scars" = "Burns",
+  
+  # Trauma
+  "Open Fractures" = "Trauma",
+  "Polytrauma" = "Trauma",
+  "Road Traffic Injuries" = "Trauma",
+  "Severe Injuries" = "Trauma",
+  "Scars" = "Trauma",
+  "Soft Tissue Injuries" = "Trauma",
+  "Ulcers" = "Trauma",
+  "General Fractures" = "Trauma",
+  
+  # Infections
+  "Buruli Ulcer" = "Infectious Conditions",
+  "Noma" = "Infectious Conditions",
+  "Necrotizing Fasciitis" = "Infectious Conditions",
+  
+  # Congenital
+  "Cleft Lip & Palate" = "Congenital Malformations",
+  "Polydactyly & Syndactyly" = "Congenital Malformations",
+  "Clubfoot" = "Congenital Malformations",
+  
+  # Neoplasms
+  "Cancer" = "Neoplastic Conditions"
+)
 
-# Function to categorize specific pathologies
-categorize_specific_path <- function(specific_pathology, categories) {
+# Function
+categorize_specific_path <- function(specific_pathology, general_pathology, categories_sp, map_sp_to_gp) {
   
   assign_categories <- function(pathology) {
     if (is.na(pathology) || pathology == "") return(NA_character_)
     
     pathology <- str_to_lower(pathology)
     
-    assigned <- names(categories)[
-      sapply(categories, function(words) {
-        pattern <- paste(words, collapse = "|")  # combine multiple patterns with OR
-        full_pattern <- paste0("(?i)\\b(", pattern, ")\\b")  # case-insensitive with word boundaries
-        str_detect(pathology, full_pattern)
+    assigned <- names(categories_sp)[
+      sapply(categories_sp, function(words) {
+        pattern <- paste(words, collapse = "|")
+        str_detect(pathology, regex(pattern, ignore_case = TRUE))
       })
     ]
     
-    if (length(assigned) > 0) {
-      return(paste(assigned, collapse = "; "))
-    }
-    
+    if (length(assigned) > 0) return(assigned)
     return(NA_character_)
   }
   
-  category <- assign_categories(specific_pathology)
-  
-  if (!is.na(category)) return(category)
-  
-  if (!is.na(specific_pathology) && specific_pathology != "") {
-    return("Other")
+  # --- CASE 1: If no text at all → NA
+  if (is.na(specific_pathology) || specific_pathology == "") {
+    return(NA_character_)
   }
   
-  return(NA_character_)
+  # Try to match specific categories
+  specific_cats <- assign_categories(specific_pathology)
+  general_cats <- if (!is.na(general_pathology)) str_split(general_pathology, ";\\s*")[[1]] else character(0)
+  
+  # --- Helper: safe "Other ..." wrapper ---
+  make_other <- function(gc) {
+    if (gc == "Other" || str_starts(gc, "Other ")) {
+      return(gc)  # already "Other …"
+    } else {
+      return(paste0("Other ", gc))
+    }
+  }
+  
+  # --- CASE 2a: text present but no specific match
+  if (all(is.na(specific_cats))) {
+    if (length(general_cats) > 0) {
+      others <- sapply(general_cats, make_other)
+      return(paste(unique(others), collapse = "; "))
+    } else {
+      return("Other")
+    }
+  }
+  
+  # --- CASE 3: Specific matches exist, filter by general
+  valid_specifics <- specific_cats[
+    sapply(specific_cats, function(sp) isTRUE(map_sp_to_gp[[sp]] %in% general_cats)) # ✅ safe check
+  ]
+  
+  if (length(valid_specifics) > 0) {
+    return(paste(valid_specifics, collapse = "; "))
+  } else {
+    if (length(general_cats) > 0) {
+      others <- sapply(general_cats, make_other)
+      return(paste(unique(others), collapse = "; "))
+    } else {
+      return("Other")
+    }
+  }
 }
 
-# Apply function
+# Example application
 categorized_combined_pathology <- categorized_general_pathology %>%
-  mutate(category_specific_pathology = mapply(categorize_specific_path, 
-                                              specific_pathology, 
-                                              MoreArgs = list(categories = categories_sp)))
+  mutate(category_specific_pathology = mapply(
+    categorize_specific_path, 
+    specific_pathology, 
+    category_gen_pathology, 
+    MoreArgs = list(categories_sp = categories_sp, map_sp_to_gp = map_sp_to_gp)
+  ))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize surgeries performed ----
@@ -325,7 +353,8 @@ categories_surgery <- list(
   # 1. Cleft & Craniofacial
   "Cleft & Craniofacial Surgery" = c(
     "cleft", "lip", "palatoplasty", "palate repair", "lip repair", "rhinoplasty",
-    "von langenbeck", "furlow", "millard", "tennison", "commissuroplasty", "primary surgical repair of cl/p"
+    "von langenbeck", "furlow", "millard", "tennison", "commissuroplasty", 
+    "primary surgical repair of cl/p"
   ),
   # 2. Skin Grafting
   "Skin Grafting" = c(
@@ -359,14 +388,17 @@ categories_surgery <- list(
   # 6. Oncologic & Tumor Surgery
   "Oncologic & Tumor Surgery" = c(
     "tumou?r", "mastectomy", "lumpectomy", "breast lump excision",
-    "nephrectomy", "ganglionectomy", "cyst excision", "biopsy",
+    "nephrectomy", "ganglionectomy", 
+    "cyst excision", #review
+    #"biopsy",
     "lymph node", "tumor resection", "wide local excision"
   ),
   # 7. Amputation & Limb Salvage
   "Amputation & Limb Salvage" = c(
     "amputation", "amputations", "salvage amputation",
-    "ankylosis release", "primary repair of cut achilles tendon",
-    "sequestrectomy"
+    "ankylosis release", #Review 
+    "primary repair of cut achilles tendon",
+    "sequestrectomy" #Any body part
   )
 )
 

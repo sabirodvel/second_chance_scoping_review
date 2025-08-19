@@ -133,43 +133,43 @@ categorize_by_tiab <- function(text, categories) {
 }
 
 # Apply categorization to each row
-cat_included <- cat_included %>%
+categorized_studies <- cat_included %>%
   mutate(
     category_tiab = mapply(categorize_by_tiab, paste(title, abstract), MoreArgs = list(categories)))
 
-categorized_studies <- cat_included %>% 
-  mutate(
-    burden = case_when(
-      str_detect(category_tags, "(?i)burden & outcome") |
-        str_detect(category_tiab, "(?i)burden & outcome") ~ "Yes",
-      TRUE ~ "No"
-    ),
-    access_barrier = case_when(
-      str_detect(category_tags, "(?i)access & barriers") |
-        str_detect(category_tiab, "(?i)access & barriers") ~ "Yes",
-      TRUE ~ "No"
-    ),
-    burns = case_when(
-      str_detect(category_tags, "(?i)burns") |
-        str_detect(category_tiab, "(?i)burns") ~ "Yes",
-      TRUE ~ "No"
-    ),
-    trauma = case_when(
-      str_detect(category_tags, "(?i)trauma") |
-        str_detect(category_tiab, "(?i)trauma") ~ "Yes",
-      TRUE ~ "No"
-    ),
-    congenital_malformations = case_when(
-      str_detect(category_tags, "(?i)congenital malformations") |
-        str_detect(category_tiab, "(?i)congenital malformations") ~ "Yes",
-      TRUE ~ "No"
-    ),
-    systematic_review = case_when(
-      str_detect(category_tiab, "(?i)systematic review") |
-        str_detect(study_design, "(?i)review") ~ "Yes",
-      TRUE ~ "No"
-    )
-  )
+# categorized_studies <- categorized_studies %>% 
+#   mutate(
+#     burden = case_when(
+#       str_detect(category_tags, "(?i)burden & outcome") |
+#         str_detect(category_tiab, "(?i)burden & outcome") ~ "Yes",
+#       TRUE ~ "No"
+#     ),
+#     access_barrier = case_when(
+#       str_detect(category_tags, "(?i)access & barriers") |
+#         str_detect(category_tiab, "(?i)access & barriers") ~ "Yes",
+#       TRUE ~ "No"
+#     ),
+#     burns = case_when(
+#       str_detect(category_tags, "(?i)burns") |
+#         str_detect(category_tiab, "(?i)burns") ~ "Yes",
+#       TRUE ~ "No"
+#     ),
+#     trauma = case_when(
+#       str_detect(category_tags, "(?i)trauma") |
+#         str_detect(category_tiab, "(?i)trauma") ~ "Yes",
+#       TRUE ~ "No"
+#     ),
+#     congenital_malformations = case_when(
+#       str_detect(category_tags, "(?i)congenital malformations") |
+#         str_detect(category_tiab, "(?i)congenital malformations") ~ "Yes",
+#       TRUE ~ "No"
+#     ),
+#     systematic_review = case_when(
+#       str_detect(category_tiab, "(?i)systematic review") |
+#         str_detect(study_design, "(?i)review") ~ "Yes",
+#       TRUE ~ "No"
+#     )
+#   )
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Identify categories ----
