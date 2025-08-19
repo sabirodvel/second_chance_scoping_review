@@ -224,7 +224,7 @@ categorized_general_pathology <- categorized_studies_clean %>%
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize specific pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# UPDATED LIST (08/14/2025)
+# UPDATED LIST (08/18/2025)
 categories_sp <- list(
   
   # Burns
@@ -235,8 +235,8 @@ categories_sp <- list(
                     "severe burns?"),
   
   # Contractures & Scars
-  "Post-Burn Contractures" = c("post-?burn contracture(s)?", "pbc", "contracture(s)?"),
-  "Scars" = c("burn scar(s)?", "scar revision", "hypertrophic scar(s)?", "keloid(s)?", 
+  "Post-Burn Contractures & Scars" = c("burn scar(s)?", "post-?burn contracture(s)?", "pbc", "contracture(s)?"),
+  "Scars" = c("scar revision", "hypertrophic scar(s)?", "keloid(s)?", 
               "cicatricial eyelid ectropion", "pathological scar(s)?", "scarring"),
   
   # Trauma & Injuries
@@ -250,6 +250,10 @@ categories_sp <- list(
   "Soft Tissue Injuries" = c("wound(s)?", "lesion(s)?", "soft tissue injur(y|ies)"),
   "Ulcers" = c("pressure ulcer(s)?", "pressure injur(y|ies)", "venous ulcer(s)?", "traumatic ulcer(s)?", 
                "posttraumatic ulcer(s)?", "\\bulcer(s)?\\b", "ulcerated"),
+  "General Fractures" = c("maxillofacial fractures","mandibular fractures","zygomatic complex fractures", "fractures"),
+  "Other Trauma" = c("human bites", "internal injuries", "hand injur(y|ies)", 
+                     "arterial and venous injuries", "orthopedic injuries", 
+                     "firearm injuries", "injury/orthopaedic", "injuries"),
   
   # Specific Infections
   "Buruli Ulcer" = c("buruli ulcer(s)?", "mycobacterium ulcerans"),
@@ -258,16 +262,17 @@ categories_sp <- list(
   "Other Infections" = c("yaws", "osteomyelitis", "mycetoma?"),
   
   # Congenital & Craniofacial
-  "Cleft Lip & Palate" = c("cleft lip", "cleft palate", "non-syndromic cleft lip", "orofacial cleft(s)?"),
+  "Cleft Lip & Palate" = c("cleft lip(s)?", "cleft palate(s)?", "non-syndromic cleft lip", "orofacial cleft(s)?", "craniofacial clefts"),
   "Polydactyly & Syndactyly" = c("polydactyl(y)?", "preaxial polydactyly", "syndactyly"),
-  "Clubfoot" = c("club ?foot", "talipes deformit(y|ies)", "rocker bottom foot"),
-  "Other Malformations" = c("deformit(y|ies)", "congenital anomal(y|ies)"),
+  "Clubfoot" = c("club ?foot", "talipes deformit(y|ies)", "rocker bottom foot", "congenital talipes equino varus"),
+  "Other Malformations" = c("deformit(y|ies)", "congenital anomal(y|ies)", "malignancies", 
+                            "exomphalous"),
   
   # Neoplasms & Tumors
   "Cancer" = c("cancer(s)?", "carcinoma", "sarcoma", "squamous cell carcinoma", "skin cancer(s)?",
                "stromal tumor", "dermatofibrosarcoma", "scc in situ", "soft tissue sarcoma"),
   "Other Neoplasms" = c("mass(es)?", "lump(s)?", "growth(s)?", "tumor-like", "nodule(s)?", 
-                        "adenoma", "fibroma", "teratomas", "schwannoma", "overgrowth")
+                        "adenoma", "fibroma", "teratomas", "schwannoma", "overgrowth", "tumor(s)", "hemangioma")
 )
 
 
@@ -487,15 +492,15 @@ cost_subset <- full_join(cost_1, cost_2) %>%
 ## Combine Cost & DALYs Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Join both subsets
-cost_daly_subset <- left_join(cost_subset, burn_daly, by = c("study_id"))
+# # Join both subsets
+# cost_daly_subset <- left_join(cost_subset, burn_daly, by = c("study_id"))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Surgical Capacity Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sc <- extracted_studies_clean %>% 
-  select(covidence_number, title_3, country, general_category_of_pathology, 
-         specific_pathology, other_findings, 33:83)
+# sc <- extracted_studies_clean %>% 
+#   select(covidence_number, title_3, country, general_category_of_pathology, 
+#          specific_pathology, other_findings, 33:83)
 
   

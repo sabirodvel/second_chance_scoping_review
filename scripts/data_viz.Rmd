@@ -38,7 +38,8 @@ pacman::p_load(tidyverse,
                stringi,
                flextable,
                knitr,
-               officer
+               officer,
+               gt
                )
 ```
 
@@ -51,11 +52,10 @@ final_df <- read_csv(here("data/final_df_aug_12.csv")) %>%
 
 ```
 
-
-
 ## Research Distribution & Trends
 
 ### Publications Over Time
+
 ```{r publications over time}
 
 ## ISOLATE THE YEAR OF PUBLICATION
@@ -361,7 +361,6 @@ ggsave(filename = here::here("images/combined_choro_bar.png"),
        plot = combined_choro_bar, height = 10, width = 13, bg = "white")
 ```
 
-
 # Pathologies
 
 ## General Pathologies
@@ -384,38 +383,39 @@ pathology_distribution_abs <- categorized_general_pathology %>%
   ) %>% 
   arrange(desc(n)) 
 
-# Weighted frequency
-pathology_distribution_weighted <- categorized_general_pathology %>%
-  separate_rows(category_gen_pathology, sep = "; ") %>%
-  filter(!is.na(category_gen_pathology)) %>%
-  distinct(covidence_number, category_gen_pathology, .keep_all = TRUE) %>%
-  group_by(covidence_number) %>%
-  mutate(num_categories = n(),
-         weight = 1 / num_categories) %>%
-  ungroup() %>%
-  group_by(category_gen_pathology) %>%
-  summarise(
-    weighted_n = round(sum(weight),2),
-    percentage_weighted = round(100 * sum(weight) / nrow(categorized_general_pathology), 2),
-    .groups = "drop"
-  )
+# # Weighted frequency
+# pathology_distribution_weighted <- categorized_general_pathology %>%
+#   separate_rows(category_gen_pathology, sep = "; ") %>%
+#   filter(!is.na(category_gen_pathology)) %>%
+#   distinct(covidence_number, category_gen_pathology, .keep_all = TRUE) %>%
+#   group_by(covidence_number) %>%
+#   mutate(num_categories = n(),
+#          weight = 1 / num_categories) %>%
+#   ungroup() %>%
+#   group_by(category_gen_pathology) %>%
+#   summarise(
+#     weighted_n = round(sum(weight),2),
+#     percentage_weighted = round(100 * sum(weight) / nrow(categorized_general_pathology), 2),
+#     .groups = "drop"
+#   )
+# 
+# # Merge absolute and weighted into one table
+# pathology_distribution_merged <- pathology_distribution_abs %>%
+#   full_join(pathology_distribution_weighted, by = "category_gen_pathology") %>%
+#   arrange(desc(n))  # sort by absolute n (optional)
 
-# Merge absolute and weighted into one table
-pathology_distribution_merged <- pathology_distribution_abs %>%
-  full_join(pathology_distribution_weighted, by = "category_gen_pathology") %>%
-  arrange(desc(n))  # sort by absolute n (optional)
-
-pathology_distribution_merged
+# pathology_distribution_merged
 
 # Turn into flextable 
 ft <- flextable(pathology_distribution_abs)
 ft <- autofit(ft)
 
-# Save as Word document
-doc <- read_docx() %>%
-  body_add_flextable(ft) %>%
-  print(target = "pathology_distribution_abs.docx")
+# # Save as Word document
+# doc <- read_docx() %>%
+#   body_add_flextable(ft) %>%
+#   print(target = "pathology_distribution_abs.docx")
 ```
+
 ### Treemap
 
 ```{r treemap of general pathologies prep, include = F}
@@ -491,13 +491,13 @@ p1
 
 ```{r}
 # Create frequency table 
-specific_pathology_distribution <- categorized_specific_pathology %>% 
-  separate_rows(category_specific_pathology, sep = "; ") %>%
+specific_pathology_distribution <- categorized_combined_pathology %>%
   filter(!is.na(category_specific_pathology)) %>%  # Remove NA values
+  separate_rows(category_specific_pathology, sep = "; ") %>%
   group_by(category_specific_pathology) %>% 
   summarize(n = n(),
             percentage = 
-              round(100 * n() / nrow(categorized_specific_pathology), 2)) %>%
+              round(100 * n() / nrow(categorized_combined_pathology), 2)) %>%
   ungroup() %>% 
   arrange(desc(n))
 
@@ -505,10 +505,137 @@ specific_pathology_distribution <- categorized_specific_pathology %>%
 ft_1 <- flextable(specific_pathology_distribution)
 ft_1 <- autofit(ft_1)
 
+
 # Save as Word Doc
-doc <- read_docx() %>%
-  body_add_flextable(ft_1) %>%
-  print(target = "specific_pathology_distribution.docx")
+# doc <- read_docx() %>%
+#   body_add_flextable(ft_1) %>%
+#   print(target = "specific_pathology_distribution.docx")
+```
+
+
+### Combined Tables
+
+```{r}
+mapped_df <- categorized_final %>%
+  filter(!is.na(category_specific_pathology)) %>% 
+  separate_rows(category_specific_pathology, sep = ";") %>%
+  mutate(
+    category_specific_pathology = str_trim(category_specific_pathology),
+    mapped_pathology = case_when(
+      # Burns
+      category_specific_pathology %in% c("Acute Burns", "Post-Burn Contractures & Scars") ~ "Burns",
+      
+      # Congenital Malformations
+      category_specific_pathology %in% c(
+        "Cleft Lip & Palate", "Clubfoot", 
+        "Other Malformations", "Polydactyly & Syndactyly"
+      ) ~ "Congenital Malformations",
+      
+      # Trauma
+      category_specific_pathology %in% c(
+        "Severe Injuries", "Soft Tissue Injuries", "Ulcers", 
+        "Open Fractures", "Road Traffic Injuries", "Polytrauma", 
+        "Scars", "Other Trauma", "General Fractures"
+      ) ~ "Trauma",
+      
+      # Neoplastic Conditions
+      category_specific_pathology %in% c("Other Neoplasms", "Cancer") ~ "Neoplastic Conditions",
+      
+      # Infectious Conditions
+      category_specific_pathology %in% c("Noma", "Other Infections", "Buruli Ulcer", 
+                                        "Necrotizing Fasciitis") ~ "Infectious Conditions",
+      
+      # Catch-all for anything else
+      TRUE ~ "Other"
+    )
+  ) %>% 
+  select(
+    covidence_number,
+    general_category_of_pathology,
+    specific_pathology,
+    category_specific_pathology,
+    mapped_pathology
+  )
+
+# Reorder mapped_pathology as a factor BEFORE summarising
+mapped_df <- mapped_df %>%
+  mutate(mapped_pathology = factor(
+    mapped_pathology,
+    levels = c(
+      "Trauma",
+      "Burns",
+      "Congenital Malformations",
+      "Infectious Conditions",
+      "Neoplastic Conditions",
+      "Other"
+    )
+  ))
+
+summary_mapped_pathology <- mapped_df %>%
+  group_by(mapped_pathology, category_specific_pathology) %>%
+  summarise(N = n(), .groups = "drop") %>%
+  group_by(mapped_pathology) %>%               # group again for pct_domain
+  mutate(pct_domain = round(100 * N / sum(N), 2)) %>%
+  ungroup() %>%
+  mutate(pct_overall = round(100 * N / nrow(mapped_df), 2)) %>%  # overall %
+  arrange(mapped_pathology, desc(N))
+
+# Join absolute counts for label only
+summary_mapped_pathology <- summary_mapped_pathology %>%
+  left_join(
+    pathology_distribution_abs %>% 
+      rename(mapped_pathology = category_gen_pathology, group_N = n),
+    by = "mapped_pathology"
+  ) %>%
+  mutate(
+    mapped_label = paste0(mapped_pathology, " (N* = ", group_N, ")")
+  ) %>%
+  select(-c(group_N, mapped_pathology, percentage))  # remove group_N from final table
+
+# Build gt table using mapped_label as groupname_col
+gt_summary <- summary_mapped_pathology %>% 
+  gt(
+    groupname_col = "mapped_label",
+    rowname_col   = "category_specific_pathology"
+  ) %>% 
+  cols_label(
+    N = "n**",
+    pct_domain = "% within domain",
+    pct_overall = "% overall"
+  ) %>% 
+  fmt_number(
+    columns = N,
+    decimals = 0
+  ) %>% 
+  tab_options(
+    table.font.size = px(13),
+    data_row.padding = px(6),
+    row_group.as_column = FALSE
+  ) %>% 
+  tab_header(
+    title = md("Pathologies Requiring Plastic Reconstructive Surgery"),
+    subtitle = "Counts and percentage of specific pathologies and category (% within the specific domain, and % overall included literature)"
+  ) %>% 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_row_groups()
+  ) %>% 
+  cols_align(
+    align = "center",
+    columns = c(N, pct_domain, pct_overall)
+  )
+
+gt_summary
+
+# Save Table
+gtsave(gt_summary, here("images/gt_specific_pathology.png"))
+
+# # Convert to flextable
+# ft <- flextable(summary_mapped_pathology)
+# 
+# # Optional: format columns
+# ft <- colformat_num(ft, j = "N", digits = 0)
+
 ```
 
 ### Treemap
@@ -553,23 +680,6 @@ specific_pathology_distribution %>%
 # )
 ```
 
-# Surgical Procedures 
-
-## Table
-
-```{r frequency table surgeries}
-# Create frequency table
-surgery_distribution <- categorized_surgeries %>% 
-  separate_rows(category_surgery, sep = "; ") %>%
-  filter(!is.na(category_surgery)) %>%  # Remove NA values
-  group_by(category_surgery) %>% 
-  summarize(n = n(),
-            percentage = 
-              round(100 * n() / nrow(categorized_surgeries), 2)) %>%
-  ungroup() %>% 
-  arrange(desc(n))
-
-```
 
 ## Lollipop Bar Graph
 
