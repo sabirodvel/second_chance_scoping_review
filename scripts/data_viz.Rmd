@@ -433,12 +433,13 @@ gt <- pathology_distribution_abs %>%
   cols_align(
     align = "center",
     columns = c(n, percentage)
-  )
+  ) #%>% 
+  # tab_footnote(footnote = "One study can be categorized into more than one pathology category")
 
 gt
 
 # # Save Table
-# gtsave(gt, here("images/gt_general_pathology.png"))
+gtsave(gt, here("images/gt_general_pathology.png"))
 
 ```
 
@@ -560,7 +561,7 @@ mapped_df <- categorized_final %>%
       category_specific_pathology %in% c(
         "Severe Injuries", "Soft Tissue Injuries", "Ulcers", 
         "Open Fractures", "Road Traffic Injuries", "Polytrauma", 
-        "Scars", "Other Trauma", "General Fractures"
+        "Scars", "General Fractures"
       ) ~ "Trauma",
       
       # Neoplastic Conditions
@@ -653,7 +654,7 @@ gt_summary <- summary_mapped_pathology %>%
 gt_summary
 
 # # Save Table
-# gtsave(gt_summary, here("images/gt_specific_pathology.png"))
+gtsave(gt_summary, here("images/gt_specific_pathology.png"))
 
 # # Convert to flextable
 # ft <- flextable(summary_mapped_pathology)

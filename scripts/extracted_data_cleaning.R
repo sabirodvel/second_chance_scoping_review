@@ -435,6 +435,32 @@ categorized_final <- categorized_combined_pathology %>%
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Organize Epi Info ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+incidence_subset <- categorized_final %>% 
+  filter(!is.na(incidence_rate)) %>% 
+  arrange(category_gen_pathology) %>% 
+  mutate(output = paste0(title_3, ": ", incidence_rate)) %>% 
+  pull(output)
+
+prevalence_subset <- categorized_final %>% 
+  filter(!is.na(prevalence_rate)) %>% 
+  select(covidence_number, study_id, title_3, country, category_gen_pathology,
+         category_specific_pathology, incidence_rate, prevalence_rate)
+
+epi_subset <- categorized_final %>% 
+  filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
+  select(covidence_number, study_id, title_3, country, category_gen_pathology,
+         category_specific_pathology, incidence_rate, prevalence_rate)
+
+epi_summary <- categorized_final %>% 
+  filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
+  separate_rows(category_gen_pathology, sep = ";") %>% 
+  mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>% 
+  group_by(category_gen_pathology) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize DALYs Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
