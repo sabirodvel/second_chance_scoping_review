@@ -12,7 +12,7 @@
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, janitor, lubridate, here, stringr)
+pacman::p_load(tidyverse, janitor, lubridate, here, stringr, gt)
 
 source(here("scripts/categorization_included_studies.R"))
 
@@ -51,7 +51,7 @@ source(here("scripts/categorization_included_studies.R"))
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Clean column names (pathologies)
-categorized_studies_clean <- clean_names(categorized_studies) %>% 
+categorized_studies_clean <- clean_names(joined_studies) %>% 
   # Convert to lower for easier reading
   mutate(general_category_of_pathology = str_to_lower(general_category_of_pathology),
          specific_pathology = str_to_lower(specific_pathology),
@@ -74,7 +74,7 @@ categorized_studies_clean <- clean_names(categorized_studies) %>%
     .groups = "drop"
   )
 
-categorized_studies_clean <- right_join(categorized_studies, categorized_studies_clean, by = "covidence_number")
+categorized_studies_clean <- right_join(joined_studies, categorized_studies_clean, by = "covidence_number")
 
 
 # # View unique general pathologies values
@@ -187,8 +187,6 @@ categorized_general_pathology <- categorized_studies_clean %>%
   mutate(category_gen_pathology = mapply(categorize_gen_path, 
                                          general_category_of_pathology, 
                                          specific_pathology, 
-                                         category_tags,
-                                         category_tiab,
                                          MoreArgs = list(categories = categories_gp)))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -335,7 +333,7 @@ categorize_specific_path <- function(specific_pathology, general_pathology, cate
   }
 }
 
-# Example application
+# Aplpication
 categorized_combined_pathology <- categorized_general_pathology %>%
   mutate(category_specific_pathology = mapply(
     categorize_specific_path, 
@@ -437,98 +435,99 @@ categorized_final <- categorized_combined_pathology %>%
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Epi Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-incidence_subset <- categorized_final %>% 
-  filter(!is.na(incidence_rate)) %>% 
-  arrange(category_gen_pathology) %>% 
-  mutate(output = paste0(title_3, ": ", incidence_rate)) %>% 
-  pull(output)
-
-prevalence_subset <- categorized_final %>% 
-  filter(!is.na(prevalence_rate)) %>% 
-  select(covidence_number, study_id, title_3, country, category_gen_pathology,
-         category_specific_pathology, incidence_rate, prevalence_rate)
-
-epi_subset <- categorized_final %>% 
-  filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
-  select(covidence_number, study_id, title_3, country, category_gen_pathology,
-         category_specific_pathology, incidence_rate, prevalence_rate)
-
-epi_summary <- categorized_final %>% 
-  filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
-  separate_rows(category_gen_pathology, sep = ";") %>% 
-  mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>% 
-  group_by(category_gen_pathology) %>% 
-  summarise(n = n()) %>% 
-  arrange(desc(n))
+# incidence_subset <- categorized_final %>% 
+#   filter(!is.na(incidence_rate)) %>% 
+#   arrange(category_gen_pathology) %>% 
+#   mutate(output = paste0(title_3, ": ", incidence_rate)) %>% 
+#   pull(output)
+# 
+# prevalence_subset <- categorized_final %>% 
+#   filter(!is.na(prevalence_rate)) %>% 
+#   select(covidence_number, study_id, title_3, country, category_gen_pathology,
+#          category_specific_pathology, incidence_rate, prevalence_rate)
+# 
+# epi_subset <- categorized_final %>% 
+#   filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
+#   select(covidence_number, study_id, title_3, country, category_gen_pathology,
+#          category_specific_pathology, incidence_rate, prevalence_rate)
+# 
+# epi_summary <- categorized_final %>% 
+#   filter(!is.na(incidence_rate) | !is.na(prevalence_rate)) %>% 
+#   separate_rows(category_gen_pathology, sep = ";") %>% 
+#   mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>% 
+#   group_by(category_gen_pathology) %>% 
+#   summarise(n = n()) %>% 
+#   arrange(desc(n))
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize DALYs Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 daly_subset <- categorized_final %>% 
-  filter(!is.na(disability_adjusted_life_years_dal_ys)) #%>% 
-  # select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
-  #        specific_pathology, disability_adjusted_life_years_dal_ys)
+  filter(!is.na(disability_adjusted_life_years_dal_ys)) %>% 
+  select(covidence_number, study_id, title_3, country,main_study_findings,
+         category_gen_pathology, category_specific_pathology,disability_adjusted_life_years_dal_ys) %>% 
+  arrange(category_gen_pathology)
 
-# Extract countries
-country_daly <- daly_subset %>%  
-  # Identify countries
-  separate_rows(country, sep = ";|,") %>% 
-  mutate(country = str_trim(country)) %>% 
-  distinct(country) %>% 
-  pull()
+#  # Extract countries
+# country_daly <- daly_subset %>%  
+#   # Identify countries
+#   separate_rows(country, sep = ";|,") %>% 
+#   mutate(country = str_trim(country)) %>% 
+#   distinct(country) %>% 
+#   pull()
 
-# Create summary table
-summary_path_daly <- daly_subset %>%
-  separate_rows(category_gen_pathology, sep = ";") %>%
-  mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>%
-  group_by(category_gen_pathology) %>%
-  summarise(
-    n = n_distinct(covidence_number),   # count unique studies per category
-    .groups = "drop"
-  ) %>%
-  mutate(percentage = n / sum(n) * 100) %>%
-  arrange(desc(n))
+# # Create summary table
+# summary_path_daly <- daly_subset %>%
+#   separate_rows(category_gen_pathology, sep = ";") %>%
+#   mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>%
+#   group_by(category_gen_pathology) %>%
+#   summarise(
+#     n = n_distinct(covidence_number),   # count unique studies per category
+#     .groups = "drop"
+#   ) %>%
+#   mutate(percentage = n / sum(n) * 100) %>%
+#   arrange(desc(n))
 
-summary_sp_daly <- daly_subset %>%
-  separate_rows(category_specific_pathology, sep = ";") %>%
-  mutate(category_specific_pathology = str_trim(category_specific_pathology)) %>%
-  group_by(category_specific_pathology) %>%
-  summarise(
-    n = n_distinct(covidence_number),   # count unique studies per category
-    .groups = "drop"
-  ) %>%
-  mutate(percentage = n / sum(n) * 100) %>%
-  arrange(desc(n))
+# summary_sp_daly <- daly_subset %>%
+#   separate_rows(category_specific_pathology, sep = ";") %>%
+#   mutate(category_specific_pathology = str_trim(category_specific_pathology)) %>%
+#   group_by(category_specific_pathology) %>%
+#   summarise(
+#     n = n_distinct(covidence_number),   # count unique studies per category
+#     .groups = "drop"
+#   ) %>%
+#   mutate(percentage = n / sum(n) * 100) %>%
+#   arrange(desc(n))
 
 ### Orofacial clefts ----
 
-# Find studies on congenital malformation
-malformation_daly <- daly_subset %>%
-  separate_rows(category_gen_pathology, sep = ";") %>%
-  mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>%  # remove spaces
-  filter(str_to_lower(category_gen_pathology) == "congenital malformations") %>%
-  select(covidence_number, title_3, country, general_category_of_pathology, category_gen_pathology,
-         specific_pathology, category_specific_pathology, types_of_surgical_procedure_performed, 
-         category_surgery, disability_adjusted_life_years_dal_ys)
-
-# Find studies on clefts
-cleft_daly <- daly_subset %>% 
-  separate_rows(category_specific_pathology, sep = ";") %>% 
-  mutate(category_specific_pathology = str_trim(category_specific_pathology)) %>% 
-  filter(str_to_lower(category_specific_pathology) == "cleft lip & palate") %>% 
-  select(covidence_number, title_3, country, general_category_of_pathology, category_gen_pathology,
-         specific_pathology, category_specific_pathology, types_of_surgical_procedure_performed, 
-         category_surgery, disability_adjusted_life_years_dal_ys)
+# # Find studies on congenital malformation
+# malformation_daly <- daly_subset %>%
+#   separate_rows(category_gen_pathology, sep = ";") %>%
+#   mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>%  # remove spaces
+#   filter(str_to_lower(category_gen_pathology) == "congenital malformations") %>%
+#   select(covidence_number, title_3, country, general_category_of_pathology, category_gen_pathology,
+#          specific_pathology, category_specific_pathology, types_of_surgical_procedure_performed, 
+#          category_surgery, disability_adjusted_life_years_dal_ys)
+# 
+# # Find studies on clefts
+# cleft_daly <- daly_subset %>% 
+#   separate_rows(category_specific_pathology, sep = ";") %>% 
+#   mutate(category_specific_pathology = str_trim(category_specific_pathology)) %>% 
+#   filter(str_to_lower(category_specific_pathology) == "cleft lip & palate") %>% 
+#   select(covidence_number, title_3, country, general_category_of_pathology, category_gen_pathology,
+#          specific_pathology, category_specific_pathology, types_of_surgical_procedure_performed, 
+#          category_surgery, disability_adjusted_life_years_dal_ys)
 
 ### Burns ----
 
-# Find studies on burns
-burn_daly <- daly_subset %>% 
-  separate_rows(category_gen_pathology, sep = ";") %>% 
-  mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>% 
-  filter(str_to_lower(category_gen_pathology) == "burns") %>% 
-  select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
-         specific_pathology, disability_adjusted_life_years_dal_ys)
+# # Find studies on burns
+# burn_daly <- daly_subset %>% 
+#   separate_rows(category_gen_pathology, sep = ";") %>% 
+#   mutate(category_gen_pathology = str_trim(category_gen_pathology)) %>% 
+#   filter(str_to_lower(category_gen_pathology) == "burns") %>% 
+#   select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
+#          specific_pathology, disability_adjusted_life_years_dal_ys)
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Cost Info ----
@@ -541,24 +540,72 @@ cost_2 <- categorized_final %>%
   filter(!is.na(cost_to_government_cost_in_usd_or_other_currency))
 
 cost_subset <- full_join(cost_1, cost_2) %>% 
-  select(covidence_number, study_id, title_3, country, general_category_of_pathology, 
-         specific_pathology, cost_to_government_cost_in_usd_or_other_currency, 
+  select(covidence_number, study_id, title_3, country, main_study_findings, 
+         category_gen_pathology, category_specific_pathology, 
+         cost_to_government_cost_in_usd_or_other_currency, 
          cost_to_individuals_cost_in_usd_or_other_currency)
 
-
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Combine Cost & DALYs Info ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# # Join both subsets
-# cost_daly_subset <- left_join(cost_subset, burn_daly, by = c("study_id"))
+# cost_subset <- cost_subset %>% 
+#   select(covidence_number, study_id, title_3, country,main_study_findings, cost_to_government_cost_in_usd_or_other_currency,
+#          cost_to_individuals_cost_in_usd_or_other_currency,
+#          category_gen_pathology, category_specific_pathology) %>% 
+#   arrange(category_gen_pathology) %>% 
+#   filter(covidence_number == 212) %>% 
+#   mutate(findings_cost = paste0(main_study_findings, "; ", cost_to_government_cost_in_usd_or_other_currency,
+#                                  "; ", cost_to_individuals_cost_in_usd_or_other_currency)) %>% 
+#   pull(findings_cost) %>% 
+#   print()
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Surgical Capacity Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# sc <- extracted_studies_clean %>% 
-#   select(covidence_number, title_3, country, general_category_of_pathology, 
-#          specific_pathology, other_findings, 33:83)
+sc <- categorized_final %>%
+  filter(if_any(34:83, ~ !is.na(.) & . != "")) %>% 
+  select(covidence_number, study_id, title_3, country, main_study_findings, other_findings, 
+         category_gen_pathology,category_specific_pathology, other_findings, 34:83)
 
+# # Identify studies including Assessment Tools in abstract
+# assessment_tools_used <- included_studies %>%
+#   filter(str_detect(abstract, regex("sosas|who surgical assessment tool| who tool| pressco| pedipipes| pipes| assessment tool", 
+#                                     ignore_case = TRUE)))
+# 
+# Classify the studies by tool used
+categorized_assessment_tool <- assessment_tools_used %>%
+  mutate(tool_used = case_when(
+    str_detect(abstract, regex("SOSAS", ignore_case = TRUE)) ~ "SOSAS",
+    str_detect(abstract, regex("WHO Surgical Assessment Tool|WHO SAT| WHO tool | assessment tool", ignore_case = TRUE)) ~ "WHO SAT",
+    str_detect(abstract, regex("PediPIPES", ignore_case = TRUE)) ~ "PediPIPES",
+    str_detect(abstract, regex("PRESSCO", ignore_case = TRUE)) ~ "PRESSCO",
+    TRUE ~ NA_character_   # if none matched
+  ))
+
+# Manual search categories
+assessment_tool_studies <- list(
+  # SOSAS studies (duplicates removed)
+  sosas = c(9571, 8872, 1267, 1698, 2069, 2216, 2217, 2219, 3079, 8841),
   
+  # PediPIPES studies
+  pedipipes = c(3108),
+
+  # WHO SAT studies
+  who_sat = c(8555, 586, 2689, 4656, 8992),
+
+  # WHO EESC (not one of your four, but included separately if you want)
+  who_eesc = c(6965)
+)
+
+categorized_assessment_tool <- categorized_final %>% 
+  mutate(
+    tool_used = case_when(
+      # covidence_number %in% assessment_tool_studies$sosas     ~ "SOSAS", # Not really for capacity but more need
+      covidence_number %in% assessment_tool_studies$pedipipes ~ "PediPIPES",
+      covidence_number %in% assessment_tool_studies$who_sat   ~ "WHO SAT",
+      covidence_number %in% assessment_tool_studies$who_eesc  ~ "WHO EESC",
+      TRUE                                                     ~ NA_character_  # or "Other"
+    ),
+    tool_used = factor(tool_used, levels = c("PediPIPES", "WHO SAT", "WHO EESC"))
+  ) %>% 
+  filter(!is.na(tool_used)) %>% 
+  select(study_id, title_3, country, tool_used)%>% 
+  arrange(tool_used)

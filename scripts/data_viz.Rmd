@@ -706,6 +706,8 @@ specific_pathology_distribution %>%
 # )
 ```
 
+# Surgeries
+
 ## Lollipop Bar Graph
 
 ```{r lollipop surgeries}
@@ -742,6 +744,37 @@ lollipop <-
 
 # Save image
 # ggsave(filename = here("images/surgeries_lollipop_annotated.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+```
+
+# Surgical Capacity
+
+## Tables
+```{r}
+# # Turn to flextable
+ft_3 <- flextable(categorized_assessment_tool)
+ft_3 <- autofit(ft_3)
+
+# Save as Word Doc
+doc <- read_docx() %>%
+  body_add_flextable(ft_3) %>%
+  print(target = "assessment_tool_capacity.docx")
+
+# Turn to gt table
+gt_3 <- categorized_assessment_tool %>% 
+  gt() %>% 
+  cols_label(
+    study_id  = "Study",
+    title_3   = "Title",
+    country   = "Country",
+    tool_used = "Type of Surgical Assessment Tool"
+  ) %>% 
+  tab_header(
+    title = "List of Studies Using Surgical Capacity Tools"
+  )
+
+# Save Table
+gtsave(gt_3, here("images/gt_surgical_tools.png"))
+
 ```
 
 # Barriers
