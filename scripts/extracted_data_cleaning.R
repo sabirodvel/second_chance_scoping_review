@@ -533,17 +533,17 @@ daly_subset <- categorized_final %>%
 ## Organize Cost Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cost_1 <- categorized_final %>% 
-  filter(!is.na(cost_to_individuals_cost_in_usd_or_other_currency))
-
-cost_2 <- categorized_final %>% 
-  filter(!is.na(cost_to_government_cost_in_usd_or_other_currency))
-
-cost_subset <- full_join(cost_1, cost_2) %>% 
-  select(covidence_number, study_id, title_3, country, main_study_findings, 
-         category_gen_pathology, category_specific_pathology, 
-         cost_to_government_cost_in_usd_or_other_currency, 
-         cost_to_individuals_cost_in_usd_or_other_currency)
+# cost_1 <- categorized_final %>% 
+#   filter(!is.na(cost_to_individuals_cost_in_usd_or_other_currency))
+# 
+# cost_2 <- categorized_final %>% 
+#   filter(!is.na(cost_to_government_cost_in_usd_or_other_currency))
+# 
+# cost_subset <- full_join(cost_1, cost_2) %>% 
+#   select(covidence_number, study_id, title_3, country, main_study_findings, 
+#          category_gen_pathology, category_specific_pathology, 
+#          cost_to_government_cost_in_usd_or_other_currency, 
+#          cost_to_individuals_cost_in_usd_or_other_currency)
 
 # cost_subset <- cost_subset %>% 
 #   select(covidence_number, study_id, title_3, country,main_study_findings, cost_to_government_cost_in_usd_or_other_currency,
@@ -570,15 +570,15 @@ sc <- categorized_final %>%
 #   filter(str_detect(abstract, regex("sosas|who surgical assessment tool| who tool| pressco| pedipipes| pipes| assessment tool", 
 #                                     ignore_case = TRUE)))
 # 
-# Classify the studies by tool used
-categorized_assessment_tool <- assessment_tools_used %>%
-  mutate(tool_used = case_when(
-    str_detect(abstract, regex("SOSAS", ignore_case = TRUE)) ~ "SOSAS",
-    str_detect(abstract, regex("WHO Surgical Assessment Tool|WHO SAT| WHO tool | assessment tool", ignore_case = TRUE)) ~ "WHO SAT",
-    str_detect(abstract, regex("PediPIPES", ignore_case = TRUE)) ~ "PediPIPES",
-    str_detect(abstract, regex("PRESSCO", ignore_case = TRUE)) ~ "PRESSCO",
-    TRUE ~ NA_character_   # if none matched
-  ))
+# # Classify the studies by tool used
+# categorized_assessment_tool <- assessment_tools_used %>%
+#   mutate(tool_used = case_when(
+#     str_detect(abstract, regex("SOSAS", ignore_case = TRUE)) ~ "SOSAS",
+#     str_detect(abstract, regex("WHO Surgical Assessment Tool|WHO SAT| WHO tool | assessment tool", ignore_case = TRUE)) ~ "WHO SAT",
+#     str_detect(abstract, regex("PediPIPES", ignore_case = TRUE)) ~ "PediPIPES",
+#     str_detect(abstract, regex("PRESSCO", ignore_case = TRUE)) ~ "PRESSCO",
+#     TRUE ~ NA_character_   # if none matched
+#   ))
 
 # Manual search categories
 assessment_tool_studies <- list(
@@ -609,3 +609,678 @@ categorized_assessment_tool <- categorized_final %>%
   filter(!is.na(tool_used)) %>% 
   select(study_id, title_3, country, tool_used)%>% 
   arrange(tool_used)
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Create study characteristics ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Study Design ----
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Create mapping list
+categories_study_design <- list(
+  
+  # 1) Literature reviews (all review types, incl. generic "review(s)")
+  "Literature review" = c(
+    "systematic review",
+    "meta[- ]?analysis",
+    "scoping review",
+    "narrative review",
+    "nonsystematic literature review",
+    "\\bliterature review\\b",
+    "review article",
+    "scientific review",
+    "\\breviews?\\b",
+    "study and review",
+    "systematic analysis"
+  ),
+  
+  # 2) Economic evaluation
+  "Economic evaluation" = c(
+    "cost",                         # cost-effectiveness / cost-of-illness / cost-DALY
+    "\\bdaly\\b",
+    "burden of disease",
+    "economic model|economic modeling|macroeconomic",
+    "step[- ]?down accounting",
+    "economic evaluation|economic analysis"
+  ),
+  
+  # 3) Case-control
+  "Case control study" = c(
+    "case[- ]?control"
+  ),
+  
+  # 4) Mixed-methods (wins over cohort/cross-sectional/qualitative)
+  "Mixed-methods" = c(
+    "mixed[\\-\\s]*methods?",                 # mixed-methods / mixed methods / mixed- methods
+    "mixed[\\-\\s]*method.*(survey|interview|cohort|observational|case study|needs assessment)"
+  ),
+  
+  # 5) Cohort
+  "Cohort study" = c(
+    "\\bcohort\\b",
+    "follow[- ]?up",
+    "surveillance study|surveillance.*cohort",
+    "registry[- ]?based.*cohort|registry[- ]?based surveillance",
+    # observational with explicit direction
+    "\\bprospective\\b.*observational",
+    "\\bretrospective\\b.*observational",
+    "observational.*\\bprospective\\b",
+    "observational.*\\bretrospective\\b",
+    "descriptive cohort",
+    "before[- ]?and[- ]?after",
+    "pre[- ]?test\\/?post[- ]?test",
+    "pre[- ]?post",
+    "intervention study"
+  ),
+  
+  # 6) Cross-sectional (surveys, prevalence, tools)
+  "Cross-sectional study" = c(
+    "cross.?sectional",
+    "point prevalence",
+    "\\bsurvey\\b|questionnaire|assessment",
+    "nation(wide|al).*survey|countrywide.*survey",
+    "population[- ]?based.*survey|household survey|population[- ]?based cross[- ]?sectional household survey",
+    "health facility survey|hospital[- ]?based.*survey|institution[- ]?based.*survey|in[- ]?hospital survey",
+    "cluster.*(cross.?sectional|survey)",
+    "serial cross.?sectional",
+    "pipes|who[- ]?iatsic|who tool for situational analysis|surgeons overseas"
+  ),
+  
+  # 7) Qualitative
+  "Qualitative research" = c(
+    "\\bqualitative\\b",
+    "semi[- ]?structured interview|interviews?|focus group|thematic analysis"
+  ),
+  
+  # 8) Case series (incl. chart/record/database reviews)
+  "Case series" = c(
+    "case‐series",
+    "case[ -]?series",
+    "retrospective chart study",
+    "chart review",
+    "record review",
+    "database review",
+    "medical (record|documentation) review",
+    "case review",
+    "clinical database"
+  ),
+  
+  # 9) Descriptive (explicitly descriptive designs)
+  "Descriptive" = c(
+    "\\bdescriptive\\b",
+    "descriptive analysis",
+    "descriptive study",
+    "descriptive observational",
+    "descriptive report",
+    "descriptive.*hospital[- ]?based",
+    "descriptive.*multicenter|descriptive.*multi[- ]?center"
+  ),
+  
+  # 10) Observational (unspecified / registry-/database-based / generic “study/analysis”)
+  "Observational study" = c(
+    "\\bobservational study\\b",
+    # generic prospective/retrospective "study" without cohort/cross-sectional markers
+    "^\\s*other:.*\\bprospective study\\b",
+    "^\\s*other:.*\\bretrospective study\\b",
+    # generic analyses
+    "data analysis|analysis of|retrospective analysis|prospective analysis",
+    # registry/database phrasing not otherwise captured
+    "registry|trauma registry|prospectively collected .*registry data|clinical database",
+    # gis/comparative phrasing
+    "\\bgis\\b|geospatial|comparative study",
+    "retrospective hospital based study",
+    "retrospective and hospital-based study"
+  ),
+  
+  # 11) Text & opinion
+  "Text and opinion" = c(
+    "commentary|perspective",
+    "policy forum|expert consensus",
+    "communication report",
+    "text and opinion",
+    "activity report"
+  )
+)
+
+# Priority (first match wins)
+priority_study_design <- c(
+  "Economic evaluation",
+  "Case control study",
+  "Mixed-methods",
+  "Case series",
+  "Cohort study",
+  "Cross-sectional study",
+  "Qualitative research",
+  "Literature review",
+  "Descriptive",
+  "Observational study",
+  "Text and opinion"
+  # "Other" is fallback
+)
+
+# Categorization function
+categorize_study_design <- function(text, categories, priority_order = NULL) {
+  if (is.na(text) || str_trim(text) == "") return(NA_character_)
+  s <- str_to_lower(text)
+  order_names <- if (is.null(priority_order)) names(categories) else priority_order
+  
+  for (nm in order_names) {
+    pats <- categories[[nm]]
+    re <- paste0("(", paste(pats, collapse = "|"), ")")
+    if (str_detect(s, regex(re, ignore_case = TRUE))) return(nm)
+  }
+  "Other"
+}
+
+# Example usage
+categorized_final <- categorized_final %>%
+  mutate(category_study_design = sapply(
+    study_design,
+    categorize_study_design,
+    categories = categories_study_design,
+    priority_order = priority_study_design
+   ))
+
+# dplyr::count(df_categorized, category_study_design, sort = TRUE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Source of Data ----
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Mapping Lists
+
+## PRIMARY subtypes
+primary_patterns <- list(
+  "Survey/Questionnaire/Interview" = c(
+    "sosas", "soas",                                   # Surgeons Overseas Assessment
+    "household.*survey", "population[- ]?based.*(survey|interview)",
+    "\\bsurvey\\b", "questionnaire", "responses? from .*specialists",
+    "interview", "face[- ]?to[- ]?face", "self[- ]?administered", "web[- ]?based",
+    "proforma(?!.*data)", "structured proforma", "data entered in proforma", "survey"
+  ),
+  "Clinical exam/testing" = c(
+    "physical examination|clinical (evaluation|examination)|wound assessments?",
+    "laboratory|microbiolog(ical|y)|radiograph|computed tomography|ct angiograph|sonograph|anaesthetic records"
+  ),
+  "Facility assessment (PIPES/IMEESC/GECT)" = c(
+    "pipes(?!.*database)", "imeesc", "essential trauma care",
+    "infrastructure evaluation", "direct inspection", "site assessment", "facility assessment",
+    "structured interviews? with staff", "guidelines for essential trauma care; structured interviews; direct inspection"
+  ),
+  "Author-maintained log/form" = c(
+    "surgical log recorded by the lead author", "data collected by author", "primary experience",
+    "study questionnaire", "pro forma questionnaire", "flowchart sheet"
+  ),
+  "Primary medical-record abstraction" = c(
+    # cases explicitly labeled primary but abstracted from records
+    "primary data collection.*(medical records|chart|case[- ]?notes|patient files|register|operative report)"
+  ),
+  "Primary (unspecified)" = c("^\\s*primary data collection\\b|^\\s*primary data\\b")
+)
+
+## SECONDARY subtypes
+secondary_patterns <- list(
+  "Medical records" = c(
+    "medical records?|patient files?|case[- ]?notes?|charts?|clinical notes?|folders?",
+    "admission registers?|discharge (summary|summaries)",
+    "operation (notes?|register)", "operating (room|theatre) (register|log ?book|logs?)",
+    "records? department", "hospital records?", "consultation (logs?|registers?)",
+    "nurses[’']? reports?|ward (round book|logs?)", "emergency unit records?", "rehabilitation team.*records?",
+    "records of patients", "clinical records", "records of operations", "patient records", 
+    "records and patient information", "case files"
+  ),
+  "Registry/Database/Logbook" = c(
+    "registry|registries", "database|databases", "logbook|logbooks",
+    "operative database|operating room case logs?|surgical case logbook",
+    "burn (registry|database|surveillance)", "trauma registry", "pediatric surgery database",
+    "smile train express|\\bstx\\b", "psr system", "ward[- ]?based clinical database",
+    "hospital information management system|\\bhims\\b", "recorded pediatric surgery database",
+    "kamuzu central hospital burn", "\\bkch\\b burn (registry|database|surveillance)", "logs of procedures for orofacial cleft"
+  ),
+  "Administrative/MOH/HDSS/WHO-SARA/SAT" = c(
+    "ministry of health|\\bmoh\\b", "aggregate .*hospital statistics", "policy database",
+    "health and demographic surveillance site|\\bhdss\\b",
+    "who (sara|sat) (survey|database)|who sat database|who sara surveys"
+  ),
+  "Literature databases" = c(
+    "pubmed|medline|embase|scopus|cochrane|google scholar|cinahl|lilacs|scielo|web of science|science direct",
+    "african index medicus|ajol|pais international|global health|imme?mr|imsear|wholis|wprim|otseeker"
+  ),
+  "GBD/IHME/WHO datasets" = c(
+    "global burden of disease|\\bgbd\\b|ihme",
+    "who international clinical trials registry platform", "who data"
+  ),
+  "Program/NGO reports" = c(
+    "msf|m[ée]decins sans fronti[èe]res|ocb",
+    "usaid|amref|tropical health and education trust|\\bthet\\b|sentinelles foundation",
+    "suppliers|product catalog|office of management and budget|ngo sources|program reports"
+  ),
+  "External digital/app data" = c(
+    "ma3route app", "online learning platform"
+  ),
+  "Secondary (unspecified)" = c("^\\s*secondary data( collection)?\\b|existing data and literature|data sources included databases")
+)
+
+# Helper to test a text against a pattern vector
+match_any <- function(s, pats) {
+  if (is.na(s) || str_trim(s) == "") return(FALSE)
+  any(str_detect(s, regex(paste(pats, collapse = "|"), ignore_case = TRUE)), na.rm = TRUE)
+}
+
+categorize_sources <- function(df, col = "sources_of_data") {
+  s_raw <- df[[col]]                 # keep true NAs
+  s <- tolower(s_raw)                # tolower() preserves NA
+  
+  n <- length(s)
+  primary_hits   <- vector("list", n)
+  secondary_hits <- vector("list", n)
+  
+  # Collect hits row-by-row (NA-safe)
+  for (i in seq_len(n)) {
+    x <- s[i]
+    if (is.na(x) || str_trim(x) == "") {
+      primary_hits[[i]]   <- character(0)
+      secondary_hits[[i]] <- character(0)
+      next
+    }
+    primary_hits[[i]] <- names(primary_patterns)[
+      vapply(primary_patterns,  function(p) match_any(x, p), logical(1))
+    ]
+    secondary_hits[[i]] <- names(secondary_patterns)[
+      vapply(secondary_patterns, function(p) match_any(x, p), logical(1))
+    ]
+  }
+  
+  # Decide type (preserve NA when input is NA/blank)
+  source_type <- mapply(function(ph, sh, x) {
+    if (is.na(x) || str_trim(x) == "") return(NA_character_)
+    has_p <- length(ph) > 0
+    has_s <- length(sh) > 0
+    if (has_p && has_s) "Mixed"
+    else if (has_p)     "Primary"
+    else if (has_s)     "Secondary"
+    else if (str_detect(x, "\\bna\\b|unspecified|no specific mention")) "Unclear"
+    else "Unclear"
+  }, primary_hits, secondary_hits, s, USE.NAMES = FALSE)
+  
+  # Details
+  primary_detail    <- vapply(primary_hits,   function(v) if (length(v)) paste(unique(v), collapse = "; ") else NA_character_, character(1))
+  secondary_detail  <- vapply(secondary_hits, function(v) if (length(v)) paste(unique(v), collapse = "; ") else NA_character_, character(1))
+  
+  source_detail <- mapply(function(t, p, q) {
+    if (is.na(t)) return(NA_character_)
+    if (t == "Primary")   p
+    else if (t == "Secondary") q
+    else if (t == "Mixed") paste0("Primary: ", p, "&", "Secondary: ", q)
+    else NA_character_
+  }, source_type, primary_detail, secondary_detail, USE.NAMES = FALSE)
+  
+  df %>%
+    mutate(
+      source_type      = source_type,       # NA inputs -> NA here
+      source_detail    = source_detail,
+      primary_source   = primary_detail,
+      secondary_source = secondary_detail
+    )
+}
+
+# Usage
+categorized_final <- categorize_sources(categorized_final, col = "sources_of_data")
+
+
+# # Inspect rows still unclear:
+# test <- df %>% 
+#   select(sources_of_data, source_type, source_detail, primary_source, secondary_source)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Study Setting ----
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Patterns (referral merged into tertiary; non-facility collapsed)
+facility_category_patterns <- list(
+  # Special contexts
+  "Field/military hospital" = c(
+    "level\\s*2\\s*medical\\s+treatment\\s+facility",
+    "\\bminusma\\b", "\\bchn\\s*r2\\b", "chinese\\s+level\\s*2", "\\bcamp\\b"
+  ),
+  "NGO/humanitarian hospital/program" = c(
+    "msf|m[ée]decins\\s+sans\\s+fronti[èe]res|\\bocb\\b",
+    "africa\\s+mercy|hospital\\s+ship|operation\\s+of\\s+hope",
+    "partners\\s+in\\s+health|inshuti\\s+mu\\s+buzima",
+    "smile\\s*train(?!.*partner\\s+hospitals)|smile\\s*train.*outreach|smile\\s*train\\s+partner\\s+hospitals",
+    "short[- ]?term\\s+medical\\s+missions?|\\bstmm(s)?\\b",
+    "foundation(?!.*university)",                              # e.g., CFDF
+    "ngo(\\s|\\-)?(hospital|program)|not[- ]?for[- ]?profit",
+    "Don Orione"
+  ),
+  
+  # Mixed levels
+  "Mixed facility levels" = c(
+    "three\\s+levels.*community.*health\\s*centr(e|er).*district\\s+hospital",
+    "primary\\s+health\\s+centres?.*secondary\\s+health\\s+care",
+    "two\\s+tertiary.*four\\s+district",
+    "clinics?,?\\s+small\\s+hospitals?,?\\s+and\\s+large\\s+hospitals?",
+    "multiple\\s+health\\s+facilities",
+    "district\\s+and\\s+regional\\s+hospitals",
+    "nationally\\s+representative\\s+health\\s+facility\\s+surveys",
+    "all\\s+hospitals",                                   # e.g., “All hospitals … in Zambia”
+    "all\\s+\\d+\\s+surgically\\s+equipped\\s+hospitals",
+    "primary.*secondary|secondary.*tertiary|primary.*tertiary",
+    "two\\s+tertiary\\s+hospitals;?\\s+and\\s+four\\s+district\\s+hospitals",
+    "\\b\\d+\\s+health\\s+facilities\\b",
+    "urban\\s+and\\s+rural\\s+locations",
+    "district\\s+and\\s+referral\\s+hospitals",
+    "facilities\\s+performing\\s+surgery"
+  ),
+  
+  # Tertiary / referral (merged)
+  "Tertiary/referral hospital" = c(
+    "\\btertiary\\b|teaching\\s+hospital",
+    "University",
+    "university(\\s+teaching)?\\s+hospital|university\\s+college\\s+hospital|university\\s+hospital\\s+centre|university\\s+clinics?",
+    "central\\s+hospital|national\\s+hospital",
+    "specialist(\\s+teaching)?\\s+hospital",
+    "regional\\s+referral\\s+hospital",
+    "speciali[sz]ed\\s+hospital|comprehensive\\s+speciali[sz]ed\\s+hospital",
+    "children'?s\\s+hospital|p(ae)?diatric\\s+.*hospital",
+    "trauma\\s+cent(re|er)",
+    "first-referral health facilities",
+    "plastic surgery centers",
+    "pediatric surgery department",
+    "Akonolinga Buruli Center",
+    # units/services that imply tertiary
+    "burns?\\s+unit(s)?|burn\\s+care\\s+unit(s)?|burns?\\s+and\\s+plastic(s)?(\\s+surgery)?\\s+unit(s)?",
+    "surgical\\s+oncology\\s+unit(s)?",
+    "specialist\\s+cleft(\\s+lip\\s+and\\s+palate)?\\s+unit(s)?|cleft\\s+hospital(s)?",
+    # referral merged here
+    "\\breferral\\s+(hospital|centre|center)\\b|national\\s+referral|primary\\s+trauma\\s+centre|national\\s+trauma",
+    # exemplar names
+    "\\bchuk\\b|\\bchub\\b|korle\\s+bu|komfo\\s+anokye|bugando\\s+medical\\s+centre|\\bkcmc\\b|kijabe\\s+hospital|kenyatta\\s+national\\s+hospital|queen\\s+elizabeth\\s+central\\s+hospital|kamuzu\\s+central\\s+hospital|moi\\s+teaching\\s+and\\s+referral\\s+hospital",
+    # departments within tertiary hospitals (if 'hospital' not repeated)
+    "department\\s+of\\s+.*\\b(hospital)\\b"
+  ),
+  
+  # Secondary hospitals
+  "Secondary hospital" = c(
+    "district[-\\s]*(level)?\\s+hospitals?",                   # district-level, district hospitals
+    "provincial(\\s+general)?\\s+hospitals?|county\\s+hospitals?",
+    "regional\\s+hospitals?(?!\\s*for)|\\blevel\\s*v\\b.*hospitals?",
+    "\\bgeneral\\s+hospitals?\\b",
+    "mission(ary)?\\s+hospitals?|faith[- ]?based\\s+hospitals?|adventist\\s+hospitals?",
+    "private\\s+hospitals?",
+    "government\\s+hospitals?(?!.*teaching)",
+    "\\bsecondary\\s+(level\\s+)?hospitals?\\b",
+    "public\\s+hospitals?",                                    # e.g., 8 public hospitals
+    "rural\\s+hospitals?"
+  ),
+  
+  # Primary care
+  "Primary care facility" = c(
+    "health\\s*centr(e|er)s?\\b|\\bhc(s)?\\b(?!\\s*(iv|iii|ii))",  # HCs, health centres
+    "\\bhc\\s*(iv|iii|ii)\\b",                                     # keep HC levels too
+    "\\bclinic(s)?\\b",
+    "primary\\s+health\\s+(centr(e|er)|facility|care)",
+    "health\\s+post",
+    "level\\s*1\\s+hospital|first\\s+level\\s+hospital"             # LMIC nomenclature
+  ),
+  
+  # Unspecified facility words (catch-all)
+  "Healthcare facilities (unspecified level)" = c(
+    "hospitals?\\b",                                               # plural/singular
+    "medical\\s+cent(re|er)s?",                                    # medical center/centre
+    "\\b(institute|institut)\\b",                                  # e.g., orthopedic institute
+    "\\bunit(s)?\\b(?!.*burn)",                                    # generic units if not matched above
+    "healthcare\\s+facilit(y|ies)",
+    "pediatric surgical OR"
+  ),
+  
+  # Non-facility (population/policy/global/events)
+  "Non-facility (population/policy/global)" = c(
+    # population/household/areas/administrative
+    "nationwide|across\\s+[a-z]+|population[- ]?based\\s+survey|household\\s+survey",
+    "\\bdistricts?\\b|\\blga(s)?\\b|local\\s+government\\s+area",
+    "health\\s+and\\s+demographic\\s+surveillance\\s+site|\\bhdss\\b|\\bdss\\b",
+    "enumeration\\s+areas?",
+    "\\bzone(s)?\\b|administrative\\s+zones?",
+    "\\bvillage(s)?\\b|\\bidp\\b",
+    # programs / events / regions / acronyms
+    "programs?|preventive|preventative",
+    "Nationally representative surveys",
+    "rural Hararghe",
+    "policy database",
+    "congress|conference|symposium|meeting",
+    "\\bssa\\b|sub-?saharan\\s+africa|low[-\\s]and[-\\s]lower\\s+middle[-\\s]income\\s+countries",
+    "\\bglobal\\b|\\basia\\b|\\bafrica\\b(?!.*hospital)|multiple\\s+countries",
+    # country/region-wide non-facility listings
+    "\\b(\\d+\\s+)?district(s)?\\s+in\\b|\\b(\\d+\\s+)?district(s)?\\s+of\\b"
+  )
+)
+
+# Priority
+priority_facility_categories <- c(
+  "Field/military hospital",
+  "NGO/humanitarian hospital/program",
+  "Mixed facility levels",
+  "Tertiary/referral hospital",
+  "Secondary hospital",
+  "Primary care facility",
+  "Healthcare facilities (unspecified level)",
+  "Non-facility (population/policy/global)"
+)
+
+# Matcher function
+match_any <- function(s, pats) {
+  if (is.na(s) || str_trim(s) == "") return(FALSE)
+  if (is.null(pats) || length(pats) == 0) return(FALSE)
+  pat <- paste(pats, collapse = "|")
+  if (identical(pat, "") || nchar(pat) == 0) return(FALSE)
+  str_detect(s, regex(pat, ignore_case = TRUE))
+}
+
+# Function
+categorize_setting_level <- function(df, col = "study_setting_location") {
+  x_raw <- df[[col]]
+  x <- tolower(x_raw)  # preserves NA
+  
+  internal_cat <- vapply(seq_along(x), function(i) {
+    s <- x[i]
+    if (is.na(s) || str_trim(s) == "") return(NA_character_)
+    for (nm in priority_facility_categories) {
+      if (match_any(s, facility_category_patterns[[nm]])) return(nm)
+    }
+    "Unclear"
+  }, character(1))
+  
+  # setting_level <- ifelse(
+  #   is.na(internal_cat), NA_character_,
+  #   dplyr::case_when(
+  #     internal_cat == "Primary care facility"                   ~ "Primary",
+  #     internal_cat == "Secondary hospital"                      ~ "Secondary",
+  #     internal_cat == "Tertiary/referral hospital"              ~ "Tertiary",
+  #     internal_cat == "Non-facility (population/policy/global)" ~ "Non-facility",
+  #     internal_cat == "Mixed facility levels"                   ~ "Mixed levels",
+  #     internal_cat %in% c("Field/military hospital",
+  #                         "NGO/humanitarian hospital/program")  ~ "Special facility",
+  #     internal_cat == "Healthcare facilities (unspecified level)" ~ "Healthcare (unspecified)",
+  #     TRUE                                                      ~ "Unclear"
+  #   )
+  # )
+  
+  df %>% mutate(setting_level = internal_cat)
+}
+
+# Usage
+categorized_final <- categorize_setting_level(categorized_final, "study_setting_location")
+# dplyr::count(study_setting, setting_level, sort = TRUE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Population ----
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# View variables
+# categorized_final %>% 
+#   select(covidence_number, title_3, study_design, study_setting_location, 
+#          author_affiliation, country, sources_of_data, age_group_demographics, 
+#          category_gen_pathology, category_specific_pathology, category_surgery) %>% 
+#   select(age_group_demographics) %>% 
+#   unique()
+
+# vectorized: val and unit can be vectors
+to_years <- function(val, unit) {
+  unit <- tolower(ifelse(is.na(unit) | unit == "", "years", unit))
+  v <- as.numeric(val)
+  v <- ifelse(str_detect(unit, "^day|^d"),    v / 365,
+              ifelse(str_detect(unit, "^week|^w"),   v / 52,
+                     ifelse(str_detect(unit, "^month|^mo|^m$"), v / 12, v)))
+  v
+}
+
+# min/max years from any numbers in the string (handles days/weeks/months/years)
+range_years <- function(x) {
+  m <- str_match_all(x, "(>=|≤|<=|≥|>|<)?\\s*(\\d+(?:\\.\\d+)?)\\s*(day|days|d|week|weeks|w|month|months|mo|m|year|years|y)?")[[1]]
+  if (nrow(m) == 0) return(c(NA_real_, NA_real_))
+  yrs <- to_years(m[,3], m[,4])
+  c(min(yrs, na.rm = TRUE), max(yrs, na.rm = TRUE))
+}
+
+# classify one string into Pediatric / Adult / All ages / Unspecified
+classify_one_age <- function(s) {
+  if (is.na(s) || str_trim(s) == "") return(NA_character_)
+  x <- str_to_lower(s) |> str_squish() |> str_replace_all("[–—−]", "-")
+  
+  ped_hint   <- str_detect(x, "neonat|new\\s?born|p(ae)?diatr|child(ren)?|infant|
+                           <=?\\s*18|≤\\s*18|under\\s*18|below\\s*18|<=?\\s*15|
+                           ≤\\s*15|under\\s*15|pediatric|pediatrics")
+  adult_hint <- str_detect(x, "\\badult(s)?\\b|elderly|geriatric|skeletal(ly)?\\s*mature|specialists?|surgeons?|>=?\\s*18|≥\\s*18|\\b18\\s*(and\\s*over|years?\\s*and\\s*above)|>=?\\s*50|≥\\s*50")
+  all_hint   <- str_detect(x, "all\\s+ages?|all\\s+age\\s+(groups?|ranges?)|qll\\s+age")
+  
+  rng <- range_years(x); miny <- rng[1]; maxy <- rng[2]
+  spans <- (!is.na(miny) && !is.na(maxy) && miny < 18 && maxy >= 18)
+  
+  if (all_hint || spans)                       return("All ages")
+  if (ped_hint   || (!is.na(maxy) && maxy <= 18)) return("Pediatric")
+  if (adult_hint || (!is.na(miny) && miny >= 18)) return("Adult")
+  if (str_detect(x, "\\bunspecified\\b|^na$"))  return("Unspecified")
+  "Unspecified"
+}
+
+# vectorized wrapper: adds one column 'age_group'
+classify_age_group <- function(df, col = "age_group_demographics") {
+  v <- df[[col]]
+  out <- vapply(v, classify_one_age, character(1))
+  df %>% mutate(age_group = factor(out, levels = c("Pediatric","Adult","All ages","Unspecified")))
+}
+
+# Usage
+categorized_final <- classify_age_group(categorized_final, "age_group_demographics")
+
+# dplyr::count(age_groups, age_group, sort = TRUE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Affiliation ----
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# View variables
+# categorized_final %>% 
+#   select(covidence_number, title_3, study_design, study_setting_location, 
+#          author_affiliation, country, sources_of_data, age_group_demographics, 
+#          category_gen_pathology, category_specific_pathology, category_surgery) %>% 
+#   select(author_affiliation) %>% 
+#   unique()
+
+# Category List
+categories_affiliation <- list(
+  "African Country" = c(
+    # Countries (+ common variants)
+    "algeria","angola","benin","botswana","burkina\\s*faso","burundi",
+    "cabo\\s*verde|cape\\s*verde","cameroon","central\\s+african\\s+republic|\\bcar\\b",
+    "\\bchad\\b","comoros","democratic\\s+republic\\s+of\\s+the\\s+congo|\\bdrc\\b|congo\\s*\\(kinshasa\\)",
+    "republic\\s+of\\s+the\\s+congo|congo\\s*\\(brazzaville\\)|\\bcongo\\b",
+    "djibouti","egypt","equatorial\\s+guinea","eritrea","eswatini|swaziland",
+    "ethiopia","gabon","gambia|the\\s+gambia","ghana","guinea\\-?bissau","\\bguinea\\b(?!-?bissau)",
+    "c(o|ô|ô)te\\s*d[’']?ivoire|cote\\s*d[’']?ivoire|ivory\\s+coast",
+    "kenya","lesotho","liberia","libya","madagascar","malawi","mali","mauritania","mauritius",
+    "morocco","mozambique","namibia","niger(?!ia)","nigeria","rwanda",
+    "s(ã|a)o\\s*tom(e|é)\\s*(and|&)\\s*pr(i|í)ncipe",
+    "senegal","seychelles","sierra\\s*leone","somalia","south\\s+africa","south\\s+sudan",
+    "sudan","tanzania","togo","tunisia","uganda","zambia","zimbabwe","western\\s+sahara",
+    # Helpful African cities (when country not written)
+    "lilongwe","blantyre","kigali","kampala","nairobi","dar\\s*es\\s*salaam",
+    "mwanza","moshi","lusaka","harare","maputo","ouagadougou","bobo\\s*dioulasso",
+    "accra","kumasi","abidjan","banjul","conakry","yaound[ée]","asmara",
+    "addis\\s*ababa","luanda","ibadan","lagos","enugu","ado\\-?ekiti","jos",
+    "makurdi","ile\\-?ife","sokoto","mbarara","kijabe", "rift valley", "kilimanjaro", 
+    "State House Medical Centre", "osogbo", "Egerton University", "ebonyi", "alex ekwueme",
+    "tamale teaching hospital", "korle-bu teaching hospital", "onabanjo", "komfo"
+  ),
+  
+  "Western Country" = c(
+    # US/Canada
+    "united\\s*states(\\s*of\\s*america)?","\\busa\\b","\\bu\\.?s\\.?a?\\b",
+    "canada",
+    # UK & Ireland
+    "united\\s*kingdom","\\buk\\b","england","scotland","wales","northern\\s*ireland",
+    "great\\s*britain|\\bbritain\\b","ireland",
+    # Western/Northern/Southern Europe
+    "france","germany","netherlands|the\\s+netherlands|holland","belgium","switzerland","austria",
+    "spain","portugal","italy","greece","denmark","norway","sweden","finland","iceland",
+    "luxembourg","liechtenstein","andorra","monaco","san\\s*marino","vatican",
+    # EU-CEE often grouped in 'Western' research contexts
+    "poland","czech\\s*republic|czechia","slovakia","hungary","slovenia","croatia",
+    "estonia","latvia","lithuania","malta","cyprus",
+    # Oceania
+    "australia","new\\s*zealand",
+    # Helpful Western cities + States
+    "boston","new\\s+york|nyc","philadelphia","chicago","seattle","san\\s+francisco","los\\s+angeles",
+    "durham","chapel\\s+hill","charlottesville","vancouver","toronto","montr[eé]al",
+    "london","birmingham","dundee","geneva","bergen","ume[aå]", "Minnesota", "North Carolina",
+    "california", "Utah", "Iowa", "Virginia", "Harvard", "Sydney", "New Haven", "Dartmouth",
+    "padova|padua","amsterdam","liverpool","oxford","cambridge","valencia","paris","clamart"
+  ), 
+  
+  "Asian Country" = c(
+    "china", "nepal", "pakistan", "aga khan", "seoul"
+  )
+)
+
+categorize_affiliation <- function(affiliation_text, categories) {
+  assign_side <- function(text) {
+    if (is.na(text) || text == "") return(character(0))
+    txt <- stringr::str_to_lower(text)
+    
+    names(categories)[sapply(categories, function(patterns) {
+      any(sapply(patterns, function(pat) {
+        pat_bounded <- if (grepl("^\\b.*\\b$", pat)) pat else paste0("\\b", pat, "\\b")
+        stringr::str_detect(txt, stringr::regex(pat_bounded, ignore_case = TRUE))
+      }))
+    })]
+  }
+  
+  hits <- assign_side(affiliation_text)
+  
+  if (length(hits) == 0) {
+    if (is.na(affiliation_text) || affiliation_text == "") return(NA_character_)
+    return("Other")
+  }
+  
+  # consider only these 3 groups for combos, in a fixed order
+  groups <- c("African Country", "Asian Country", "Western Country")
+  present <- intersect(groups, hits)
+  
+  if (length(present) >= 2) {
+    return(paste(present, collapse = " & "))
+  }
+  
+  # only one group matched
+  return(present %||% hits[1])
+}
+
+# With your object name:
+categorized_final <- categorized_final %>%
+  mutate(affiliation_region = sapply(author_affiliation, categorize_affiliation,
+                                     categories = categories_affiliation))
+
+# dplyr::count(affiliation, affiliation_region, sort = TRUE)
