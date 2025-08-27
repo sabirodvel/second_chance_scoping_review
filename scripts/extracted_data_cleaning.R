@@ -462,11 +462,11 @@ categorized_final <- categorized_combined_pathology %>%
 ## Organize DALYs Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-daly_subset <- categorized_final %>% 
-  filter(!is.na(disability_adjusted_life_years_dal_ys)) %>% 
-  select(covidence_number, study_id, title_3, country,main_study_findings,
-         category_gen_pathology, category_specific_pathology,disability_adjusted_life_years_dal_ys) %>% 
-  arrange(category_gen_pathology)
+# daly_subset <- categorized_final %>% 
+#   filter(!is.na(disability_adjusted_life_years_dal_ys)) %>% 
+#   select(covidence_number, study_id, title_3, country,main_study_findings,
+#          category_gen_pathology, category_specific_pathology,disability_adjusted_life_years_dal_ys) %>% 
+#   arrange(category_gen_pathology)
 
 #  # Extract countries
 # country_daly <- daly_subset %>%  
@@ -560,10 +560,10 @@ daly_subset <- categorized_final %>%
 ## Organize Surgical Capacity Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sc <- categorized_final %>%
-  filter(if_any(34:83, ~ !is.na(.) & . != "")) %>% 
-  select(covidence_number, study_id, title_3, country, main_study_findings, other_findings, 
-         category_gen_pathology,category_specific_pathology, other_findings, 34:83)
+# sc <- categorized_final %>%
+#   filter(if_any(34:83, ~ !is.na(.) & . != "")) %>% 
+#   select(covidence_number, study_id, title_3, country, main_study_findings, other_findings, 
+#          category_gen_pathology,category_specific_pathology, other_findings, 34:83)
 
 # # Identify studies including Assessment Tools in abstract
 # assessment_tools_used <- included_studies %>%
@@ -609,6 +609,13 @@ categorized_assessment_tool <- categorized_final %>%
   filter(!is.na(tool_used)) %>% 
   select(study_id, title_3, country, tool_used)%>% 
   arrange(tool_used)
+
+# Clean dataset
+categorized_assessment_tool <- categorized_assessment_tool %>%
+  # Replace commas with semicolons across all character columns
+  mutate(mutate(country = str_replace_all(country, ",", ";"))) %>%
+  # Reformat study_id
+  mutate(study_id = str_replace(study_id, "(\\w+)\\s+(\\d{4})", "\\1, \\2"))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Create study characteristics ----
@@ -784,11 +791,85 @@ categorized_final <- categorized_final %>%
     priority_order = priority_study_design
    ))
 
-# dplyr::count(df_categorized, category_study_design, sort = TRUE)
+# dplyr::count(categorized_final, category_study_design, sort = TRUE) 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Source of Data ----
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Mapping Lists
+
+## PRIMARY subtypes
+primary_patterns <- list(
+  "Survey/Questionnaire/Interview" = c(
+    "sosas", "soas",                                   # Surgeons Overseas Assessment
+    "household.*survey", "population[- ]?based.*(survey|interview)",
+    "\\bsurvey\\b", "questionnaire", "responses? from .*specialists",
+    "interview", "face[- ]?to[- ]?face", "self[- ]?administered", "web[- ]?based",
+    "proforma(?!.*data)", "structured proforma", "data entered in proforma", "survey"
+  ),
+  "Clinical exam/testing" = c(
+    "physical examination|clinical (evaluation|examination)|wound assessments?",
+    "laboratory|microbiolog(ical|y)|radiograph|computed tomography|ct angiograph|sonograph|anaesthetic records"
+  ),
+  "Facility assessment (PIPES/IMEESC/GECT)" = c(
+    "pipes(?!.*database)", "imeesc", "essential trauma care",
+    "infrastructure evaluation", "direct inspection", "site assessment", "facility assessment",
+    "structured interviews? with staff", "guidelines for essential trauma care; structured interviews; direct inspection"
+  ),
+  "Author-maintained log/form" = c(
+    "surgical log recorded by the lead author", "data collected by author", "primary experience",
+    "study questionnaire", "pro forma questionnaire", "flowchart sheet"
+  ),
+  "Primary medical-record abstraction" = c(
+    # cases explicitly labeled primary but abstracted from records
+    "primary data collection.*(medical records|chart|case[- ]?notes|patient files|register|operative report)"
+  ),
+  "Primary (unspecified)" = c("^\\s*primary data collection\\b|^\\s*primary data\\b")
+)
+
+## SECONDARY subtypes
+secondary_patterns <- list(
+  "Medical records" = c(
+    "medical records?|patient files?|case[- ]?notes?|charts?|clinical notes?|folders?",
+    "admission registers?|discharge (summary|summaries)",
+    "operation (notes?|register)", "operating (room|theatre) (register|log ?book|logs?)",
+    "records? department", "hospital records?", "consultation (logs?|registers?)",
+    "nurses[’']? reports?|ward (round book|logs?)", "emergency unit records?", "rehabilitation team.*records?",
+    "records of patients", "clinical records", "records of operations", "patient records", 
+    "records and patient information", "case files"
+  ),
+  "Registry/Database/Logbook" = c(
+    "registry|registries", "database|databases", "logbook|logbooks",
+    "operative database|operating room case logs?|surgical case logbook",
+    "burn (registry|database|surveillance)", "trauma registry", "pediatric surgery database",
+    "smile train express|\\bstx\\b", "psr system", "ward[- ]?based clinical database",
+    "hospital information management system|\\bhims\\b", "recorded pediatric surgery database",
+    "kamuzu central hospital burn", "\\bkch\\b burn (registry|database|surveillance)", "logs of procedures for orofacial cleft"
+  ),
+  "Administrative/MOH/HDSS/WHO-SARA/SAT" = c(
+    "ministry of health|\\bmoh\\b", "aggregate .*hospital statistics", "policy database",
+    "health and demographic surveillance site|\\bhdss\\b",
+    "who (sara|sat) (survey|database)|who sat database|who sara surveys"
+  ),
+  "Literature databases" = c(
+    "pubmed|medline|embase|scopus|cochrane|google scholar|cinahl|lilacs|scielo|web of science|science direct",
+    "african index medicus|ajol|pais international|global health|imme?mr|imsear|wholis|wprim|otseeker"
+  ),
+  "GBD/IHME/WHO datasets" = c(
+    "global burden of disease|\\bgbd\\b|ihme",
+    "who international clinical trials registry platform", "who data"
+  ),
+  "Program/NGO reports" = c(
+    "msf|m[ée]decins sans fronti[èe]res|ocb",
+    "usaid|amref|tropical health and education trust|\\bthet\\b|sentinelles foundation",
+    "suppliers|product catalog|office of management and budget|ngo sources|program reports"
+  ),
+  "External digital/app data" = c(
+    "ma3route app", "online learning platform"
+  ),
+  "Secondary (unspecified)" = c("^\\s*secondary data( collection)?\\b|existing data and literature|data sources included databases")
+)
 
 # Mapping Lists
 
@@ -930,10 +1011,10 @@ categorize_sources <- function(df, col = "sources_of_data") {
 # Usage
 categorized_final <- categorize_sources(categorized_final, col = "sources_of_data")
 
-
 # # Inspect rows still unclear:
 # test <- df %>% 
 #   select(sources_of_data, source_type, source_detail, primary_source, secondary_source)
+dplyr::count(categorized_final, source_type, sort = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Study Setting ----
@@ -946,15 +1027,15 @@ facility_category_patterns <- list(
     "level\\s*2\\s*medical\\s+treatment\\s+facility",
     "\\bminusma\\b", "\\bchn\\s*r2\\b", "chinese\\s+level\\s*2", "\\bcamp\\b"
   ),
-  "NGO/humanitarian hospital/program" = c(
+  "NGO/faith/humanitarian hospital" = c(
     "msf|m[ée]decins\\s+sans\\s+fronti[èe]res|\\bocb\\b",
-    "africa\\s+mercy|hospital\\s+ship|operation\\s+of\\s+hope",
+    "africa\\s+mercy|hospital\\s+ship|operation\\s+of\\s+hope", "Phebe Hospital",
     "partners\\s+in\\s+health|inshuti\\s+mu\\s+buzima",
     "smile\\s*train(?!.*partner\\s+hospitals)|smile\\s*train.*outreach|smile\\s*train\\s+partner\\s+hospitals",
-    "short[- ]?term\\s+medical\\s+missions?|\\bstmm(s)?\\b",
+    "short[- ]?term\\s+medical\\s+missions?|\\bstmm(s)?\\b", "faith-based",
     "foundation(?!.*university)",                              # e.g., CFDF
     "ngo(\\s|\\-)?(hospital|program)|not[- ]?for[- ]?profit",
-    "Don Orione"
+    "Don Orione", "MyungSung Christian Medical", "Yung Sung Christian Medical Centre"
   ),
   
   # Mixed levels
@@ -982,15 +1063,15 @@ facility_category_patterns <- list(
     "University",
     "university(\\s+teaching)?\\s+hospital|university\\s+college\\s+hospital|university\\s+hospital\\s+centre|university\\s+clinics?",
     "central\\s+hospital|national\\s+hospital",
-    "specialist(\\s+teaching)?\\s+hospital",
-    "regional\\s+referral\\s+hospital",
+    "specialist(\\s+teaching)?\\s+hospital", "Addis Ababa Burn, Emergency, and Trauma (AaBET) hospital",
+    "regional\\s+referral\\s+hospital", "Hospital Central Maputo",
     "speciali[sz]ed\\s+hospital|comprehensive\\s+speciali[sz]ed\\s+hospital",
     "children'?s\\s+hospital|p(ae)?diatric\\s+.*hospital",
-    "trauma\\s+cent(re|er)",
-    "first-referral health facilities",
-    "plastic surgery centers",
-    "pediatric surgery department",
-    "Akonolinga Buruli Center",
+    "trauma\\s+cent(re|er)", "orthopedic institute",
+    "first-referral health facilities", "Harare Children’s Hospital",
+    "plastic surgery centers", "Plastic surgery division",
+    "pediatric surgery department", "National Orthopaedic Hospital", "Yekatit 12 Hospital",
+    "Akonolinga Buruli Center", "Khartoum Teaching Dental Hospital", "princess marina hospital",
     # units/services that imply tertiary
     "burns?\\s+unit(s)?|burn\\s+care\\s+unit(s)?|burns?\\s+and\\s+plastic(s)?(\\s+surgery)?\\s+unit(s)?",
     "surgical\\s+oncology\\s+unit(s)?",
@@ -1006,7 +1087,7 @@ facility_category_patterns <- list(
   # Secondary hospitals
   "Secondary hospital" = c(
     "district[-\\s]*(level)?\\s+hospitals?",                   # district-level, district hospitals
-    "provincial(\\s+general)?\\s+hospitals?|county\\s+hospitals?",
+    "provincial(\\s+general)?\\s+hospitals?|county\\s+hospitals?", "secondary level",
     "regional\\s+hospitals?(?!\\s*for)|\\blevel\\s*v\\b.*hospitals?",
     "\\bgeneral\\s+hospitals?\\b",
     "mission(ary)?\\s+hospitals?|faith[- ]?based\\s+hospitals?|adventist\\s+hospitals?",
@@ -1021,14 +1102,14 @@ facility_category_patterns <- list(
   "Primary care facility" = c(
     "health\\s*centr(e|er)s?\\b|\\bhc(s)?\\b(?!\\s*(iv|iii|ii))",  # HCs, health centres
     "\\bhc\\s*(iv|iii|ii)\\b",                                     # keep HC levels too
-    "\\bclinic(s)?\\b",
+    "\\bclinic(s)?\\b", "primary hospitals",
     "primary\\s+health\\s+(centr(e|er)|facility|care)",
     "health\\s+post",
     "level\\s*1\\s+hospital|first\\s+level\\s+hospital"             # LMIC nomenclature
   ),
   
   # Unspecified facility words (catch-all)
-  "Healthcare facilities (unspecified level)" = c(
+  "Unspecified facilities" = c(
     "hospitals?\\b",                                               # plural/singular
     "medical\\s+cent(re|er)s?",                                    # medical center/centre
     "\\b(institute|institut)\\b",                                  # e.g., orthopedic institute
@@ -1049,7 +1130,7 @@ facility_category_patterns <- list(
     # programs / events / regions / acronyms
     "programs?|preventive|preventative",
     "Nationally representative surveys",
-    "rural Hararghe",
+    "rural Hararghe", "community", "world bank",
     "policy database",
     "congress|conference|symposium|meeting",
     "\\bssa\\b|sub-?saharan\\s+africa|low[-\\s]and[-\\s]lower\\s+middle[-\\s]income\\s+countries",
@@ -1062,12 +1143,12 @@ facility_category_patterns <- list(
 # Priority
 priority_facility_categories <- c(
   "Field/military hospital",
-  "NGO/humanitarian hospital/program",
+  "NGO/faith/humanitarian hospital",
   "Mixed facility levels",
   "Tertiary/referral hospital",
   "Secondary hospital",
   "Primary care facility",
-  "Healthcare facilities (unspecified level)",
+  "Unspecified facilities",
   "Non-facility (population/policy/global)"
 )
 
@@ -1103,8 +1184,8 @@ categorize_setting_level <- function(df, col = "study_setting_location") {
   #     internal_cat == "Non-facility (population/policy/global)" ~ "Non-facility",
   #     internal_cat == "Mixed facility levels"                   ~ "Mixed levels",
   #     internal_cat %in% c("Field/military hospital",
-  #                         "NGO/humanitarian hospital/program")  ~ "Special facility",
-  #     internal_cat == "Healthcare facilities (unspecified level)" ~ "Healthcare (unspecified)",
+  #                         "NGO/faith/humanitarian hospital")  ~ "Special facility",
+  #     internal_cat == "Unspecified facilities" ~ "Healthcare (unspecified)",
   #     TRUE                                                      ~ "Unclear"
   #   )
   # )
@@ -1114,7 +1195,7 @@ categorize_setting_level <- function(df, col = "study_setting_location") {
 
 # Usage
 categorized_final <- categorize_setting_level(categorized_final, "study_setting_location")
-# dplyr::count(study_setting, setting_level, sort = TRUE)
+# dplyr::count(categorized_final, setting_level, sort = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Population ----

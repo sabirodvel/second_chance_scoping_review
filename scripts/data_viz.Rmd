@@ -371,7 +371,7 @@ ggsave(filename = here::here("images/combined_choro_bar.png"),
 # Adding source code here
 source(here("scripts/extracted_data_cleaning.R"))
 
-# ----- Build one section (header row + indented rows) -------------------
+# Section one (header)
 .build_section <- function(df, var, section_label, digits = 1,
                            include_na_row = FALSE, na_label = "Not reported/applicable") {
   v <- df[[var]]
@@ -419,7 +419,7 @@ source(here("scripts/extracted_data_cleaning.R"))
   bind_rows(header, items)
 }
 
-# ----- Build the whole profile table ------------------------------------
+# ----- Build the whole profile table 
 make_profile_table_gt <- function(
   df,
   sections = c(
@@ -491,7 +491,7 @@ make_profile_table_gt <- function(
   gt_tbl
 }
 
-# ----------------- Example usage ----------------------------------------
+# Make table using gt 
 gt_table <- make_profile_table_gt(
   categorized_final,
   sections = c(
@@ -914,20 +914,26 @@ doc <- read_docx() %>%
   print(target = "assessment_tool_capacity.docx")
 
 # Turn to gt table
-gt_3 <- categorized_assessment_tool %>% 
-  gt() %>% 
+gt_3 <- categorized_assessment_tool %>%
+  gt() %>%
   cols_label(
     study_id  = "Study",
     title_3   = "Title",
     country   = "Country",
     tool_used = "Type of Surgical Assessment Tool"
-  ) %>% 
+  ) %>%
   tab_header(
     title = "List of Studies Using Surgical Capacity Tools"
+  ) %>%
+  cols_width(
+    study_id ~ px(150),       # wider Study column
+    title_3 ~ px(300),        # make Title column much wider
+    country ~ px(200),        # widen Country
+    tool_used ~ px(300)       # widen Tool Used
   )
 
 # # Save Table
-# gtsave(gt_3, here("images/gt_surgical_tools.png"))
+gtsave(gt_3, here("images/gt_surgical_tools.png"))
 
 ```
 
