@@ -1,0 +1,409 @@
+covidence_number,study_id,title_3,country,main_study_findings,other_findings,category_gen_pathology,category_specific_pathology,surveillance_health_information_systems,surveillance_system_yes_no,surveillance_system_details,health_information_system_yes_no,health_information_system_details,provider_demographics,surgeons_number,surgeons_description,anesthetists_number,anesthetists_description,nurses_number,nurses_description,other_healthcare_providers_number,other_healthcare_providers_description,location_of_surgeons_other_healthcare_providers_number,location_of_surgeons_other_healthcare_providers_description,affiliation_of_surgeons_other_healthcare_providers_number,affiliation_of_surgeons_other_healthcare_providers_description,hospital_infrastructure,bed_capacity_yes_no,bed_capacity_number,bed_capacity_description,operating_rooms_yes_no,operating_rooms_number,operating_rooms_description,burn_unit_availability_yes_no,burn_unit_availability_number,burn_unit_availability_description,anesthesia_availability_yes_no,anesthesia_availability_number,anesthesia_availability_description,ventilator_availability_yes_no,ventilator_availability_number,ventilator_availability_description,blood_bank_availability_yes_no,blood_bank_availability_number,blood_bank_availability_description,laboratory_services_available_yes_no,laboratory_services_available_number,laboratory_services_available_description,imaging_services_available_yes_no,imaging_services_available_number,imaging_services_available_description,sterilization_facilities_yes_no,sterilization_facilities_number,sterilization_facilities_description,other_yes_no,other_number,other_description_82,hospital_service_coverage_area
+8992,Walker 2010,Paediatric surgery and anaesthesia in south-western Uganda: A cross-sectional survey,Uganda,"""None of the hospitals consistently met the standards for a WHO level 2 hospital in the previous three months, and only seven hospitals met this standard “sometimes."";
+""Deficiencies related to workforce, drugs, equipment and infrastructural factors such as electricity supply, running water and blood for transfusion."";
+""There were 43 consultant specialist surgeons in the region (0.7 accredited surgeons per 100 000 population); specialities included general surgery, obstetrics, orthopaedic surgery, ophthalmology, dental surgery, neurosurgery, ear, nose and throat surgery and urology."";
+""...0.14 physician anaesthetists per 100,000 population, compared with 4791 consultant anaesthetists in England (9.3 per 100 000 population)."";
+""...trained non-physician anaesthesia providers numbered 0.9 per 100,000 population, and accredited anaesthetists (physician and non-physician) numbered 1.1 per 100000 population."";
+""Of all operations, 93% were performed in 18 hospitals (5 district hospitals, 3 regional referral hospitals and 10 mission/NGO hospitals); 45.4% of them were performed in government hospitals, 54.6% in mission/NGO hospitals and 0.5% in the private hospital.""","None of the hospitals met WHO standards consistently; mission/NGO hospitals performed 55% of paediatric surgeries using 44% of beds.
+
+Surgical Procedures per Hospital Designation: Health centres IV = 1034; Government district hospital = 12107; government referral hospital = 5330; NGO = 22455
+
+In theater mortality = 7.7 deaths per 10,000 cases
+
+Procedures per Operating Room: Health Centre IV = 139 (range: 60–248); Government District Hospital = 367 (range: 80–3497); Government Referral Hospital = 667 (range: 473–858); NGO/Mission Hospital = 612.5 (range: 46–2143); Private Hospital = 62; All Hospitals = 422 (range: 60–3497)
+
+Procedures per Surgeon (excluding surgical interns): Health Centre IV = 139 (range: 60–496); Government District Hospital = 250 (range: 80–1748); Government Referral Hospital = 158 (range: 133–572); NGO/Mission Hospital = 373 (range: 46–1460); Private Hospital = 37; All Hospitals = 226 (range: 60–1748)
+
+Anaesthesia Providers per Operating Room: Health Centre IV = 0.75 (range: 0–1); Government District Hospital = 1 (range: 0.5–2); Government Referral Hospital = 2.75 (range: 1.7–3.5); NGO/Mission Hospital = 0.6 (range: 0–1.5); Private Hospital = 1.3; All Hospitals = 1 (range: 0–3.5)
+
+Physician Anaesthetists per Operating Room: Health Centre IV = 0; Government District Hospital = 0 (range: 0); Government Referral Hospital = 0.5 (range: 0–1.5); NGO/Mission Hospital = 0 (range: 0); Private Hospital = 1; All Hospitals = 0 (range: 0–1.5)
+
+Surgical Conditions: Wound requiring surgical debridement = 1201 (22.42%); Burn/contracture = 215 (4.01%); Laceration = 54 (1.0%); Lesion requiring amputation (unspecified) = 53 (0.99%); Soft tissue trauma = 18 (0.34%)",Burns; Congenital Malformations; Trauma; Infectious Conditions,NA,NA,NA,NA,yes,operating theatre logbooks,NA,"Government health centers IV
+specialist surgeon = 0;
+trainee surgeon = 0;
+medical officer = 5 (median = 1, range = 1-2);
+
+Government district hospital
+specialist surgeon = 2 (median = 0, range = 0-1);
+trainee surgeon = 0;
+medical officer = 22 (median = 2, range = 1-5);
+
+Government referral hospital
+specialist surgeon = 26 (median = 4, range = 2-20);
+trainee surgeon = 17 (median = 3, range = 3-11);
+medical officer = 7 (median =3.5, range = 2-5);
+
+NGO/mission hospital
+specialist surgeon = 12 (median = 0, range = 0-4);
+trainee surgeon = 0;
+medical officer = 29 (median = 3, range = 2-5); 
+
+Private hospital
+specialist surgeon = 3;
+trainee surgeon = 0;
+medical officer = 2",“There were 43 consultant specialist surgeons in the region.”,"Government health centers IV
+physician anesthetist = 0;
+anesthetic officer = 1 (median = 0, range = 0-1);
+anesthetic assistant = 4 (median = 1, range = 0-1);
+trained on the job = 0;
+
+Government district hospital
+physician anesthetist = 0;
+anesthetic officer = 11 (median = 2, range =0-2);
+anesthetic assistant = 8 (median = 1, range = 0-2);
+trained on the job = 6 (median = 0, range = 0-3);
+
+Government referral hospital
+physician anesthetist = 7 (median = 1, range = 0-6);
+anesthetic officer = 13 (median = 5, range = 3-5);
+anesthetic assistant = 3 (median = 1, range = 0-2);
+trained on the job = 1 (median = 0, range = 0-1);
+
+NGO/mission hospital
+physician anesthetist = 0;
+anesthetic officer = 8  (median = 1, range = 0-2);
+anesthetic assistant = 10  (median = 1 , range = 0-2);
+trained on the job = 10  (median = 1, range =0-4);
+
+Private hospital
+physician anesthetist = 2;
+anesthetic officer = 0;
+anesthetic assistant = 1;
+trained on the job = 0","“Only 9 were physicians… 33 anaesthetic officers, 26 assistants, 17 trained on the job.”",NA,NA,NA,“Many lacked specialist surgical training.”,"urban centers (regional referral hospitals, private hospital)","""In Uganda, the number of trained surgeons was 4.6% of what it was in England. Twenty-one surgeons worked in urban centres, either in the regional referral hospitals or in the private hospital.""",local; foreign,"""...visiting surgeons funded by external organisations, such as Smile Train or Interplast, performed specialist surgery."";
+""According to our survey, in Uganda large volumes of surgery are handled by a small number of hospitals and an important fraction of all operations is performed in mission/NGO hospitals and by visiting surgical teams.""",NA,Yes,"government health centers IV = 142 beds (median = 32, range = 29-50);
+government district hospital = 979 (median = 100, range = 100-150); 
+government referral hospital = 980 (median = 330, range = 200-450);
+NGO/mission hospital = 1736 (median = 147, range = 25-300);
+private hospital = 100",NA,Yes,"government health centers IV = 6 (median = 1.5, range =1-2);
+government district hospital = 18 (median = 2, range = 2-2);
+government referral hospital = 6 (median =2, range = 2-2);
+NGO/mission hospital = 30 (median = 2, range = 1-4) ;
+private hospital = 1",NA,NA,NA,NA,Yes,Ketamine available in 27/28 hospitals,NA,NA,NA,NA,Limited,limited,"""Blood was not always available for transfusion in 18 hospitals.""",Partial,NA,“Facilities to measure haemoglobin in 17 hospitals.”,NA,NA,NA,NA,NA,NA,pulse oximeter; oxygen,limited,"""A pulse oximeter was available in 13 of the 28 hospitals, that is, 26 of 57 operating theatres; thus, the oximeter “gap” was 54%. Only two hospitals had a pulse oximeter and oxygen available in the theatre recovery area.""","""6305000 and the population aged ≤ 14 years at 3089000 (49% of the total)."""
+8555,Thomson 2020,Management of paediatric burns in low- and middle-income countries: assessing capacity using the World Health Organization Surgical Assessment Tool,"Botswana, Burkina Faso, Burundi, Cameroon, Chad, Congo, Ivory Coast, DRC, Ethiopia, Gabon, Gambia, Ghana, Kenya, Lesotho, Liberia, Madagascar, Malawi, Mali, Mauritius, Mozambique, Niger, Nigeria, Rwanda, Sao Tome e Principe, Sierra Leone, Somalia, Tanzania, Togo, Uganda, Zambia","""Facilities had an average of 147 beds and performed 485 paediatric operations annually. Discrepancies existed between procedures performed and resource availability; 86% of facilities performed acute burn care, but only 37% could consistently provide intravenous fluids. Many, particularly tertiary, centres performed contracture release and skin grafting (41%) and amputation (50%).""","Interventions for burn care performed in low-income countries (LIC):
+- Acute burn care: 83 community health centres or other primary care facilities; 96 district, provincial or regional hospitals; 92 general, non-governmental organizations, private or mission hospitals
+- Wound debridement: 69 community health centres or other primary care facilities; 99 district, provincial or regional hospitals; 96 general, non-governmental organizations, private or mission hospitals
+- Amputation: 73 district, provincial or regional hospitals; 87 general, non-governmental organizations, private or mission hospitals
+- Contracture release and skin grafting: 44 district, provincial or regional hospitals; 74 general, non-governmental organizations, private or mission hospitals
+
+Interventions for burn care performed in middle-income countries (MIC):
+- Acute burn care: 65 community health centres or other primary care facilities; 81 district, provincial or regional hospitals; 90 general, non-governmental organizations, private or mission hospitals
+- Wound debridement: 73 community health centres or other primary care facilities; 87 district, provincial or regional hospitals; 97 general, non-governmental organizations, private or mission hospitals
+- Amputation: 32 district, provincial or regional hospitals; 64 general, non-governmental organizations, private or mission hospitals
+- Contracture release and skin grafting: 26 district, provincial or regional hospitals; 58 general, non-governmental organizations, private or mission hospitals
+
+""Of the general burns-related interventions considered, wound debridement (90%) and acute burn care (86%) were the most widely performed overall."", ""Specific initial first aid measures for burns—acute burn care and resuscitation—were performed in 86% and 81% of facilities, respectively. Procedures were generally widely available in secondary and tertiary centres and were more available in LICs than MICs. Procedures that may be required for long-term management of burns were performed less frequently, with amputation performed by 42% of secondary and 72% of tertiary facilities and contracture release and skin grafting performed by 31% of secondary and 63% of tertiary facilities.""",Burns,NA,NA,NA,NA,NA,NA,NA,"2.0, 6.7;  3.0, 5.0","Mean number of specialist physician surgeons per facilities:
+- District, provincial or regional hospital = 2.0
+- General, non-governmental organization, private or mission hospital = 6.7
+
+Mean number of Non-specialist physician surgeons per facilities:
+- District, provincial or regional hospital = 3.0
+- General, non-governmental organization, private or mission hospital = 5.0","0.5, 1.5; 0.4, 1.6; 2.9, 4.7","Mean number of specialist physician anaesthesiologist per facilities:
+- District, provincial or regional hospital = 0.5
+- General, non-governmental organization, private or mission hospital = 1.5
+
+Mean number of non-specialist physician anaesthesiologist per facilities:
+- District, provincial or regional hospital = 0.4
+- General, non-governmental organization, private or mission hospital = 1.6
+
+Mean number of other health professional providing anaesthesia care per facilities:
+- District, provincial or regional hospital = 2.9
+- General, non-governmental organization, private or mission hospital = 4.7",NA,NA,"2.2, 3.3","Mean number of other health professional providing surgical care per facilities:
+- District, provincial or regional hospital = 2.2
+- General, non-governmental organization, private or mission hospital = 3.3",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,"57%, 75%, 82%","Sterilizer per percent of facilities:
+- Community health centre or other primary care facility = 57%
+- District, provincial or regional hospital = 75%
+- General, non-governmental organization, private or mission hospital = 82%",Yes,"Electricity: 15%, 59%, 77%
+
+Water: 21%, 65%, 77%
+
+Oxygen: 32%, 69%, 81%","Electricity per percent of facilities:
+- Community health centre or other primary care facility = 15%
+- District, provincial or regional hospital = 59%
+- General, non-governmental organization, private or mission hospital = 77%
+
+Water per percent of facilities:
+- Community health centre or other primary care facility = 21%
+- District, provincial or regional hospital = 65%
+- General, non-governmental organization, private or mission hospital = 77%
+
+Oxygen per percent of facilities:
+- Community health centre or other primary care facility = 32%
+- District, provincial or regional hospital = 69%
+- General, non-governmental organization, private or mission hospital = 81%",NA
+6965,Penoyar 2012,Emergency and surgery services of primary hospitals in the United Republic of Tanzania,Tanzania,"""Based on the results in this WHO country survey, significant gaps exist in the capacity for emergency and essential surgical services in Tanzania including deficits in human resources, essential equipment and infrastructure. The information in this survey will provide a foundation for evidence-based decisions in country-level policy regarding the allocation of resources and provision of emergency and essential surgical services.""","""The weighted mean of distance travelled prior to admission was 119 km (74 miles)."";
+""Annual admissions averaged 2001 per facility (range 350-5000). On average, 34% of all admissions required either minor or major surgical interventions.""",Congenital Malformations; Trauma,Severe Injuries; General Fractures; Clubfoot,NA,NA,NA,NA,NA,NA,64 surgical specialists (not specified),"""Sixty-four surgical specialists (ie, physicians with dedicated surgical training) were identified, and 56 (88%) of identified surgical specialists were employed by the six largest hospitals. ""","formally trained anaesthesiologist = 11;
+non-physician anaesthesia providers = 176
+","""The great majority of anaesthesia providers (176/203 = 87%) were non physicians, and only 11 formally trained anaesthesiologists were identified.""",NA,NA,"non-physician medical officers, paramedics and midwives = 4017","""Other medical staff providing surgical and anaesthesia services in the facilities included 4017 assistant medical officers (non-physician
+medical officers, paramedics and midwives).""",NA,NA,NA,NA,NA,yes,"9035 total beds;
+mean = 189 bed per facility;
+range = 15 - 30 beds","""A total of 9085 hospital beds were reported, averaging 189 beds per facility (range 15-350 beds).""",yes,118,"""One hundred eighteen operating rooms were identified.""",NA,NA,NA,yes (some),"33/48 healthcare facilities
+
+Drum for sterile dressings 
+% of facilities with consistent access = 83%;
+% of facilities with consistent access = 8%
+
+Sterile gauze dressing.
+% of facilities with consistent access = 85%;
+% of facilities with consistent access = 4%
+
+Anaesthesia machine.
+% of facilities with consistent access = 67%","""Fifteen facilities (32%) had no access to an anaesthesia machine of any kind.""",NA,NA,NA,yes (some),"37/48 healthcare facilities
+
+% of facilities with consistent access = 29%; 
+
+% of facilities with intermittent access = 48%;","""In Tanzania, the regional blood bank system is independent of any hospital facility and 77% of facilities reported having a blood bank.""",yes,48/48 healthcare facilities,"""All facilities have access to haemoglobin and urine analysis testing.""",yes (some),"37/48 healthcare facilities
+
+Radiography 
+% of facilities with consistent access = 33%;
+% of facilities with consistent access = 44%
+","""The x-ray was fully functional in 33% of facilities and interrupted in 44%, leaving 23% of facilities with no radiographic capacity.",yes,"""% of facilities with consistent access = 83%; % of facilities with intermittent access = 8%""","""Drum for sterile dressings""",yes,20/48 healthcare facilities,"""Twenty facilities (42%) had uninterrupted access to oxygen, with most relying on oxygen concentrators.""
+
+""All facilities have access to haemoglobin and urine analysis testing""","""The average population served per facility was 425 000, though five facilities served 10 000 or fewer residents."""
+4656,Kouo-Ngamby 2015,A cross-sectional survey of emergency and essential surgical care capacity among hospitals with high trauma burden in a Central African country,Cameroon,"""Severe disparities in infrastructure, human resources, service provision, and essential equipment and supplies demonstrate the significant gaps in capacity of hospitals to deliver EESC and effectively address the increasing surgical burden of disease and injury in Cameroon""","Wound debridement:
+- District: 100%
+- Regional: 100%
+- General: 100%
+- Missionary: 100%
+
+Burn management (acute burn management, contracture release, skin grafting):
+- District: 93%
+- Regional: 100%
+- General: 100%
+- Missionary: 100%
+
+Orthopedic procedures (open and closed fracture treatment, joint dislocation, amputation, drainage of osteomyelitis or septic arthritis):
+- District: 86%
+- Regional: 100%
+- General: 100%
+- Missionary: 100%
+
+Pediatric surgery procedures (congenital hernia repair, club-foot treatment, neonatal surgery, cleft lip repair):
+- District: 68%
+- Regional: 75%
+- General: 100%
+- Missionary: 75%
+",NA,NA,NA,NA,NA,Yes,"""kept medical records (67 % all the time, 25 % sometimes)""",NA,"District: 3.65 per million population
+
+Regional: 0.77 per million population
+
+General: 3.83 per million population
+
+Total: 8.25 per million population",NA,"District: 0.00 per million population
+
+Regional: 0.00 per million population
+
+General: 1.33 per million population
+
+Total: 1.33 per million population",NA,"Nurse/clinical/assistant officers providing anesthesia:
+- District: 10.94 per million population
+- Regional: 2.31 per million population
+- General: 2.17 per million population
+- Total: 15.41 per million population
+
+",NA,"General doctors providing surgery:
+- District: 8.75 per million population
+- Regional: 0.77 per million population
+- General: 0.33 per million population
+- Total: 9.85 per million population
+
+General doctors providing anesthesia:
+- District: 5.10 per million population
+- Regional: 0.00 per million population
+- General: 0.00 per million population
+- Total: 5.10 per million population
+
+Clinical/assistant officers providing surgery:
+- District: 13.13 per million population
+- Regional: 0.00 per million population
+- General: 0.00 per million population
+- Total: 13.13 per million population
+
+",NA,NA,NA,NA,NA,NA,Yes,"District (7 hospitals): Average >50
+- 75
+- 33
+- 54
+- 100
+- 20-23
+- 68
+
+Regional (2 hospitals): Average 101-200
+- 200
+- 101-200
+
+General (2 hospitals): 101-200; 701-1000
+
+Private missionary (1 hospital): 21-50
+- 47","""Four district hospitals had over 50 beds.""
+
+""Both regional hospitals reported having between 101 and 200 beds..."" 
+
+""One of the general hospitals reported having
+between 101 and 200 beds while the other had between 701 and 1000 beds.""
+
+""The single private missionary hospital surveyed reported ... with 21 to 50 beds.""",Yes,"District (7 hospitals): 2; >10
+- 21-50
+- 11-20
+- 2
+- 2
+- 2
+- 2
+
+Regional (2 hospitals): Average 3-4
+
+General (2 hospitals): 5-20
+- 11-20
+- 5-10
+
+Private missionary (1 hospital): 2","""Four district hospitals had two functioning operating rooms, while at least two district hospitals had more than ten.""
+
+""Both regional hospitals reported having ... 3 to 4 functioning operating rooms.""
+
+""General hospitals had between 5 and 20 functioning operating rooms...""
+
+""The single private missionary hospital surveyed...  had two functioning operating rooms.""",NA,NA,NA,Sometimes,NA,NA,NA,NA,NA,Sometimes,NA,"""Largest gaps in the availability
+of an on-site blood bank.",NA,NA,NA,Sometimes,NA,X-ray machine,NA,NA,NA,NA,NA,NA,"""District hospitals estimated serving a population ranging from 56,675 to 500,000 people.""; ""District hospitals reported serving 21 to up to 500 adults (>15 years) and from 21 to 100 children (<15 years) requiring surgical procedures in the past year from August to July.""
+
+""Regional hospitals reported between 2000 to more than 5000 admissions annually.""; ""The regional hospitals served the Southwest Region, totaling approximately 1.3 million inhabitants.""; ""Regional hospitals reported serving 501 to 1000 adults (>15 years) and 51 to 300 children (<15 years) requiring surgical procedures.""
+
+""General hospitals estimated their population served to be greater than 3 million with more than 5000 annual admissions.""; ""... served between 701 and 5000 adults (>15 years). Among general hospitals, only one reported the number of children served at 101 to 200 children (<15 years) requiring surgical procedures. The other general hospital reported referring between 51 and 80 patients to higher levels of surgical care
+per year.""
+
+""The single private missionary hospital surveyed reported serving a smaller population of approximately 40,000...""; ""It reported admitting between 2001 and 5000 patients annually...""; The missionary hospital served between 1001 and 2000 adults (>15 years) and 301 to 400
+children (<15 years) requiring surgical procedures."""
+3108,Gajewski 2023,"Critical shortage of capacity to deliver safe paediatric surgery in sub-Saharan Africa: evidence from 67 hospitals in Malawi, Zambia, and Tanzania",Malawi; Zambia; Tanzania,"""Similar paediatric surgical capacity index scores and shortages were
+observed across countries, greater in Malawi and less in Tanzania.""
+
+""Almost all hospitals reported the capacity to perform common minor surgical procedures and less complex resuscitation interventions.""
+
+""There were no paediatric or general surgeons or anaesthesiologists at district hospitals. General medical officers with some training to do surgery on children were present (more often in Zambia).""
+
+""With no specialists in district hospitals in MTZ, access to safe paediatric surgery is compromised, aggravated by shortages of infrastructure, equipment and supplies.""
+
+- ""...access to safe paediatric surgery is compromised, aggravated by shortages of infrastructure, equipment and supplies.""
+
+- ""SSA countries need to define what procedures are appropriate to national, referral and district hospital levels and ensure that an appropriate paediatric surgical workforce is in place at district hospitals, trained and supervised to undertake these essential surgical procedures so as to meet population needs.""","PediPIPES Index Scores
+Tanzania
+Mean [M] = 6.24;
+range: 4.07–7.63; 
+standard deviation [SD] = 0.95
+
+Zambia
+M = 5.84; 
+range: 4.92–7.29;
+SD = 0.67
+
+Malawi
+M = 5.85;
+range = 3.73–8.14; 
+SD = 1.02 scored the lowest on average
+*differences between countries not statistically significant (p = 0.231) 
+
+mean index score for faith-based hospitals in
+Tanzania and Zambia combined = 6.25; 
+range = 5.00–7.63;
+SD = 0.76;
+
+mean index score for government owned hospitals = 5.91; 
+range = 3.73–8.14;
+SD = 0.94)
+*differences between faith-based and government owned hospitals not statistically significant (p = 0.203)
+
+Procedures for which availability of skills to perform were reported at district hospitals:
+- Wound debridement: Malawi = 22 (100%), Zambia = 21 (100%), Tanzania = 23 (95.8%), Total = 66 (98.5%)
+- Burn management: Malawi = 22 (100%), Zambia = 21 (100%), Tanzania = 23 (100%), Total = 67 (100%)
+- Skin grafting: Malawi = 9 (40.9%), Zambia = 5 (23.8%), Tanzania = 23 (16.7%), Total = 18 (26.9%)
+- Open treatment of fracture: Malawi = 19 (86.4%), Zambia = 5 (23.8%), Tanzania = 10 (41.7%), Total = 34 (50.7%)
+- Amputation: Malawi = 22 (100%), Zambia = 16 (76.2%), Tanzania = 15 (79.1%), Total = 53 (79.1%)
+- Contracture release: Malawi = 13 (59.1%), Zambia = 6 (28.6%), Tanzania = 17 (70.8%), Total = 36 (53.7%)",Burns; Trauma,NA,NA,NA,NA,Yes,"""Data from each hospital
+were collected at country workshops organised for this purpose.""",NA,"SPECIALISTS
+0 in all 67 surveyed hospitals
+
+GENERAL MEDICAL OFFICERS PERFORMING SURGERY
+Malawi = 5 (22.7%);
+Zambia = 18 (85.7%);
+Tanzania = 10 (41.7%);
+Total = 33 (49.3%)","- ""None of the 67 hospitals had a specialist (a medical doctor who completed specialist training) in either general surgery, paediatric surgery or anaesthesiology.""
+- ""...close to half (33%–49%) reported having general medical officers who performed surgery on children, including: 86% of Zambian hospitals (M = 1, range 0–5), 23% of Malawian hospitals (M = 0, range 1–3), and 42% of Tanzanian hospitals (M = 0, range 1–10.""","ANESTHESIOLOGISTS (MD)
+0 in all 67 surveyed hospitals","""None of the 67 hospitals had a specialist (a medical doctor who
+completed specialist training) in anaesthesiology.""","NURSE ANESTHETISTS
+Malawi = 0 (0%);
+Zambia = 5 (23.8%);
+Tanzania = 22 (91.7%);
+Total = 27 (40.3%)
+
+PEDIATRIC NURSE
+Malawi = 6 (27.3%);
+Zambia = 5 (23.8%);
+Tanzania = 3 (12.5%);
+Total = 14 (20.9%)",#VALUE!,"PEDIATRICIAN
+Malawi = 0 (0%);
+Zambia = 1 (4.8%);
+Tanzania = 1 (4.2%)
+Total = 2 (3.0%)","""...and only two hospitals had a paediatrician.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,"Zambia 
+pediatric ventilator = 1 hospital","""Only one of the 67 hospitals (in Zambia) reported having a paediatric ventilator.""",Yes,"Malawi = 3 (13.6%);
+Zambia = 3 (14.3%);
+Tanzania = 13 (54.2%)
+19 (28.4%) of hospitals overall","""A blood bank with pre tested blood was available in over half (54%) of district hospitals in Tanzania and in only 14% of hospitals in Malawi and Zambia.""",Yes,"BLOOD & URINE
+Malawi = 16 (72.7%);
+Zambia =  20 (95.2%);
+Tanzania =  23 (95.8%);
+59 (88.1%) of hospitals overall","""Certain basic infrastructure items were widely available, such as: hospital laboratory testing of blood and urine (88%), functioning x-ray (76%) and ultrasound machines (84%) and medical records department (100%)""",Yes,"X-RAY 
+Malawi = 18 (81.8%);
+Zambia =  18 (85.7%);
+Tanzania =  15 (62.5%);
+51 (76.1%) of hospitals overall
+
+ULTRASOUND 
+Malawi = 17 (77.3%);
+Zambia =  18 (85.7%);
+Tanzania =  21 (87.5%);
+56 (83.6%) of hospitals overall
+
+CT SCANNER
+Malawi = 0 (0%);
+Zambia = 0 (0%);
+Tanzania = 0 (0%);
+0% of hospitals overall",#VALUE!,Yes,57 (85.1%),Number of district hospitals with sterlizers (autoclave) available.,Yes,"EMERGENCY DEPARTMENT
+85% of hospitals overall lacked an ED
+
+SPECIAL BABY CARE UNIT
+2/3 of hospitals overall lacked this unit
+
+POST-OPERATIVE CARE UNIT
+3/4 of hospitals overall lacked this unit
+
+INTENSIVE CARE UNIT
+0 hospitals overall lacked this unit",""" Over half of hospitals in Tanzania, few in
+Zambia and none in Malawi reported uninterrupted electricity
+supply, aggravated by lack of functional back-up electricity
+generators in one third of hospitals""
+
+""Most hospitals in Zambia and Tanzania, but less than half in
+Malawi had access to running water.""
+
+""Around 85% of hospitals lacked an emergency department (ED), two thirds lacked a special baby care unit, three quarters had no
+dedicated postoperative care area and none had an Intensive Care Unit (ICU).""
+
+""Basic equipment such as stethoscopes, oxygen masks and tubing, pulse oximeters, thermometers, suction pumps and paediatric resuscitation equipment was always or almost always available across all three countries.""
+
+"" While operating
+theatre equipment (instrument sets, electrocautery machines,
+lights and sterilisers) was generally available in Zambia and
+Tanzania, shortages were more marked in Malawi.""",NA
+2689,Elkheir 2014,A cross-sectional survey of essential surgical capacity in Somalia,Somalia,"""According to the results of the WHO Tool for Situational Analysis to Assess Emergency and Essential Surgical Care survey, there exist significant gaps in the capacity of emergency and essential surgical services in Somalia including inadequacies in essential equipment, service provision and infrastructure.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,15 total trained surgical specialists,"""The 14 facilities together reported a total of 137
+healthcare providers. Only 15 (11%) individuals were identified as full time trained surgical specialists, located only at 9 of 14 of the facilities. A total of 14 (11%) were identified as obstetricians, and only 4 (3%) individuals were identified as qualified anaesthesiologists and were located in only 3 of the 14 facilities, with 27 (20%) unlicensed medical staff (nurses, medical assistants, etc) providing anaesthetic services.""",4 qualified anaesthesiologists; 27 unlicensed staff providing anaesthetic services,"""A total of 14 (11%) were identified as obstetricians, and only 4 (3%) individuals were identified as qualified anaesthesiologists and were located in only 3 of the 14 facilities, with 27 (20%) unlicensed medical staff (nurses, medical assistants, etc) providing anaesthetic services.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,at least 1 per site,"""Each facility reported having at least 1 operating theatre, with a maximum of 11–20 operating theatres.""",NA,NA,NA,yes (limited),NA,"""Access to a functional anaesthesia machine was only present in 2 (15%) facilities, one of those facilities being a local health centre.""",yes (limited),NA,"""The emergency and surgical infrastructure of the 14 reporting facilities were largely inadequate, with only 22% of the health facilities having oxygen cylinder supplies consistently available."";
+""Only one hospital always had adult resuscitator bag valves and masks available, and only 2 of 14 facilities reported the same for paediatric bag valves and masks. Sixty-four per cent of the facilities had access to oxygen only sometimes or never, and less than 30% had oropharyngeal airways always available for adults and children.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,yes (limited),NA,"""Only 64% of the reporting institutions had a steriliser available all the time.""",NA,NA,"""Fifty per cent of the facilities had permanent areas designated for emergency care and only 38% of the facilities had the same for postoperative care."";
+""A minority of facilities had formal management guidelines for emergency care (3/14=21%), surgery (5/14=36%), anaesthesia (4/14=29%) or pain relief (1/14=7%)."";","""The populations served by each facility ranged from 100000 to 1000000 people, with the average population of the reporting facilities at 331 250 people."""
+586,Albutt 2019,'We are all serving the same Ugandans': A nationwide mixed-methods evaluation of private sector surgical capacity in Uganda,Uganda,"""Private and PNFP hospitals in Uganda face cross-cutting challenges to delivering timely,
+affordable, and effective surgical care. Pervasive workforce shortages and workforce maldistribution, high medical and non-medical costs of seeking care and lack of financial risk protection, and poor coordination of care are challenges of unique importance in these sectors. In addition to financial resources and infrastructure development, SOA workforce scale-up is highlighted as an urgent need. Historically, little attention has been paid to understanding and improving the capacity of the private and PNFP sector which must be a critical component of ongoing capacity building efforts going forward. Critical policy and programmatic developments are essential to coordinate and strengthen Ugandan surgical capacity""","PNFP hospitals often serve as referral centers when public hospitals are overwhelmed
+
+Skin and soft-tissue excision or biopsy = Private: 2; PNFP: 104; Total: 106
+Skin graft = Private: 0; PNFP: 13; Total: 13
+Mastectomy or lumpectomy = Private: 0; PNFP: 8; Total: 8
+Other (PRS-related) = Private: 3; PNFP: 190; Total: 193",Trauma,Severe Injuries,NA,NA,NA,NA,NA,NA,Median 7 SOA physicians per facility,"“We are supposed to be having ten doctors ideally here, but we have only two medical officers and me... it’s an uphill task.”",4 hospitals (25%) had access to an anesthesiologist at least half the time; 13 hospitals (81.3%) had anesthetic officers available 24/7,The anaesthetist is not available at station.”; “We rely on anaesthetic officers... anesthesiologists are rare.”,unspecified,"“Patients recovered in the ward, theater, or adjacent areas, monitored by theater nurses.”",NA,"Includes finance officers, lab staff, and administrators; often involved in group interviews","Not quantified, but over 90% of physicians are in Kampala",“Over 90% of Uganda’s physicians are concentrated in the capital Kampala.”,NA,NA,NA,Yes,"Median 177 beds (range 18–482)
+
+Galilee Community General Hospital = 18; St. Francis Hospital Nsambya = 361; Paragon Hospital = 29; Lubaga Hospital = 240; Pope John XIII Aber Hospital = 178; St. Mary’s Lacor Hospital = 482; St. Luke’s Hospital = 220; Oriajini Hospital = 60; Ibanda Hospital = 176; Mutolere Hospital = 210; Mayanja Memorial Hospital = 100; Virika Hospital = 205; Kanginima Hospital = 25; Kumi Hospital = 300; Kamuli General Hospital = 160; Dabani Hospital = 80",PNFP hospitals had greater capacity than private,Yes,"Median 2 per facility
+
+Galilee Community General Hospital = 1; St. Francis Hospital Nsambya = 1; Paragon Hospital = 1; Lubaga Hospital = 4; Pope John XIII Aber Hospital = 1; St. Mary’s Lacor Hospital = 6; St. Luke’s Hospital = 2; Oriajini Hospital = 1; Ibanda Hospital = 2; Mutolere Hospital = 2; Mayanja Memorial Hospital = 2; Virika Hospital = 2; Kanginima Hospital = 4; Kumi Hospital = 4; Kamuli General Hospital = 3; Dabani Hospital = 1",Some lacked dedicated post-anesthesia care units,NA,NA,NA,Yes,NA,Anesthetic drugs often in short supply,Yes,median 2 per facility,NA,No,NA,none had blood banks,Yes,NA,limited by supply chain,Yes,NA,50% had 24-hour access; CT in 18.7%,Yes,NA,autoclaves available,ICUs,"3 hospitals had ICUs
+
+Galilee Community General Hospital = 0; St. Francis Hospital Nsambya = 16; Paragon Hospital = 0; Lubaga Hospital = 0; Pope John XIII Aber Hospital = 0; St. Mary’s Lacor Hospital = 10; St. Luke’s Hospital = 0; Oriajini Hospital = 0; Ibanda Hospital = 0; Mutolere Hospital = 0; Mayanja Memorial Hospital = 0; Virika Hospital = 4; Kanginima Hospital = 0; Kumi Hospital = 0; Kamuli General Hospital = 0; Dabani Hospital = 0",NA,NA

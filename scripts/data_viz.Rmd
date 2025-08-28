@@ -384,16 +384,16 @@ source(here("scripts/extracted_data_cleaning.R"))
   denom <- sum(!is.na(v_chr))
 
   # counts for non-missing
-  items <- tibble(value = v_chr) |>
-    filter(!is.na(value)) |>
-    count(value, name = "n") |>
-    arrange(desc(n), value) |>
+  items <- tibble(value = v_chr)  %>% 
+    filter(!is.na(value)) %>%
+    count(value, name = "n") %>%
+    arrange(desc(n), value) %>%
     mutate(
       pct = n / denom,
       display = sprintf("%s (%s)", n, percent(pct, accuracy = 10^-digits)),
       row_type = "item",
       label = as.character(value)
-    ) |>
+    ) %>%
     select(row_type, label, display)
 
   # optional NA row (excluded from denominator)
@@ -450,27 +450,27 @@ make_profile_table_gt <- function(
   # overall N (optional, in the title area)
   overall_tag <- if (overall_n_right) paste0("N = ", scales::comma(nrow(df)), " studies") else NULL
 
-  gt_tbl <- body |>
-    gt() |>
-    cols_hide(columns = row_type) |>
+  gt_tbl <- body %>%
+    gt() %>%
+    cols_hide(columns = row_type) %>%
     tab_header(
       title = md(title),
       subtitle = overall_tag
-    ) |>
+    ) %>%
     # style section header rows
     tab_style(
       style = list(cell_text(weight = "bold")),
       locations = cells_body(rows = row_type == "section", columns = "Label")
-    ) |>
+    ) %>%
     tab_style(
       style = list(cell_text(weight = "bold"), cell_text(align = "right")),
       locations = cells_body(rows = row_type == "section", columns = "n (%)")
-    ) |>
+    ) %>%
     # add subtle indentation to item rows
     tab_style(
       style = cell_text(indent = px(12)),
       locations = cells_body(rows = row_type == "item", columns = "Label")
-    ) |>
+    ) %>%
     # thin row separators between sections
     tab_options(
       table.font.size = px(13),
@@ -479,13 +479,13 @@ make_profile_table_gt <- function(
       table.border.top.width = px(1),
       table.border.bottom.color = "grey70",
       table.border.bottom.width = px(1)
-    ) |>
+    ) %>%
     # draw a light rule above each new section
     tab_style(
       style = list(cell_borders(sides = "top", color = "grey85", weight = px(1))),
       locations = cells_body(rows = row_type == "section")
-    ) |>
-    cols_label(Label = md(""), `n (%)` = md("")) |>
+    ) %>%
+    cols_label(Label = md(""), `n (%)` = md("")) %>%
     fmt_markdown(columns = everything())
 
   gt_tbl
@@ -593,7 +593,7 @@ gt <- pathology_distribution_abs %>%
 gt
 
 # # Save Table
-gtsave(gt, here("images/gt_general_pathology.png"))
+# gtsave(gt, here("images/gt_general_pathology.png"))
 
 ```
 

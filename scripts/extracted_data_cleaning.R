@@ -560,10 +560,83 @@ categorized_final <- categorized_combined_pathology %>%
 ## Organize Surgical Capacity Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# sc <- categorized_final %>%
-#   filter(if_any(34:83, ~ !is.na(.) & . != "")) %>% 
-#   select(covidence_number, study_id, title_3, country, main_study_findings, other_findings, 
-#          category_gen_pathology,category_specific_pathology, other_findings, 34:83)
+sc <- categorized_final %>%
+  filter(if_any(34:83, ~ !is.na(.) & . != "")) %>%
+  select(covidence_number, study_id, title_3, country, main_study_findings, other_findings,
+         category_gen_pathology,category_specific_pathology, other_findings, 34:83) 
+
+# Filter for infrastructure variables only
+infrastructure <- sc %>% filter(if_any(28:51, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Bed capacity
+infrastructure %>% 
+  filter(if_any(28:30, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Operating rooms
+infrastructure %>% 
+  filter(if_any(31:33, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Burn Units
+infrastructure %>% 
+  filter(if_any(34:36, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Anaesthesia 
+infrastructure %>% 
+  filter(if_any(37:39, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Ventilators 
+infrastructure %>% 
+  filter(if_any(40:42, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Blood bank 
+infrastructure %>% 
+  filter(if_any(43:45, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Lab 
+infrastructure %>% 
+  filter(if_any(46:48, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Imaging
+infrastructure %>% 
+  filter(if_any(49:51, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Sterilization
+infrastructure %>% 
+  filter(if_any(52:54, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+# Filter for personnel variables only
+personnel <- sc %>% filter(if_any(15:22, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Surgeons
+personnel %>% 
+  filter(if_any(15:16, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Anasthesists
+personnel %>% 
+  filter(if_any(17:18, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Nurses
+personnel %>% 
+  filter(if_any(19:20, ~ !is.na(.) & . != "")) %>% 
+  nrow()
+
+## Other healthcare provider
+personnel %>% 
+  filter(if_any(21:22, ~ !is.na(.) & . != "")) %>% 
+  nrow()
 
 # # Identify studies including Assessment Tools in abstract
 # assessment_tools_used <- included_studies %>%
@@ -589,10 +662,13 @@ assessment_tool_studies <- list(
   pedipipes = c(3108),
 
   # WHO SAT studies
-  who_sat = c(8555, 586, 2689, 4656, 8992),
+  who_sat = c(8555, 586),
 
   # WHO EESC (not one of your four, but included separately if you want)
-  who_eesc = c(6965)
+  who_eesc = c(6965, 2689, 4656),
+  
+  # WHO Surgery Standards
+  who_standard = c(8992)
 )
 
 categorized_assessment_tool <- categorized_final %>% 
@@ -602,18 +678,21 @@ categorized_assessment_tool <- categorized_final %>%
       covidence_number %in% assessment_tool_studies$pedipipes ~ "PediPIPES",
       covidence_number %in% assessment_tool_studies$who_sat   ~ "WHO SAT",
       covidence_number %in% assessment_tool_studies$who_eesc  ~ "WHO EESC",
+      covidence_number %in% assessment_tool_studies$who_standard ~ "WHO Standard",
       TRUE                                                     ~ NA_character_  # or "Other"
     ),
-    tool_used = factor(tool_used, levels = c("PediPIPES", "WHO SAT", "WHO EESC"))
+    tool_used = factor(tool_used, levels = c("PediPIPES", "WHO SAT", "WHO EESC", "WHO Standard"))
   ) %>% 
   filter(!is.na(tool_used)) %>% 
   select(study_id, title_3, country, tool_used)%>% 
   arrange(tool_used)
 
+# write_csv(df, here("outputs/assessment_tools_dataset.csv"))
+
 # Clean dataset
 categorized_assessment_tool <- categorized_assessment_tool %>%
   # Replace commas with semicolons across all character columns
-  mutate(mutate(country = str_replace_all(country, ",", ";"))) %>%
+  mutate(country = str_replace_all(country, ",", ";")) %>%
   # Reformat study_id
   mutate(study_id = str_replace(study_id, "(\\w+)\\s+(\\d{4})", "\\1, \\2"))
 
