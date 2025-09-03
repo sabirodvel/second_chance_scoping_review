@@ -333,7 +333,7 @@ categorize_specific_path <- function(specific_pathology, general_pathology, cate
   }
 }
 
-# Aplpication
+# Application
 categorized_combined_pathology <- categorized_general_pathology %>%
   mutate(category_specific_pathology = mapply(
     categorize_specific_path, 
@@ -560,83 +560,83 @@ categorized_final <- categorized_combined_pathology %>%
 ## Organize Surgical Capacity Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sc <- categorized_final %>%
-  filter(if_any(34:83, ~ !is.na(.) & . != "")) %>%
-  select(covidence_number, study_id, title_3, country, main_study_findings, other_findings,
-         category_gen_pathology,category_specific_pathology, other_findings, 34:83) 
+# sc <- categorized_final %>%
+#   filter(if_any(34:83, ~ !is.na(.) & . != "")) %>%
+#   select(covidence_number, study_id, title_3, country, main_study_findings, other_findings,
+#          category_gen_pathology,category_specific_pathology, other_findings, 34:83) 
 
-# Filter for infrastructure variables only
-infrastructure <- sc %>% filter(if_any(28:51, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Bed capacity
-infrastructure %>% 
-  filter(if_any(28:30, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Operating rooms
-infrastructure %>% 
-  filter(if_any(31:33, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Burn Units
-infrastructure %>% 
-  filter(if_any(34:36, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Anaesthesia 
-infrastructure %>% 
-  filter(if_any(37:39, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Ventilators 
-infrastructure %>% 
-  filter(if_any(40:42, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Blood bank 
-infrastructure %>% 
-  filter(if_any(43:45, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Lab 
-infrastructure %>% 
-  filter(if_any(46:48, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Imaging
-infrastructure %>% 
-  filter(if_any(49:51, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Sterilization
-infrastructure %>% 
-  filter(if_any(52:54, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-# Filter for personnel variables only
-personnel <- sc %>% filter(if_any(15:22, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Surgeons
-personnel %>% 
-  filter(if_any(15:16, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Anasthesists
-personnel %>% 
-  filter(if_any(17:18, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Nurses
-personnel %>% 
-  filter(if_any(19:20, ~ !is.na(.) & . != "")) %>% 
-  nrow()
-
-## Other healthcare provider
-personnel %>% 
-  filter(if_any(21:22, ~ !is.na(.) & . != "")) %>% 
-  nrow()
+# # Filter for infrastructure variables only
+# infrastructure <- sc %>% filter(if_any(28:51, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Bed capacity
+# infrastructure %>% 
+#   filter(if_any(28:30, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Operating rooms
+# infrastructure %>% 
+#   filter(if_any(31:33, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Burn Units
+# infrastructure %>% 
+#   filter(if_any(34:36, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Anaesthesia 
+# infrastructure %>% 
+#   filter(if_any(37:39, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Ventilators 
+# infrastructure %>% 
+#   filter(if_any(40:42, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Blood bank 
+# infrastructure %>% 
+#   filter(if_any(43:45, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Lab 
+# infrastructure %>% 
+#   filter(if_any(46:48, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Imaging
+# infrastructure %>% 
+#   filter(if_any(49:51, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Sterilization
+# infrastructure %>% 
+#   filter(if_any(52:54, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# # Filter for personnel variables only
+# personnel <- sc %>% filter(if_any(15:22, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Surgeons
+# personnel %>% 
+#   filter(if_any(15:16, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Anasthesists
+# personnel %>% 
+#   filter(if_any(17:18, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Nurses
+# personnel %>% 
+#   filter(if_any(19:20, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
+# 
+# ## Other healthcare provider
+# personnel %>% 
+#   filter(if_any(21:22, ~ !is.na(.) & . != "")) %>% 
+#   nrow()
 
 # # Identify studies including Assessment Tools in abstract
 # assessment_tools_used <- included_studies %>%
@@ -870,7 +870,13 @@ categorized_final <- categorized_final %>%
     priority_order = priority_study_design
    ))
 
-# dplyr::count(categorized_final, category_study_design, sort = TRUE) 
+dplyr::count(categorized_final, category_study_design, sort = TRUE)
+
+# Extract Covidence # from each category
+categorized_final %>% 
+  filter(category_study_design == "Other") %>% 
+  pull(title) %>% 
+  print()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Source of Data ----
@@ -1093,7 +1099,7 @@ categorized_final <- categorize_sources(categorized_final, col = "sources_of_dat
 # # Inspect rows still unclear:
 # test <- df %>% 
 #   select(sources_of_data, source_type, source_detail, primary_source, secondary_source)
-dplyr::count(categorized_final, source_type, sort = TRUE)
+# dplyr::count(categorized_final, source_type, sort = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Study Setting ----
@@ -1197,8 +1203,8 @@ facility_category_patterns <- list(
     "pediatric surgical OR"
   ),
   
-  # Non-facility (population/policy/global/events)
-  "Non-facility (population/policy/global)" = c(
+  # Non-facility
+  "Non-healthcare facility" = c(
     # population/household/areas/administrative
     "nationwide|across\\s+[a-z]+|population[- ]?based\\s+survey|household\\s+survey",
     "\\bdistricts?\\b|\\blga(s)?\\b|local\\s+government\\s+area",
@@ -1228,7 +1234,7 @@ priority_facility_categories <- c(
   "Secondary hospital",
   "Primary care facility",
   "Unspecified facilities",
-  "Non-facility (population/policy/global)"
+  "Non-healthcare facility"
 )
 
 # Matcher function

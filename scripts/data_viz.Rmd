@@ -495,9 +495,9 @@ make_profile_table_gt <- function(
 gt_table <- make_profile_table_gt(
   categorized_final,
   sections = c(
-    setting_level      = "Study setting",
     # add more or reorder as you like:
     category_study_design = "Study design",
+    setting_level         = "Study setting",
     source_type           = "Source of data",
     age_group             = "Patients (age groups)",
     affiliation_region    = "Author affiliation region"
@@ -552,12 +552,12 @@ pathology_distribution_abs <- categorized_general_pathology %>%
 #     percentage_weighted = round(100 * sum(weight) / nrow(categorized_general_pathology), 2),
 #     .groups = "drop"
 #   )
-# 
+
 # # Merge absolute and weighted into one table
 # pathology_distribution_merged <- pathology_distribution_abs %>%
 #   full_join(pathology_distribution_weighted, by = "category_gen_pathology") %>%
 #   arrange(desc(n))  # sort by absolute n (optional)
-
+# 
 # pathology_distribution_merged
 
 # Turn into flextable 
