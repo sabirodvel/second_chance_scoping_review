@@ -346,6 +346,7 @@ categorized_combined_pathology <- categorized_general_pathology %>%
 ## Categorize surgeries performed ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# UPDATED 09/03/2025
 # Define surgery categories
 categories_surgery <- list(
   # 1. Cleft & Craniofacial
@@ -367,21 +368,20 @@ categories_surgery <- list(
     "fasciocutaneous flap", "temporoparietal fascia", "nasolabial flap",
     "forehead flap", "sural flap", "estlander flap", "camille[- ]?bernard flap",
     "webster flap", "tubed pedicled abdominal flap", "thoracoabdominal flap",
-    "free flap"
+    "free flap", "free tissue transfer"
   ),
   # 4. Contracture Release & Scar Surgery
   "Contracture Release & Scar Surgery" = c(
     "contracture release", "scar revision", "burn contracture",
     "scar surgery", "release surgery", "excision with closure",
     "excision and grafting", "straight[- ]?line repair", "escharotomy", "burn excision",
-    "primary skin closure; excision"
+    "primary skin closure; excision", "scar"
   ),
-  # 5. Trauma & Reconstructive Procedures
-  "Trauma & Reconstructive Procedures" = c(
+  # 5. Skeletal Reconstruction
+  "Skeletal Reconstruction " = c(
     "fracture", "dislocation", "fixation", "orif", "open reduction",
-    "closed reduction", "mmf", "maxillo[- ]?mandibular", "nerve repair",
-    "tendon repair", "tendon transfer", "external fixator", "exploration",
-    "debridement", "suturing", "wound care", "washout", "surgical toilet"
+    "closed reduction", "mmf", "maxillo[- ]?mandibular", "external fixator", 
+    "codivilla", "ankylosis release"
   ),
   # 6. Oncologic & Tumor Surgery
   "Oncologic & Tumor Surgery" = c(
@@ -394,9 +394,16 @@ categories_surgery <- list(
   # 7. Amputation & Limb Salvage
   "Amputation & Limb Salvage" = c(
     "amputation", "amputations", "salvage amputation",
-    "ankylosis release", #Review 
     "primary repair of cut achilles tendon",
     "sequestrectomy" #Any body part
+  ),
+  # 8. Wound Management
+  "Wound Management" = c(
+    "debridement", "suturing", "wound care", "washout", "surgical toilet"
+  ),
+  # 9. Nerve & Tendon Repair
+  "Soft Tissue Repair" =c(
+    "nerve repair", "tendon repair", "tendon transfer", "soft tissue", "tendon"
   )
 )
 
@@ -871,12 +878,6 @@ categorized_final <- categorized_final %>%
    ))
 
 dplyr::count(categorized_final, category_study_design, sort = TRUE)
-
-# Extract Covidence # from each category
-categorized_final %>% 
-  filter(category_study_design == "Other") %>% 
-  pull(title) %>% 
-  print()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Source of Data ----

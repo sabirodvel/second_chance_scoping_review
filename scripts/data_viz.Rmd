@@ -862,6 +862,22 @@ specific_pathology_distribution %>%
 
 # Surgeries
 
+## Table
+
+```{r surgery table}
+surgery_distribution <- categorized_final %>% 
+  filter(!is.na(category_surgery)) %>%  # Remove NA values
+  separate_rows(category_surgery, sep = "; ") %>%
+  group_by(category_surgery) %>% 
+  summarize(n = n(),
+            percentage = 
+              round(100 * n() / nrow(categorized_final), 2)) %>% 
+  ungroup() %>% 
+  arrange(desc(n))
+
+```
+
+
 ## Lollipop Bar Graph
 
 ```{r lollipop surgeries}
@@ -897,7 +913,7 @@ lollipop <-
 #   theme_minimal()
 
 # Save image
-# ggsave(filename = here("images/surgeries_lollipop_annotated.png"), bg = "white", plot = lollipop, width = 7, height = 4, dpi = 300)
+ggsave(filename = here("images/surgeries_lollipop_annotated.png"), bg = "white", plot = lollipop, width = 7, height = 5, dpi = 300)
 ```
 
 # Surgical Capacity
