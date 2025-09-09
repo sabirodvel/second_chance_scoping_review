@@ -28,15 +28,17 @@ pacman::p_load(tidyverse,
 # included_studies_mar10 <- read_csv(here("data/included_studies_march_10.csv"))
 # extracted_studies_mar10 <- read_csv(here("data/extracted_studies_march_10.csv"))
 # extracted_studies_may_12 <- read_csv(here("data/extracted_studies_may_12.csv"))
+# extracted_studies_aug_06 <- read_csv(here("data/extracted_studies_aug_06.csv")) %>% 
+#   clean_names
 
-extracted_studies_aug_06 <- read_csv(here("data/extracted_studies_aug_06.csv")) %>% 
+final_extracted_df <- read_csv(here("data/final_df_aug_12.csv")) %>% 
   clean_names
 
 ```
 
 ```{r}
 
-mini_aug06 <- extracted_studies_aug_06 %>%
+mini_final <- final_extracted_df %>%
   select(country, author, date_of_publication, title_3, study_design, study_timeframe, sources_of_data,
          study_setting_location, hospital_service_coverage_area,
          bed_capacity_number, operating_rooms_number, burn_unit_availability_yes_no, anesthesia_availability_yes_no, ventilator_availability_yes_no, blood_bank_availability_yes_no, laboratory_services_available_yes_no, imaging_services_available_yes_no, sterilization_facilities_yes_no,
@@ -45,9 +47,405 @@ mini_aug06 <- extracted_studies_aug_06 %>%
          sample_size, prevalence_rate, incidence_rate, disability_adjusted_life_years_dal_ys,
          cost_to_individuals_cost_in_usd_or_other_currency, cost_to_government_cost_in_usd_or_other_currency)
 
+# write_csv(mini_final,
+#           here("data/data_chart_cleaning.csv"))
+
 ```
 
 ```{r}
-reactable(mini_aug06)
+reactable(mini_final)
+```
+
+```{r}
+# ---- helper functions ----
+clean_str <- function(x) {
+  ifelse(
+    is.na(x) | tolower(trimws(as.character(x))) %in% c("na","n/a","none","null",""),
+    NA_character_,
+    x %>%
+      as.character() %>%
+      stringr::str_replace_all('^"|"$', "") %>%
+      stringr::str_replace_all("^'|'$", "") %>%
+      stringr::str_squish()
+  )
+}
+
+normalize_yes_no <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  dplyr::case_when(
+    x %in% c("yes","y","true","available","present") ~ "Yes",
+    x %in% c("no","n","false","not available","absent") ~ "No",
+    TRUE ~ NA_character_
+  )
+}
+
+parse_publication <- function(x) {
+  x <- clean_str(x); if (is.na(x)) return(NA_character_)
+  s <- x
+  # MM/YYYY or M/YYYY
+  if (stringr::str_detect(s, "^\\s*\\d{1,2}[/-]\\d{4}\\s*$")) {
+    m <- stringr::str_match(s, "^(\\d{1,2})[/-](\\d{4})$")
+    month <- as.integer(m[,2]); year <- as.integer(m[,3])
+    if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+  }
+  # YYYY-MM or YYYY/M
+  if (stringr::str_detect(s, "^\\s*\\d{4}[/-]\\d{1,2}\\s*$")) {
+    m <- stringr::str_match(s, "^(\\d{4})[/-](\\d{1,2})$")
+    year <- as.integer(m[,2]); month <- as.integer(m[,3])
+    if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+  }
+  # Month YYYY
+  if (stringr::str_detect(s, "^[A-Za-z]+\\s+\\d{4}$")) {
+    dt <- suppressWarnings(lubridate::parse_date_time(stringr::str_to_title(s), orders = "my"))
+    if (!is.na(dt)) return(format(dt, "%Y-%m"))
+  }
+  # YYYY
+  if (stringr::str_detect(s, "^\\s*\\d{4}\\s*$")) return(trimws(s))
+  s
+}
+
+derive_facility_type <- function(...) {
+  corpus <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+  if (identical(corpus, character(0)) || corpus == "") return(NA_character_)
+  hits <- character(0)
+  if (grepl("\\bprimary\\b", corpus))  hits <- c(hits,"Primary")
+  if (grepl("\\bdistrict\\b", corpus)) hits <- c(hits,"District")
+  if (grepl("\\bsecondary\\b", corpus)) hits <- c(hits,"Secondary")
+  if (grepl("\\btertiar(y|ies)\\b|\\btertiary\\b|\\bteaching\\b|\\buniversity\\b", corpus)) hits <- c(hits,"Tertiary")
+  if (grepl("\\bregional\\b", corpus)) hits <- c(hits,"Regional")
+  if (grepl("\\breferral\\b", corpus)) hits <- c(hits,"Referral")
+  hits <- unique(hits)
+  if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Multiple"
+}
+
+derive_ownership <- function(...) {
+  s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+  if (s == "") return(NA_character_)
+  own <- character(0)
+  if (grepl("\\b(public|government|state)\\b", s)) own <- c(own,"Public")
+  if (grepl("\\b(private|for-?profit)\\b", s))     own <- c(own,"Private")
+  if (grepl("\\bngo\\b|\\bfaith[- ]?based\\b|\\bmission(ary)?\\b", s)) own <- c(own,"NGO/Faith-based")
+  own <- unique(own)
+  if (!length(own)) NA_character_ else if (length(own)==1) own else "Mixed"
+}
+
+derive_data_level <- function(...) {
+  s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+  if (s == "") return(NA_character_)
+  hits <- character(0)
+  if (grepl("\\baggregate\\b|\\bhmis\\b", s)) hits <- c(hits,"Aggregate")
+  if (grepl("patient[- ]?level|register|chart review|record|case report form|line list", s)) hits <- c(hits,"Individual")
+  if (grepl("survey|questionnaire|interview|facility assessment", s)) hits <- c(hits,"Survey")
+  hits <- unique(hits)
+  if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Mixed"
+}
+
+extract_facility_counts <- function(text) {
+  if (is.na(text)) return(tibble(total=NA_real_, primary=NA_real_, district=NA_real_, regional=NA_real_, referral=NA_real_))
+  s <- tolower(text)
+  ex <- function(pat) {
+    m <- stringr::str_match_all(s, pat)[[1]]
+    if (nrow(m)) sum(readr::parse_number(m[,2])) else NA_real_
+  }
+  primary  <- ex("(\\d[\\d,\\.]*)\\s+primary\\s+hospitals?")
+  district <- ex("(\\d[\\d,\\.]*)\\s+district\\s+hospitals?")
+  regional <- ex("(\\d[\\d,\\.]*)\\s+regional\\s+hospitals?")
+  referral <- ex("(\\d[\\d,\\.]*)\\s+referral\\s+hospitals?")
+  typed_sum <- sum(c(primary,district,regional,referral), na.rm = TRUE)
+  total <- if (is.finite(typed_sum) && typed_sum > 0) typed_sum else {
+    gen <- stringr::str_match_all(s, "(\\d[\\d,\\.]*)\\s+hospitals?")[[1]]
+    if (nrow(gen)) sum(readr::parse_number(gen[,2])) else NA_real_
+  }
+  tibble(
+    total = ifelse(is.finite(total), total, NA_real_),
+    primary = primary, district = district, regional = regional, referral = referral
+  )
+}
+
+extract_access <- function(...) {
+  s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ")
+  if (s == "") return(NA_character_)
+  m <- stringr::str_match_all(s, "(\\d+(?:\\.\\d+)?)\\s*(km|kilometers?|hours?|hrs?|h)\\b")[[1]]
+  if (!nrow(m)) return(NA_character_)
+  paste(paste0(m[,2]," ",m[,3]), collapse="; ")
+}
+
+first_number <- function(x) ifelse(is.na(x), NA_real_, suppressWarnings(readr::parse_number(as.character(x))))
+
+parse_numeric_or_text <- function(x) {
+  if (is.na(x)) return(NA_character_)
+  s <- as.character(x)
+  nums <- stringr::str_extract_all(s, "\\d[\\d,\\.]*")[[1]]
+  if (length(nums) == 1 && stringr::str_detect(trimws(s), paste0("^", nums, "$"))) {
+    as.character(readr::parse_number(nums))
+  } else if (length(nums) == 1 && stringr::str_detect(trimws(s), "^\\d[\\d,\\.]*$")) {
+    as.character(readr::parse_number(nums))
+  } else {
+    clean_str(s)
+  }
+}
+
+sum_if_keywords <- function(text, keywords) {
+  if (is.na(text)) return(NA_real_)
+  s <- tolower(text)
+  if (!any(stringr::str_detect(s, paste0(keywords, collapse="|")))) return(NA_real_)
+  nums <- stringr::str_extract_all(s, "\\d[\\d,\\.]*")[[1]]
+  if (!length(nums)) return(NA_real_)
+  tot <- sum(readr::parse_number(nums))
+  ifelse(is.finite(tot) & tot > 0, tot, NA_real_)
+}
+
+extract_specialists <- function(desc) {
+  if (is.na(desc)) return(NA_real_)
+  s <- tolower(desc)
+  if (grepl("special|plastic|reconstructive", s)) first_number(desc) else NA_real_
+}
+
+extract_averted <- function(text) {
+  if (is.na(text)) return(NA_character_)
+  if (grepl("(?i)averted|gained", text)) clean_str(text) else NA_character_
+}
+
+combine_costs <- function(ind, gov) {
+  parts <- c()
+  if (!is.na(ind)) parts <- c(parts, paste0("Individuals: ", ind))
+  if (!is.na(gov)) parts <- c(parts, paste0("Government: ", gov))
+  ifelse(length(parts) > 0, paste(parts, collapse=" | "), NA_character_)
+}
+```
+
+```{r}
+# ensure required package for audit
+if(!requireNamespace("openxlsx", quietly = TRUE)) pacman::p_load(openxlsx)
+
+# shorthand vars (use your mini_final already created)
+n_raw <- nrow(mini_final)
+
+# pre-clean source columns
+country        <- clean_str(mini_final$country)
+publication    <- purrr::map_chr(mini_final$date_of_publication, parse_publication)
+title          <- clean_str(mini_final$title_3)
+study_design   <- clean_str(mini_final$study_design)
+study_timeframe<- clean_str(mini_final$study_timeframe)
+sources_of_data<- clean_str(mini_final$sources_of_data)
+study_setting_location <- clean_str(mini_final$study_setting_location)
+hospital_service_coverage_area <- clean_str(mini_final$hospital_service_coverage_area)
+
+bed_capacity   <- purrr::map_chr(mini_final$bed_capacity_number, clean_str)
+operating_rooms<- purrr::map_chr(mini_final$operating_rooms_number, clean_str)
+
+burn_unit      <- purrr::map_chr(mini_final$burn_unit_availability_yes_no, normalize_yes_no)
+anesthesia     <- purrr::map_chr(mini_final$anesthesia_availability_yes_no, normalize_yes_no)
+ventilator     <- purrr::map_chr(mini_final$ventilator_availability_yes_no, normalize_yes_no)
+blood_bank     <- purrr::map_chr(mini_final$blood_bank_availability_yes_no, normalize_yes_no)
+lab_services   <- purrr::map_chr(mini_final$laboratory_services_available_yes_no, normalize_yes_no)
+imaging_services <- purrr::map_chr(mini_final$imaging_services_available_yes_no, normalize_yes_no)
+sterilization  <- purrr::map_chr(mini_final$sterilization_facilities_yes_no, normalize_yes_no)
+surveillance   <- purrr::map_chr(mini_final$surveillance_system_yes_no, normalize_yes_no)
+surveillance_details <- clean_str(mini_final$surveillance_system_details)
+his_available  <- purrr::map_chr(mini_final$health_information_system_yes_no, normalize_yes_no)
+his_details    <- clean_str(mini_final$health_information_system_details)
+
+surgeons_number<- first_number(mini_final$surgeons_number)
+surgeons_desc  <- clean_str(mini_final$surgeons_description)
+anesthetists_number <- first_number(mini_final$anesthetists_number)
+anesthetists_desc   <- clean_str(mini_final$anesthetists_description)
+nurses_number  <- first_number(mini_final$nurses_number)
+nurses_desc    <- clean_str(mini_final$nurses_description)
+other_prov_number <- first_number(mini_final$other_healthcare_providers_number)
+other_prov_desc   <- clean_str(mini_final$other_healthcare_providers_description)
+
+affil_number   <- clean_str(mini_final$affiliation_of_surgeons_other_healthcare_providers_number)
+affil_desc     <- clean_str(mini_final$affiliation_of_surgeons_other_healthcare_providers_description)
+
+sample_size    <- clean_str(mini_final$sample_size)
+prevalence_rate<- clean_str(mini_final$prevalence_rate)
+incidence_rate <- clean_str(mini_final$incidence_rate)
+dalys_col      <- clean_str(mini_final$disability_adjusted_life_years_dal_ys)
+
+cost_individual<- clean_str(mini_final$cost_to_individuals_cost_in_usd_or_other_currency)
+cost_gov       <- clean_str(mini_final$cost_to_government_cost_in_usd_or_other_currency)
+
+# derived
+data_level <- purrr::pmap_chr(list(sources_of_data, his_details, surveillance_details),
+                              ~ derive_data_level(..1, ..2, ..3))
+
+facility_type <- purrr::pmap_chr(list(study_setting_location, sources_of_data),
+                                 ~ derive_facility_type(..1, ..2))
+
+ownership <- purrr::pmap_chr(list(study_setting_location, sources_of_data, affil_desc, affil_number),
+                             ~ derive_ownership(..1, ..2, ..3, ..4))
+
+fac_counts <- purrr::map_dfr(study_setting_location, extract_facility_counts)
+
+access <- purrr::pmap_chr(list(hospital_service_coverage_area, study_setting_location, sources_of_data),
+                          ~ extract_access(..1, ..2, ..3))
+
+num_surgical_cases <- purrr::map_dbl(sample_size, ~ sum_if_keywords(.x, c("case","patient","surgical","surgery")))
+num_procedures     <- purrr::map_dbl(sample_size, ~ sum_if_keywords(.x, c("procedure","operation","surgery","operative")))
+num_specialists    <- purrr::map_dbl(surgeons_desc, extract_specialists)
+
+affiliation_out <- dplyr::if_else(!is.na(affil_desc), affil_desc, affil_number)
+
+method_of_recording <- his_details
+method_of_recording[is.na(method_of_recording)] <- surveillance_details[is.na(method_of_recording)]
+method_of_recording[is.na(method_of_recording)] <- sources_of_data[is.na(method_of_recording)]
+
+cost_combined <- purrr::map2_chr(cost_individual, cost_gov, combine_costs)
+dalys_averted <- purrr::map_chr(dalys_col, extract_averted)
+
+bed_capacity_parsed    <- purrr::map_chr(bed_capacity, parse_numeric_or_text)
+operating_rooms_parsed <- purrr::map_chr(operating_rooms, parse_numeric_or_text)
+
+# assemble cleaned df (columns exactly as requested)
+mini_final_cleaned <- tibble::tibble(
+  `Country` = country,
+  `Publication` = publication,
+  `Title` = title,
+  `Study Design` = study_design,
+  `Study Timeframe` = study_timeframe,
+  `Data Level` = data_level,
+  `Type of Healthcare Facility (primary, secondary, tertiary, etc.)` = facility_type,
+  `Type of Ownership of Healthcare Facility (private, public, NGO, etc.)` = ownership,
+  `Hospital Service Coverage Area` = hospital_service_coverage_area,
+  `Total Number of Healthcare Facilities (assessed in study)` = fac_counts$total,
+  `Number of Primary Hospitals` = fac_counts$primary,
+  `Number of District Hospitals` = fac_counts$district,
+  `Number of Regional Hospitals` = fac_counts$regional,
+  `Number of Referral Hospitals` = fac_counts$referral,
+  `Bed Capacity` = bed_capacity_parsed,
+  `Operating Rooms` = operating_rooms_parsed,
+  `Burn Unit Availability` = burn_unit,
+  `Anesthesia Availability` = anesthesia,
+  `Ventilator Availability` = ventilator,
+  `Blood Bank Availability` = blood_bank,
+  `Laboratory Services Available` = lab_services,
+  `Imaging Services Available` = imaging_services,
+  `Sterilization Facilities Available` = sterilization,
+  `Surveillance System Available` = surveillance,
+  `Health Information Systems Availble` = his_available,
+  `Method of Recording` = method_of_recording,
+  `Number of Surgeons (total)` = surgeons_number,
+  `Number of Specialists` = num_specialists,
+  `Number of Nurses` = nurses_number,
+  `Number of Other Healthcare Providers` = other_prov_number,
+  `Affiliation of Healthcare Specialists` = affiliation_out,
+  `Access to Healthcare Facility (distance in Km / Hours)` = access,
+  `Number of Surgical Cases` = num_surgical_cases,
+  `Number of  Procedures` = num_procedures,
+  `Sample Size` = sample_size,
+  `Prevalence` = prevalence_rate,
+  `Incidence` = incidence_rate,
+  `DALY / QALY` = dalys_col,
+  `Cost / Cost-effectiveness` = cost_combined,
+  `DALYs / QALYS Measures Averted/gained` = dalys_averted
+)
+
+# validate row count unchanged
+stopifnot(nrow(mini_final_cleaned) == n_raw)
+
+# save
+readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
+```
+
+```{r}
+# quick NA counts to console and a small preview reactable (optional)
+qa <- mini_final_cleaned %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(everything(), names_to="column", values_to="n_NA") %>%
+  arrange(desc(n_NA))
+
+print(head(qa, 12))
+
+reactable::reactable(
+  mini_final_cleaned %>% head(15),
+  searchable = TRUE,
+  pagination = TRUE,
+  defaultPageSize = 15,
+  highlight = TRUE
+)
+```
+
+```{r audit_workbook, include=F}
+# ---- OPTIONAL: audit workbook comparing cleaned vs raw mapped columns ----
+col_map <- tibble::tribble(
+  ~clean,                                           ~raw,
+  "Country",                                        "country",
+  "Publication",                                    "date_of_publication",
+  "Title",                                          "title_3",
+  "Study Design",                                   "study_design",
+  "Study Timeframe",                                "study_timeframe",
+  "Hospital Service Coverage Area",                 "hospital_service_coverage_area",
+  "Bed Capacity",                                    "bed_capacity_number",
+  "Operating Rooms",                                 "operating_rooms_number",
+  "Burn Unit Availability",                          "burn_unit_availability_yes_no",
+  "Anesthesia Availability",                         "anesthesia_availability_yes_no",
+  "Ventilator Availability",                         "ventilator_availability_yes_no",
+  "Blood Bank Availability",                         "blood_bank_availability_yes_no",
+  "Laboratory Services Available",                   "laboratory_services_available_yes_no",
+  "Imaging Services Available",                      "imaging_services_available_yes_no",
+  "Sterilization Facilities Available",              "sterilization_facilities_yes_no",
+  "Surveillance System Available",                   "surveillance_system_yes_no",
+  "Health Information Systems Availble",             "health_information_system_yes_no",
+  "Method of Recording",                             "health_information_system_details",
+  "Number of Surgeons (total)",                      "surgeons_number",
+  "Number of Nurses",                                "nurses_number",
+  "Number of Other Healthcare Providers",            "other_healthcare_providers_number",
+  "Affiliation of Healthcare Specialists",           "affiliation_of_surgeons_other_healthcare_providers_description",
+  "Sample Size",                                     "sample_size",
+  "Prevalence",                                      "prevalence_rate",
+  "Incidence",                                       "incidence_rate",
+  "DALY / QALY",                                     "disability_adjusted_life_years_dal_ys"
+)
+
+norm_for_compare <- function(x) {
+  ifelse(is.na(x), "",
+         x %>%
+           as.character() %>%
+           stringr::str_trim() %>%
+           stringr::str_to_lower() %>%
+           stringr::str_replace_all(",", "") %>%
+           stringr::str_replace_all("\\s+", ""))
+}
+
+# Build the long comparison table (TYPE-STABLE)
+comp_list <- list()
+for (i in seq_len(nrow(col_map))) {
+  ccol <- col_map$clean[i]
+  rcol <- col_map$raw[i]
+  if (!ccol %in% names(mini_final_cleaned) || !rcol %in% names(mini_final)) next
+
+  cleaned_vals  <- as.character(mini_final_cleaned[[ccol]])
+  original_vals <- as.character(mini_final[[rcol]])
+
+  comp_list[[ccol]] <- tibble::tibble(
+    row            = seq_len(nrow(mini_final_cleaned)),
+    Column         = ccol,
+    Cleaned_value  = cleaned_vals,
+    Original_value = original_vals,
+    Equal_norm     = norm_for_compare(cleaned_vals) == norm_for_compare(original_vals)
+  )
+}
+
+all_comp <- dplyr::bind_rows(comp_list)  # no type conflicts now
+
+mismatch_all <- dplyr::filter(all_comp, !Equal_norm)
+
+summary_ext <- tibble::tibble(
+  row_count_match  = nrow(mini_final_cleaned) == nrow(mini_final),
+  total_rows       = nrow(mini_final_cleaned),
+  columns_checked  = nrow(dplyr::filter(col_map, clean %in% names(mini_final_cleaned), raw %in% names(mini_final))),
+  total_mismatches = nrow(mismatch_all)
+)
+
+wb <- openxlsx::createWorkbook()
+openxlsx::addWorksheet(wb, "Summary")
+openxlsx::addWorksheet(wb, "All Column Comparisons")
+openxlsx::addWorksheet(wb, "Mismatches All Columns")
+openxlsx::writeData(wb, "Summary", summary_ext)
+if (nrow(all_comp))     openxlsx::writeData(wb, "All Column Comparisons", all_comp)
+if (nrow(mismatch_all)) openxlsx::writeData(wb, "Mismatches All Columns", mismatch_all)
+openxlsx::saveWorkbook(wb, here::here("data/mini_final_audit.xlsx"), overwrite = TRUE)
+
 ```
 
