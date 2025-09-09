@@ -20,7 +20,10 @@ pacman::p_load(tidyverse,
                treemap, #package to create treemap
                RColorBrewer,
                patchwork,
-               ggfittext
+               ggfittext,
+               stringr,
+               fuzzyjoin,
+               readxl
                )
 ```
 
@@ -33,6 +36,8 @@ pacman::p_load(tidyverse,
 
 final_extracted_df <- read_csv(here("data/final_df_aug_12.csv")) %>% 
   clean_names
+
+health_facilities <- read_excel(here("data/sub-saharan_health_facilities.xlsx"))
 
 ```
 
