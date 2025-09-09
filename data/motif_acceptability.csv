@@ -1,0 +1,187 @@
+covidence_number,study_id,title_3,reviewer_name,author,author_affiliation,author_contact_details,title_8,date_of_publication,journal,peer_review_status,country,funding_sources,aim_of_the_study,study_setting_location,study_design,sources_of_data,study_timeframe,population_description,age_group_demographics,sex_demographics,sample_size,general_category_of_pathology,specific_pathology,types_of_surgical_procedure_performed,main_study_findings,statistical_outcome_measures,non_statistical_outcome_measures,disability_adjusted_life_years_dal_ys,frequency,prevalence_rate,incidence_rate,other_findings,surveillance_health_information_systems,surveillance_system_yes_no,surveillance_system_details,health_information_system_yes_no,health_information_system_details,provider_demographics,surgeons_number,surgeons_description,anesthetists_number,anesthetists_description,nurses_number,nurses_description,other_healthcare_providers_number,other_healthcare_providers_description,location_of_surgeons_other_healthcare_providers_number,location_of_surgeons_other_healthcare_providers_description,affiliation_of_surgeons_other_healthcare_providers_number,affiliation_of_surgeons_other_healthcare_providers_description,hospital_infrastructure,bed_capacity_yes_no,bed_capacity_number,bed_capacity_description,operating_rooms_yes_no,operating_rooms_number,operating_rooms_description,burn_unit_availability_yes_no,burn_unit_availability_number,burn_unit_availability_description,anesthesia_availability_yes_no,anesthesia_availability_number,anesthesia_availability_description,ventilator_availability_yes_no,ventilator_availability_number,ventilator_availability_description,blood_bank_availability_yes_no,blood_bank_availability_number,blood_bank_availability_description,laboratory_services_available_yes_no,laboratory_services_available_number,laboratory_services_available_description,imaging_services_available_yes_no,imaging_services_available_number,imaging_services_available_description,sterilization_facilities_yes_no,sterilization_facilities_number,sterilization_facilities_description,other_yes_no,other_number,other_description_82,hospital_service_coverage_area,barriers_to_care,health_system_barrier,health_system_description,financial_barrier,financial_description,geograhic_accessibility_barrier,geograhic_accessibility_description,sociocultural_barrier,sociocultural_description,patient_related_barrier,patient_related_description,policy_governance_barrier,policy_governance_description,education_training_barrier,education_training_description,other_barrier,other_description_100,suggested_solutions,cost_of_care,cost_to_individuals_cost_in_usd_or_other_currency,cost_to_government_cost_in_usd_or_other_currency
+8218,Starr 2019,Diagnosis and management of surgical disease at Ethiopian health centres: cross-sectional survey of resources and barriers to care,Consensus,"Starr N., Carpenter S., Carvalho M., et al.","Department of Surgery, University of California, San Francisco, California, USA",nichole.starr@ucsf.edu,Diagnosis and management of surgical disease at Ethiopian health centres: cross-sectional survey of resources and barriers to care,19-Sep,BMJ Open,Peer-Reviewed,Ethiopia,"""This study was funded by the Massachusetts Medical Society International Health Studies Grant.""","""The aim of this study was to describe material and human resources available at HCs in the South Wollo Zone, Ethiopia and assess barriers experienced by mid level providers and patients at HCs in obtaining surgical care.""",8 woreda (district) level HCs in the South Wollo Zone of Ethiopia,"Other: survey-based, cross-sectional assessment",primary data collection (survey),11/2014 - 01/2015,NA,1-80 years,males; females,"""Eight HCs in South Wollo Zone returned surveys, representing 38% of the total zonal HCs (n=21)."";
+
+168 patients",surgical disease,NA,NA,"""This study represents a contribution to the literature as the only survey of HC resources and diagnostic capabilities in Ethiopia, and of rural populations that may often present with surgical complaints but fail to reach a hospital with surgical capacity due to sociocultural or financial reasons""",NA,hospital resources; hospital capacity; barriers to surgical care,NA,"""168 were seen with surgical complaints over the 30-day study period at the 8 HCs."";
+
+mean age = 34 years old;
+age range = 1-80 years old
+
+referred to the hospital for surgery = 97 patients (58%);
+""...of the 71 patients (42%) not referred for surgery, the majority of them (87%) could be treated in clinic. The other nine (12.6%) refused referral.""
+
+traumatic injuries or burns = 42%;
+soft tissue infections = 3.6%;
+soft tissue tumours = 3%;
+breast mass = 1.2%",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,"""Only one HC was staffed by physicians and none had anaesthesia providers.""",18 +/- 4,"""An average of 18 (±4) clinical service providers (physicians, health officers or nurses) were employed at each HC and saw an average of 1212 (range 278–4118) patients at each  facility in the 30-day study period."";
+
+""The majority of providers were health officers (20.7%), nurses (62.2%) and midwives (13.7%). """,NA,"""Half of the HCs had lab and pharmacy technicians.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rare,8-Jan,"""Only  one reported access to blood for transfusion...""",NA,NA,NA,no,0/8,"""...no HCs had access to any form of imaging (ultrasound, radiograph or CT scan) or paracentesis kits.""",NA,NA,NA,inpatient and general surgical services,"4/8 had access to NG or rectal tubes; 
+
+2/8 always had access to clean water; 
+
+6/8 sometimes had access to clean water","""Half of centres reported that they always had access to nasogastric (NG) or rectal tubes. Only two centres always had clean water, while the other six reported that they sometimes had clean water.""","""Each HC served a population of approximately 36000 in its catchment area.""",NA,infrastructure limitations; referral system issues,"""Half of centres reported that they always had access to nasogastric (NG) or rectal tubes. Only two centres always had clean water, while the other six reported that they sometimes had clean water."";
+""The two most common reasons cited for not being referred were that the patient was not the primary decision maker and lacked family support.""",direct medical costs; indirect medical costs,"""The next most commonly cited reason for refusing a referral was inability  to afford the surgery.""; 
+""Patient cannot afford hospital fees, transportation charge."";
+""Patient cannot afford to lose wages during surgery/recovery.""",physical distance; transportation issues,"""Given road quality and typical transport speeds, it would take an estimate of 2–4 hours to reach the Referral Hospital from the average participating HC."";
+""Poor roads.""",health literacy,"""Lack of information about disease, process of surgery or postoperative care.""",perceived need for surgery: fear of surgery or anesthesia,"""Patient does not understand severity of condition.""; 
+""Fear of surgery, anaesthesia or bad outcomes.""",NA,NA,training gaps,"""Even for the diagnoses that were rated as ‘not difficult at all’, lack of diagnostic aids and lack of training were still cited as reasons for difficulty.""",lack of time; no accompaniment,"""No one to accompany patient to surgery."";
+""Lack of time.""","""Ethiopia is currently implementing the SaLTS programme, a national surgical plan to improve access to and quality of surgery nationwide. This plan which encompasses human resource and infrastructure development, data quality, service quality and monitoring and evaluation will be crucial for closing gaps in access to surgical care.""",NA,NA,NA
+4923,Legbo 2005,Necrotising fasciitis: Experience with 32 children,Consensus,"Legbo J.N., Shehu B.B.","Department of Surgery, Usmanu Danfodiyo University Teaching Hospital, Sokoto, Nigeria",legboj@yahoo.co.uk,Necrotising fasciitis: experience with 32 children,5-Jun,Annals of Tropical Paediatrics,Peer-Reviewed,Nigeria,NA,"""The aim was to describe the various presentations of NF and evaluate outcome of treatment.""","Tertiary teaching hospital in Sokoto, Nigeria",Other: Prospective descriptive study,Primary data collection,01/2001 – 12/2004,NA,0-15,males; females,32,Infectious soft tissue disease,Necrotising fasciitis,"Surgical debridement, secondary intention healing, direct suturing, split-thickness skin grafting, local flap reconstruction","71.9% had polymicrobial infections; Staphylococcus aureus was most common (71.9%).; 40.6% were malnourished; 43.8% had no identifiable precipitating factor.; 71.9% developed septicaemia; 9.4% mortality rate.; Mean hospital stay: 27.6 days; mean follow-up: 52.4 days.
+
+""NF in children is not uncommon in Nigeria. It is associated with significant morbidity, but mortality
+can be reduced remarkably by early diagnosis and aggressive treatment.""",descriptive analysis,"Demographic characteristics, wound healing outcomes, treatment modalities",NA,32 cases,NA,NA,"Debridement Frequency: Single major debridement = 23 (71.9%); Double major debridement = 7 (21.9%); Triple major debridement = 2 (6.3%)
+
+Wound Resurfacing Methods: Secondary intention = 15 (46.9%); Split thickness skin grafting = 7 (21.9%); Local flaps = 4 (12.5%); Direct suturing = 2 (6.3%)",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,NA,"""Major surgical debridements were undertaken under general anaesthesia...""",NA,NA,NA,Yes,NA,"""Nine patients (28.1%) received blood transfusion at various stages of treatment.""",Yes,NA,"""Relevant microbiological, haematological, immunological, chemical, radiological and histological investigations.""",Yes,NA,"""Radiological... investigations""",Yes,NA,NA,NA,NA,NA,NA,NA,limited comprehensive microbiological testing,"""We were limited by the absence of anaerobic culture media...""",lack of health insurance,"""This increases the financial burden on the family, especially in our setting where the cost of health care is borne directly by patients, who usually have no insurance policy.""",NA,NA,NA,NA,loss to follow-up,"""Some patients signed out against medical advice during the course of treatment.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+4751,Kwasau 2023,Prevalence and outcomes of pediatric surgical conditions at Connaught Hospital in Freetown: A retrospective study,Consensus,"Kwasau H., Kamanda J., Lebbie A., et al.","Department of Community Health, College of Medicine and Allied Health Sciences, University of Sierra Leone",emily.smith1@duke.edu,Prevalence and outcomes of pediatric surgical conditions at Connaught Hospital in Freetown: a retrospective study,23-Feb,World Journal of Pediatric Surgery,Peer-Reviewed,Sierra Leone,"""The authors have not declared a specific grant for this research from any funding agency in the public, commercial or not-for-profit sectors.""","""This study aims to characterize the burden of disease and outcomes of pediatric surgical conditions at Connaught Hospital, the main pediatric referral hospital in Sierra Leone.""",Connaught Hospital (governmental referral hospital),Other: retrospective and hospital-based study,medical records (theater logbooks),06/2015 - 06/2016,NA,0 - 15 years (pediatric population),males; females,215 patients,pediatric surgical conditions,"congenital anomalies; infections; masses; and others (abdominal problems, acquired deformities, wounds, burns and postoperative complications)",NA,"""Congenital conditions represented over half of the surgical conditions treated at Connaught Hospital. A significant number of these conditions were inguinal hernias (65.0%), with 78.8% of this condition present in the 0–4 years age group."";
+
+""Most of the patients were diagnosed with congenital anomalies (60.9%; n=131). However, 
+infection was the leading diagnosis (60.5%; n=23) among patients aged 5–10 years (n=38). Inguinal hernia was the leading condition (65.0%; n=85) among patients presenting with a congenital anomaly."";
+
+""A total of 215 pediatric patients underwent surgery at Connaught Hospital between June 2015 and June 2016 (table 1). Of these patients, 72.5% (n=132) were male and 27.5% (n=50) were female. Also, 62.4% (n=132) genitourinary anomalies (8.0%; n=10), and other hernias (5.0%; n=7) (figure 1). The condition with the highest mortality was infections (17.0%; n=8), followed by other conditions (9.1%; n=2) and congenital anomalies (3.1%; n=4) (figure 2). "";
+
+""Overall, our data show that the burden of pediatric surgical disease falls on congenital anomalies. We also identified the absence of a cohort of patients with life-threatening conditions and an unequal gender distribution in access to surgical care."";
+""Improving the management of congenital anomalies, increasing efforts to expand access to care for children with high mortality conditions, and reducing gender disparities are the identified priority areas.""",descriptive statistics; chi-square analysis,NA,NA,"215 total pediatric surgical cases; 
+male = 132(72.5%);
+female = 50(27.5%)
+
+SURGICAL CONDITION
+Congenital anomalies = 131(60.9%);
+Infections = 47(21.9%);
+Masses = 15(7.0%);
+Other (include abdominal problems, acquired deformities, wounds, burns and postoperative complications) = 22 (10.2%)",NA,NA,"OUTCOME
+total survived = 201(93.5%);
+total died = 14(6.5%)
+
+OUTCOME BY CONDITION
+Congenital anomalies
+survived =96.9%;
+died = 3.1%;
+Infections 
+survived = 83.0%;
+died = 17.0%;
+Other Conditions
+survived = 90.9%;
+died = 9.1%;
+
+ANESTHESIA USED 
+GA = 166 (77.2%);
+GA ITT/ETI = 24(11.2%);
+Other (halothane, intrathecal narcotics (ITN), ketamine, local anesthesia (LA), and spinal anesthesia) = 25(11.6%)
+
+""For inguinal hernia, 7103 children between 0 and 15 years were estimated to not have received any surgical treatment, for spina bifida 1408 children, and for cleft lip repair 178 children.""",NA,NA,NA,yes,Medical records (theater logbooks),NA,pediatric surgeon = 1,"""There is a pediatric theater with only one pediatric surgeon who was the only specialist pediatric surgeon in the country during the time of the study.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,main hospital = 300 beds,"""Connaught Hospital is a governmental hospital located in Freetown with 300 beds and 12000 patients presenting to its emergency center annually.""",yes,pediatric theatre = 1,"""There is a pediatric theater with only one pediatric surgeon who was the only specialist pediatric surgeon in the country during the time of the study.""",NA,NA,NA,yes,unspecified,"""General anesthesia was the main type of anesthesia used during the surgical procedures (77.2%; n=166) for all age categories"";
+GA ITT/ETI used on 24 cases(11.2%);
+Other types of anesthesia used on 25 cases(11.6%)",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"unspecified number (""This hospital serves as the primary referral hospital for several health facilities in the country. Ola During Children’s Hospital, a major referral hospital for children’s health, also refers surgical patients to Connaught Hospital."")",NA,infrastructure limitations; human resource shortages,"""Also, governmental hospitals experience infrastructure and workforce shortages.""",indirect costs,"""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions.""",transportation issues,"""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions."";
+""Long travel to arrive at the referral facility, most of the time without ambulance or hospital transportation, also increases the chances of mortality outside of the surgical center.""",NA,NA,"late presentation;
+perceived need for surgery","""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions.""; ""Furthermore, there may be a lack of a perceived need for surgery and the belief that the condition could resolve on its own or by medication alone.""",NA,NA,NA,NA,NA,NA,"""Approximately 50% of the 1.7 billion children without access to surgical care worldwide fall within the 5–14 age group. Thus, it is important to include these children in national interventions such as the Free Health Care Initiative."";
+""Providing community health workers (CHWs) with the recently published WHO handbook ‘Birth defects surveillance: quick reference handbook of selected congenital anomalies and infections’, which is designed for front-line health professionals, would be a helpful tool towards achieving early diagnosis."";
+""Implementing quality surveillance systems at the hospital and population levels can allow countries such as Sierra Leone to improve interventions to prevent, treat and support all children with pediatric surgical needs."";
+""...scaling up the surgical workforce and infrastructure is another essential requirement to have an efficient surgical system.""",NA,NA,NA
+3954,Iyun 2016,Point Prevalence of Chronic Wounds at a Tertiary Hospital in Nigeria,Consensus,"Iyun A.O., Ademola S.A., Olawoye O.A., et al.","Department of Plastic, Reconstructive and Aesthetic Surgery University College Hospital Ibadan, Nigeria.",olukayodele@yahoo.com,"Point Prevalence of Chronic Wounds at a 
+Tertiary Hospital in Nigeria",16-Feb,Wounds,Peer-Reviewed,Nigeria,NA,"""The aim of this study was to determine the point prevalence of chronic wounds in a tertiary hospital (University College Hospital, Ibadan, Nigeria) and thus provide data for effective wound care""","University College Hospital, Ibadan, Nigeria (tertiary hospital)",Other: Cross-sectional point prevalence study,Clinical wound assessments and patient records,11/2012 - 11/2012,NA,all ages,males; females,48 patients with 78 wounds,trauma (Chronic wounds),"Diabetic ulcers, pressure ulcers, postinfection ulcers, posttraumatic ulcers, burn wounds, malignant ulcers, venous ulcers","Skin grafts, flaps (as needed for wound coverage)","""Chronic wound care requires an interprofessional approach. Wound assessment and treatment needs to be done based on best evidence practice for most successful outcomes. It is, however, important to take into consideration patient-centered concerns such as financial constraints when deciding the wound care 
+plan and dressings for patients.""","Descriptive statistics, chi-square test",NA,NA,"48 patients and 78 wounds
+
+Diagnosis: Pressure ulcer = 17 wounds; Traumatic ulcer = 6 wounds; Burn wound = 6 wounds; Diabetic ulcer = 25 wounds; Venous ulcer = 1 wound; Postinfection ulcer = 11 wounds; Malignant ulcer = 2 wounds",NA,NA,"""Out of these, 56.4% of the wounds were from the surgical ward, 23.1% from the medical ward, 17.9% from the surgery outpatient ward, and 2.6% from the accident and emergency department.""",NA,NA,NA,NA,NA,NA,5 consultants,“The plastic surgery department… has 5 consultants.”,NA,NA,NA,NA,NA,"""Patients with chronic wounds are usually referred to the plastic surgery department, which has 5 consultants, but there are a complement of other specialists such as vascular surgeons, physiotherapists, dietitians, endocrinologists, and microbiologists who assist with the management of the plastic surgery department""",NA,NA,NA,NA,NA,Yes,800,"""The University College Hospital, Ibadan is an 800-bed hospital with an approximately 
+80% occupancy rate""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes (plastic surgery outpatient clinic),NA,"""On average, the plastic surgery outpatient clinic receives 212 patients a month...""",NA,NA,NA,NA,high costs,"“Fear of surgery, high cost of care…”",NA,NA,NA,NA,fear of hospitals,“Phobia of hospital care for various reasons… receipt of misinformation on proper wound care…”,NA,NA,lack of trained personnel,“Patients’ wound management is taken over by inexperienced personnel…”,NA,NA,"“Establishment of an ambulatory wound care clinic, the formation of an interprofessional wound care team…”; “Development of wound care protocols based on best practices.”; “It is… important to take into consideration patient-centered concerns such as financial constraints…”",NA,NA,NA
+1040,Ayoade 2013,Mortality Pattern in Surgical Wards of a University Teaching Hospital in Southwest Nigeria: A Review,Consensus,"Ayoade B.A., Thanni L.O., Shonoiki-Oladipupo O.","Department of Surgery, Olabisi Onabanjo University Teaching Hospital, Nigeria",teruayoade@yahoo.co.uk,Mortality Pattern in Surgical Wards of a University Teaching Hospital in Southwest Nigeria: A Review,12-Dec,World Journal of Surgery,Peer-Reviewed,Nigeria,NA,“The objectives of this study were to determine the prevalence of deaths associated with surgical care in both operative and nonoperative surgical patients. We also compared our results with those of other published studies to identify areas of improvement in which surgical patient care could be improved.”,Olabisi Onabanjo Teaching Hospital Sagamu (tertiary care facility),Other: Retrospective observational study,Medical records and  hospital registries,01/2006 - 12/2010,NA,all age groups,males; females,170 patients with case notes,trauma; burns; cancer; infections,NA,Debridement; Open reduction and internal fixation; Mastectomy; Anoplasty,"""The surgical mortality rate over the 6-year period of this study was 5.08 %, which is relatively low compared to other reports from Africa, although values of crude surgical mortality rates are not a true reflection of hospital quality of service."";
+
+""The pattern of surgical mortality is not directly related to surgical procedures as most of the deaths occurred in the nonoperative care group. Trauma-associated deaths topped the list.""",descriptive statistics,NA,NA,"PATIENTS WITH COMPLETE RECORDS
+male = 98;
+female = 98
+<1 year = 13;
+1-20 years = 12;
+21-30 years = 29;
+31-40 years = 27;
+41-50 years = 24;
+51-60 years = 26;
+61-70 years = 23;
+>70 years = 16
+
+OVERALL CAUSE OF DEATH
+trauma = 66;
+cancer = 50;
+infections = 38;
+others = 38
+
+""Surgical operations were carried out in only 60 (35.3 %) of the patients who died."";
+""No surgery was done in 110 (64.7 %) of those who died.""",NA,NA,"PRIMARY CAUSE OF DEATH/DIAGNOSIS
+Cancer
+Breast = 15;
+Multiple myeloma = 2;
+Melanoma = 1;
+Nasopharyngeal = 1;
+Sarcoma = 1
+
+Trauma
+Burns = 25;
+Multiple injury = 10;
+Blunt abdominal injury = 6;
+Penetrating abdominal injury = 4;
+Femoral fracture = 3;
+Tibia and fibula fracture = 1;
+Traumatic amputation = 1
+
+Others 
+Gangrene = 3;
+Leg ulcer = 2;
+Imperforate anus = 1
+
+""The primary causes of death/diagnosis in the group with no surgical intervention were as follows: burns 25, breast cancer 11, head injury secondary to a road traffic accident (RTA) 11, multiple injury secondary to RTA 5, peritonitis 5, abdominal malignancy 5, others 48.""",NA,NA,NA,yes,"hospital admission and discharge registers in the medical records department, surgical theater, surgical wards, and ICU",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,"main hospital = 420 total beds;
+surgical patients = 80 beds;
+ICU = 4 beds","""The hospital is a tertiary care facility with 420 beds, 80 of which are dedicated for surgical patients. There are three functional operating rooms and a four-bed intensive care unit (ICU).""",Yes,3,"""There are three functional operating rooms and a four-bed intensive care unit (ICU).""",No,0,"""Burns as the primary cause of death accounted for the highest percentage of deaths, which is due to a variety of reasons.[...]Lastly, the absence of a burn unit to take care of these cases is a major contributory factor.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,infrastructure limitations; referral system issues; human resource shortages,"""Burns as the primary cause of death accounted for the highest percentage of deaths, which is due to a variety of reasons.[...]Lastly, the absence of a burn unit to take care of these cases is a major contributory factor."";
+""Many factors are responsible for this situation, including late presentation, refusal of operative treatment, inability to pay for treatment, inadequate preoperative and postoperative care consequent to resource limitations ."";
+""Patients requiring further care are then referred to another center, but timely transfers are often not possible as a result of infrastructural and logistical challenges."";
+""Nonoperative care becomes the only viable option in the face of advanced surgical disease, refusal of operative treatment, inability to pay for treatment, infrastructural challenges, and sometimes the dearth of man power.""",direct costs; indirect costs,"""Many factors are responsible for this situation, including late presentation, refusal of operative treatment, inability to pay for treatment, inadequate preoperative and postoperative care consequent to resource limitations ."";
+""Many reasons have been adduced for this practice, including ignorance, poverty, and inaccessible and poor medical facilities.""",NA,NA,health literacy,"""Many reasons have been adduced for this practice, including ignorance, poverty, and inaccessible and poor medical facilities.""",late presentation; perceived need for surgery,"""Many factors are responsible for this situation, including late presentation, refusal of operative treatment, inability to pay for treatment, inadequate preoperative and postoperative care consequent to resource limitations ."";
+""Many reasons have been adduced for this practice, including ignorance, poverty, and inaccessible and poor medical facilities.""",NA,NA,NA,NA,lack of adequate data,"""Only 61 % of case notes were available for review, similar to the findings in the Nnewi study."";
+""Poor record-keeping is the bane of retrospective studies in the Third World.""",NA,NA,NA,NA
+781,Amponsah 2010,Challenges of anaesthesia in the management of the surgical neonates in Africa,Consensus,Amponsah G.,"Department of Anaesthesia, University of Ghana Medical School, P.O. Box 4236, Accra, Ghana",gamponsah2006@yahoo.com,Challenges of anaesthesia in the management of the surgical neonates in Africa,10-Sep,African Journal of Paediatric Surgery,Peer-Reviewed,Ghana,NA,"""Some of these challenges will be examined and highlighted using the acronym ""ASKS"" in this article. The challenges encountered in the anaesthetic management of the surgical neonates in Africa.""","Korle Bu Teaching Hospital (KBTH), Accra",Other: Retrospective data analysis,medical records,01/2006 - 06/2008,NA,Neonatals,males; females,278 patients,Congenital malformations,"Exomphalous, bladder extrophy",NA,"""Very few hospitals have dedicated specialist paediatric/neonatal physician anaesthetists. The few generalist physician anaesthetists working in Africa have to be “all things to all men” and empower themselves with the skills and competencies required to handle a broad 
+spectrum of complex surgical procedures, including neonatal emergencies.""","numbers, percentages",NA,NA,NA,NA,NA,"Number of treated:
+""One hundred and thirty-six (71.6%) of these neonates were successfully treated and discharged home.""",NA,NA,NA,NA,NA,NA,4,"""The hospital currently has four paediatric surgeons at post.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,NA,"""All these neonates were anaesthetised by consultant physician anaesthetists or senior residents in anaesthesia and were operated on by paediatric surgeons.""",Lacking,NA,"""Equipments such as incubators, multiparameter  monitors, paediatric ventilators and syringe pumps are lacking in most hospitals.""",NA,NA,NA,Yes,NA,"""Good-quality plain X-rays are usually taken together with the basic laboratory investigations like full blood count and blood urea and electrolytes.""",Yes,NA,"""Good-quality plain X-rays are usually taken together with the basic laboratory investigations like full blood count and blood urea and electrolytes.""",NA,NA,NA,non-existent neonatal intensive care units,NA,"""Neonatal intensive care units (NICUs) are non-existent in most hospitals in Africa.""",NA,NA,"Human resource insufficiency;
+
+Infrastructure limitations","""Lack of trained anaesthetists was one of the challenges.""
+
+"" The kind of care and services that physician anaesthetists are capable of delivering, in proper enabling environment, or facilities that will accrete respect and attractiveness to the specialty, do not often exist in Africa""
+
+""The supply of equipment, drugs and non-drug consumables is not optimal in most countries. Lack of appropriate equipment has been cited as one of the challenges. Coupled with the supply inadequacy is the poor maintenance culture and erratic supply of electricity that shortens the shelf life of drugs and
+consumables and the life span of the expensive pieces
+of equipment when they are available""
+
+""There are only seven paediatric surgeons in Ghana with a population of over 20 million.""
+
+""Comprehensive and total care of the sick neonate requires contributions and support from other specialties such as neonatologists, neurosurgeon, 
+ophthalmologists and critical care/intensive care nurses, in addition to paediatric surgeons and anaesthetists. These specialists are not readily available in most centres for consultation and participation in the team approach to the management of these neonates.""",Indirect costs,"""Financial constraints may further delay arrival at the tertiary hospital.""",Physical distance ; Transportation issues; rural vs urban disparities,"""Mothers or parents who decide to send their “disadvantaged” baby to the hospital face a number of challenges. These include geographical access, transportation and financial constraints. Some of these parents have never travelled beyond the borders of their towns or villages. Asking them to take their babies to one
+of the two leading teaching hospitals in Ghana, that is Korle Bu Teaching Hospital in Accra and Komfo Anokye Teaching Hospital in Kumasi, creates panic, fear and insecurity.""
+
+""Because most of these babies are transported in ordinary passenger vehicles, they arrive in the hospitals sometimes dehydrated, hypothermic and septic.""",stigma and cultural beliefs,"""Culturally, the presence of any anomaly leads to neglect and rejection by the mother and family members and sometimes the traditional birth attendant. The baby may be left unprotected and not fed leading to hypothermia and hypoglycaemia on
+arrival at the health facility.""
+
+""The attitude of the mother who gives birth to a baby
+with congenital anomaly, is often reinforced by the
+attitude of neighbours and other family members, thus adding to the suffering of the mother. Furthermore, the
+babies with gross anomalies sometimes attract unkind comments from even health workers, who should know better, on arrival at the facility""",NA,NA,NA,NA,Surgeon training gaps; continuous medical education,"""Consequently, most anaesthetists do not have this skill because of lack of opportunity and
+infrequency of practice. Arterial cannulation is rarely done due to lack of expertise and consumables such as transducers, cannulae and display units""",NA,NA,"""Regional anaesthetic techniques such as caudal which can be used to provide intra-operative as well as postoperative analgesia are not practiced widely.""
+
+""With regard to anaesthetic management, the anaesthetist must know the pharmacokinetics of the anaesthetic agents used in the neonates. Neonates are sensitive to non-depolarising muscle relaxant drugs but are resistant to depolarising muscle relaxants. These drugs are used in neonatal anaesthesia to achieve muscle relaxation. Wrong doses given may lead to prolonged duration of action of these agents. Measures should be taken to prevent the neonate from developing hypothermia and acidosis as these will cause delayed recovery from the
+non-depolarising muscle relaxant.""
+
+""The few generalist physician anaesthetists working in Africa have to be “all things to all men” and empower themselves with the skills and competencies required to handle a broad
+spectrum of complex surgical procedures, including neonatal emergencies. Increase in the number of professionals whose clinical practices converge on the critically ill neonate must be encouraged, advocated and planned for.""
+
+""Reduction in neonatal surgical morbidity and mortality extends beyond the confines of health institutions. Policy makers may have to deal with rationing of scarce resource allocation and its ethical implications.""
+
+""More involvement of health care providers in advocacy work in the community is required and may result in
+beneficial changes in some of the harmful cultural beliefs and practices. Early reporting at health facilities
+will definitely contribute to a better outcome for some of these neonates. Improved techniques for keeping babies
+warm abound in our culture. It may be worthwhile to advocate their use""",NA,NA,NA
+347,Adupa 2023,Delayed access to essential surgical care in Uganda: A tertiary multi-center study,Consensus,"Adupa E., Kanyike A.M., Mwebembezi J., et al.","Multiple institutions across Uganda, DRC, and Cameroon including Mbarara University of Science and Technology, Mengo Hospital, Kabale Regional Referral Hospital, University of Bukavu",adupsemma@gmail.com,Delayed access to essential surgical care in Uganda: A tertiary multi-center study,23-Sep,Surgery in Practice and Science,Peer-Reviewed,Uganda,NA,“To assess the factors influencing delayed access to essential surgical care in Uganda.”,"Mulago National Referral Hospital (Central), Mbale Regional Referral Hospital (Eastern), Lacor Referral Hospital (Northern) (Regional and national referral centers)",Other: Descriptive multi-center cross-sectional survey,"Patient interviews, hospital records, Google Forms",12/2019 - 12/2021,NA,all ages,males; females,635 patients,surgical conditons,"General surgery, orthopedic, urology, neurosurgery",NA,"Only 23.3% reached hospital on time; 63.3% operated on time; key barriers were transport, cost, and limited surgical workforce
+
+""On bivariate analysis, delayed seeking of surgical care was associated with age (p<0.001), region (p = 0.006), religion (p = 0.014), marital status (p<0.001), caretakers’ acceptance (p<0.001), type of surgery (p = 0.001), number of surgeons (p = 0.040) and anesthetists (p = 0.001) ."";
+
+""On multivariate analysis, participants with no education level at all were nine times more likely to delay seeking surgical care (aOR: 9.47 95% CI: 3.14 – 28.60; p<0.001), those staying within a distance of 31 – 50 kms from the hospital were twice (aOR: 2.28 95% CI: 1.02 – 5.07; p = 0.045), while those earning between 200,000 – 500,000 Uganda shil­lings were seven times likely to delay.""; 
+
+""On bivariate analysis, inaccessibility to hospital was associated with age (p = 0.015), region (p<0.001), employment status (p<0.001), reli­gion (p = 0.014), education level (p<0.001), income level (p<0.001), distance from hospital (p<0.001), type of surgery (p<0.001), number of surgeons (p<0.001), and anesthetists (p<0.001) in the hospital."";
+
+""On multivariate analysis, participants staying more than 50 kms from the hospital were twice likely to not access the hospital on time (aOR: 2.12 95% CI: 1.06 – 4.26; p = 0.034), and those earning less than 200,000 (aOR: 2.38 95% CI: 1.38 – 3.14; p = 0.029), and 200,000 – 500,000 Uganda shillings (aOR: 2.57 95% CI: 1.81 – 4.31; p = 0.017), were twice also likely not to reach hospital on time respectively."";
+
+""We note that accessibility to hospitals stands out as a major factor in delayed access to essential surgical care mainly attributable to economic aspects such as lack of transport. Economic factors as well hindered access to surgeries among those that accessed hospitals on time underscoring the need to prioritize poverty eradication as a major determinant of health. Noteworthy large lists of patients to undergo surgery versus the limited number of surgeons came through as a major factor drawing back to the inadequate specialist workforce.""","Chi-square, Fisher’s exact test, multivariable logistic regression",NA,NA,"635 patients over 2 years
+
+Type of Surgery Distribution: General Surgery = 481 (75.8%); Orthopedic Surgery = 104 (16.4%); Urology = 48 (7.6%); Neurosurgery = 2 (0.3%)",NA,NA,Caretaker refusal increased odds of delay across all three delay types,NA,NA,NA,NA,NA,NA,3–5 per hospital,“Limited number of surgeons contributed to delays”,3–5 per hospital,“Shortage of anesthetists noted”,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,No,Not specified,“Lack of blood cited as reason for delay”,Yes,Not specified,“Delay in lab results contributed to surgical delay”,NA,NA,NA,NA,NA,NA,NA,NA,NA,“Hospitals serve multiple regions across Uganda”,NA,Limited surgical workforce,“Few surgeons and anesthetists per hospital”,Transport cost; Procedure cost,“50.7% cited lack of transport as reason for delay”; 	“Main reason for hesitancy to undergo surgery”,physical distance,31% >50 kilometere distance to hospital,Low education,“No education increased odds of delay 9-fold”,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

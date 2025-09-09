@@ -1,0 +1,296 @@
+covidence_number,study_id,title_3,reviewer_name,author,author_affiliation,author_contact_details,title_8,date_of_publication,journal,peer_review_status,country,funding_sources,aim_of_the_study,study_setting_location,study_design,sources_of_data,study_timeframe,population_description,age_group_demographics,sex_demographics,sample_size,general_category_of_pathology,specific_pathology,types_of_surgical_procedure_performed,main_study_findings,statistical_outcome_measures,non_statistical_outcome_measures,disability_adjusted_life_years_dal_ys,frequency,prevalence_rate,incidence_rate,other_findings,surveillance_health_information_systems,surveillance_system_yes_no,surveillance_system_details,health_information_system_yes_no,health_information_system_details,provider_demographics,surgeons_number,surgeons_description,anesthetists_number,anesthetists_description,nurses_number,nurses_description,other_healthcare_providers_number,other_healthcare_providers_description,location_of_surgeons_other_healthcare_providers_number,location_of_surgeons_other_healthcare_providers_description,affiliation_of_surgeons_other_healthcare_providers_number,affiliation_of_surgeons_other_healthcare_providers_description,hospital_infrastructure,bed_capacity_yes_no,bed_capacity_number,bed_capacity_description,operating_rooms_yes_no,operating_rooms_number,operating_rooms_description,burn_unit_availability_yes_no,burn_unit_availability_number,burn_unit_availability_description,anesthesia_availability_yes_no,anesthesia_availability_number,anesthesia_availability_description,ventilator_availability_yes_no,ventilator_availability_number,ventilator_availability_description,blood_bank_availability_yes_no,blood_bank_availability_number,blood_bank_availability_description,laboratory_services_available_yes_no,laboratory_services_available_number,laboratory_services_available_description,imaging_services_available_yes_no,imaging_services_available_number,imaging_services_available_description,sterilization_facilities_yes_no,sterilization_facilities_number,sterilization_facilities_description,other_yes_no,other_number,other_description_82,hospital_service_coverage_area,barriers_to_care,health_system_barrier,health_system_description,financial_barrier,financial_description,geograhic_accessibility_barrier,geograhic_accessibility_description,sociocultural_barrier,sociocultural_description,patient_related_barrier,patient_related_description,policy_governance_barrier,policy_governance_description,education_training_barrier,education_training_description,other_barrier,other_description_100,suggested_solutions,cost_of_care,cost_to_individuals_cost_in_usd_or_other_currency,cost_to_government_cost_in_usd_or_other_currency
+8040,Sitkin 2015,Congenital Anomalies in Low- and Middle-Income Countries: The Unborn Child of Global Surgery,Consensus,"Sitkin N.A., Ozgediz D., Donkor P., et al.","Department of Surgery, University of California, Davis, Sacramento, CA, USA",nasitkin@ucdavis.edu,Congenital Anomalies in Low- and Middle-Income Countries: The Unborn Child of Global Surgery,14-Aug,World Journal of Surgery,Peer-Reviewed,Low- and middle-income countries (,NA,"""This review article will summarize the growing body of knowledge on surgical congenital anomalies in LMICs and will highlight key research recommendations.""",NA,Other: scientific review,NA,NA,NA,pediatrics,NA,NA,congenital anomalies,"cleft lip, cleft palate",NA,"""While data from LMICs are sparse, available evidence suggests that the true human and financial cost of congenital anomalies is grossly underestimated and that pediatric surgery is a cost-effective intervention with the potential to avert significant premature mortality and lifelong disability.""",NA,recommended research priorities,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,one per 38 million people,"""While North America has an estimated one pediatric cardiac surgeon per 3 million people, sub-Saharan Africa
+has one per 38 million people.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Human resource shortage; Human resource shortage,"""One pediatric general surgeon may serve millions of children""
+
+"" Delays in referring patients from local health centers to medical centers with specialized surgical capacity,""",direct medical costs,"""financial burden of treatment on families, """,physical distance,"""If families do seek care, they must often travel great distances to reach medical facilities.""",stigma and cultural beliefs,"""In LMICs, many births occur at home, either with no attendants or with traditional birth attendants; pejorative cultural beliefs or ignorance about possible cures for defects may prevent families from seeking treatment""",NA,NA,NA,NA,surgeon training gaps,"""physicians performing pediatric surgery may have little or no pediatric surgery training. While North America has an estimated one pediatric cardiac surgeon per 3 million people, sub-Saharan Africa has one per 38 million people [41]; 75 % of the world’s population is estimated to have no access to cardiac surgery""",Misdiagnosis,"""Misdiagnosis as better known infectious diseases is common, as are added delays in diagnosis for non-visible anomalies""","Recommended research priorities:
+- ""Epidemiology, prevalence, and incidence of disease. Epidemiology may vary locally, but additional data are needed.""
+- ""Pediatric surgical capacity at all levels of the health system. Guidelines for minimum human resources and infrastructure for countries at different levels of development.""
+- ""Optimized quantitative metrics of disease burden.""
+- ""Models for the integration of pediatric surgical services within existing child health initiatives.""
+- ""Cost-effectiveness data""
+- ""Aligning marketing and advocacy. Greater emphasis has been directed toward selected visible, treatable anomalies (e.g. cleft lip and palate) than to a range of anomalies for which it has been more difficult to engage donor programs.""",NA,NA,NA
+7610,Samuel 2011,"The epidemiology, management, outcomes and areas for improvement of burn care in central Malawi: an observational study",Consensus,"Samuel J.C., Campbell E.L.P., Mjuweni S., et al.","Department of Surgery, Kamuzu Central Hospital, Lilongwe, Malawi; Department of Surgery, University of North Carolina, Chapel Hill, North Carolina, USA",jsamuel@unch.unc.edu,"The Epidemiology, Management, Outcomes and Areas for Improvement of Burn Care in Central Malawi: an Observational Study",11-Mar,The Journal of International Medical Research,Peer-Reviewed,Malawi,"Funding was provided by the Doris Duke Charitable Foundation, the North Carolina Jaycee Burn Center at the University of North Carolina, the National Institutes of Health Office of the Director, Fogarty International Center, Office of AIDS Research, National Cancer Center, National Eye Institute, National Heart,
+Blood, and Lung Institute, National Institute
+of Dental and Craniofacial Research,
+National Institute on Drug Abuse, National
+Institute of Mental Health, National Institute
+of Allergy and Infectious Diseases, National
+Institutes of Health Office of Women’s Health
+and Research through the International
+Clinical Research Fellows Program at Vanderbilt University (R24 TW007988) and a University of North Carolina Center for AIDS Research Developmental Award (P30 AI50410)","""The aims of this study were to describe the
+epidemiology and burden of burn injuries, to
+quantify treatment and outcome measures,
+including physiotherapy, wound infection
+and mortality levels, and to determine strategies for improving burn care in a sustainable and quantifiable way in this resource-constrained setting.""","Kamuzu Central Hospital (KCH), Lilongwe, Malawi",Other: A retrospective  cross-sectional analysis,"KCH trauma registry, operative records, inpatient charts",07/2008 - 06/2009,NA,all ages,males; females,370 burn patients,burns,scalds; flames,"Amputation, contracture release, skin grafting, tracheostomy, debridement","Burns disproportionately affected children; scalds were most common; in-hospital mortality was 27%; 59% of patients received inappropriate or missed key interventions (IV fluids, nutrition, physiotherapy)
+
+""The mean total burn surface area as a percentage of total body surface area for second- and third-degree burns was 14.1% (median 10%, range 1 – 76%), and the commonest body location burned was the trunk.""; 
+
+""Most (74%) burns were presented within 8 h of injury."";
+
+""A total of 19 burns-related operations were identified. The commonest procedures were amputation (26%, 5/19) and contracture release (26%, 5/19), followed by skin grafting (16%, 3/19), tracheostomy (11%, 2/19) and debridement (11%, 2/19) followed by amputation (11%, 2/19). A total of 2601 general surgery procedures were performed at KCH during the study period.""","Descriptive statistics, chi-square test",NA,NA,"370 burn cases (4.4% of all injuries)
+
+Causes of Burns:
+- Scalds, overall = 190 (51.4%): Water = 106 (28.6%); Steam = 47 (12.7%); Porridge = 29 (7.8%); Cooking oil = 6 (1.6%); Other scalds = 2 (0.5%)
+- Flames, overall = 80 (21.6%): Fire = 71 (19.2%); Petrol/diesel = 3 (0.8%); Paraffin lamp = 3 (0.8%); Candle = 2 (0.5%); Explosion = 1 (0.3%)
+- Other = 11 (3.0%)
+- Unknown = 89 (24.1%)",NA,NA,Mean burn surface area: 14.1%; mean hospital stay: 21.1 days; wound infection rate: 31%; only 8% received physiotherapy,NA,Yes,“KCH trauma registry used to identify burn cases”,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1000 beds (hospital-wide),“KCH is a 1000-bed tertiary care center”,Yes,NA,“19 burn-related operations performed during study period”,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Central Malawi (~5 million people),NA,Resource limitations,"“Lack of supplies, operative resources, and dedicated burn unit”",direct costs; indirect costs,“Burn care is a financial burden on hospitals and families”,NA,NA,NA,NA,NA,NA,NA,NA,Inadequate provider training,"“Improved training needed for appropriate use of IV fluids, nutrition, and physiotherapy”",Incomplete records,“Incomplete data limited outcome analysis and quality improvement”,NA,NA,NA,NA
+4923,Legbo 2005,Necrotising fasciitis: Experience with 32 children,Consensus,"Legbo J.N., Shehu B.B.","Department of Surgery, Usmanu Danfodiyo University Teaching Hospital, Sokoto, Nigeria",legboj@yahoo.co.uk,Necrotising fasciitis: experience with 32 children,5-Jun,Annals of Tropical Paediatrics,Peer-Reviewed,Nigeria,NA,"""The aim was to describe the various presentations of NF and evaluate outcome of treatment.""","Tertiary teaching hospital in Sokoto, Nigeria",Other: Prospective descriptive study,Primary data collection,01/2001 – 12/2004,NA,0-15,males; females,32,Infectious soft tissue disease,Necrotising fasciitis,"Surgical debridement, secondary intention healing, direct suturing, split-thickness skin grafting, local flap reconstruction","71.9% had polymicrobial infections; Staphylococcus aureus was most common (71.9%).; 40.6% were malnourished; 43.8% had no identifiable precipitating factor.; 71.9% developed septicaemia; 9.4% mortality rate.; Mean hospital stay: 27.6 days; mean follow-up: 52.4 days.
+
+""NF in children is not uncommon in Nigeria. It is associated with significant morbidity, but mortality
+can be reduced remarkably by early diagnosis and aggressive treatment.""",descriptive analysis,"Demographic characteristics, wound healing outcomes, treatment modalities",NA,32 cases,NA,NA,"Debridement Frequency: Single major debridement = 23 (71.9%); Double major debridement = 7 (21.9%); Triple major debridement = 2 (6.3%)
+
+Wound Resurfacing Methods: Secondary intention = 15 (46.9%); Split thickness skin grafting = 7 (21.9%); Local flaps = 4 (12.5%); Direct suturing = 2 (6.3%)",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,NA,"""Major surgical debridements were undertaken under general anaesthesia...""",NA,NA,NA,Yes,NA,"""Nine patients (28.1%) received blood transfusion at various stages of treatment.""",Yes,NA,"""Relevant microbiological, haematological, immunological, chemical, radiological and histological investigations.""",Yes,NA,"""Radiological... investigations""",Yes,NA,NA,NA,NA,NA,NA,NA,limited comprehensive microbiological testing,"""We were limited by the absence of anaerobic culture media...""",lack of health insurance,"""This increases the financial burden on the family, especially in our setting where the cost of health care is borne directly by patients, who usually have no insurance policy.""",NA,NA,NA,NA,loss to follow-up,"""Some patients signed out against medical advice during the course of treatment.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+4751,Kwasau 2023,Prevalence and outcomes of pediatric surgical conditions at Connaught Hospital in Freetown: A retrospective study,Consensus,"Kwasau H., Kamanda J., Lebbie A., et al.","Department of Community Health, College of Medicine and Allied Health Sciences, University of Sierra Leone",emily.smith1@duke.edu,Prevalence and outcomes of pediatric surgical conditions at Connaught Hospital in Freetown: a retrospective study,23-Feb,World Journal of Pediatric Surgery,Peer-Reviewed,Sierra Leone,"""The authors have not declared a specific grant for this research from any funding agency in the public, commercial or not-for-profit sectors.""","""This study aims to characterize the burden of disease and outcomes of pediatric surgical conditions at Connaught Hospital, the main pediatric referral hospital in Sierra Leone.""",Connaught Hospital (governmental referral hospital),Other: retrospective and hospital-based study,medical records (theater logbooks),06/2015 - 06/2016,NA,0 - 15 years (pediatric population),males; females,215 patients,pediatric surgical conditions,"congenital anomalies; infections; masses; and others (abdominal problems, acquired deformities, wounds, burns and postoperative complications)",NA,"""Congenital conditions represented over half of the surgical conditions treated at Connaught Hospital. A significant number of these conditions were inguinal hernias (65.0%), with 78.8% of this condition present in the 0–4 years age group."";
+
+""Most of the patients were diagnosed with congenital anomalies (60.9%; n=131). However, 
+infection was the leading diagnosis (60.5%; n=23) among patients aged 5–10 years (n=38). Inguinal hernia was the leading condition (65.0%; n=85) among patients presenting with a congenital anomaly."";
+
+""A total of 215 pediatric patients underwent surgery at Connaught Hospital between June 2015 and June 2016 (table 1). Of these patients, 72.5% (n=132) were male and 27.5% (n=50) were female. Also, 62.4% (n=132) genitourinary anomalies (8.0%; n=10), and other hernias (5.0%; n=7) (figure 1). The condition with the highest mortality was infections (17.0%; n=8), followed by other conditions (9.1%; n=2) and congenital anomalies (3.1%; n=4) (figure 2). "";
+
+""Overall, our data show that the burden of pediatric surgical disease falls on congenital anomalies. We also identified the absence of a cohort of patients with life-threatening conditions and an unequal gender distribution in access to surgical care."";
+""Improving the management of congenital anomalies, increasing efforts to expand access to care for children with high mortality conditions, and reducing gender disparities are the identified priority areas.""",descriptive statistics; chi-square analysis,NA,NA,"215 total pediatric surgical cases; 
+male = 132(72.5%);
+female = 50(27.5%)
+
+SURGICAL CONDITION
+Congenital anomalies = 131(60.9%);
+Infections = 47(21.9%);
+Masses = 15(7.0%);
+Other (include abdominal problems, acquired deformities, wounds, burns and postoperative complications) = 22 (10.2%)",NA,NA,"OUTCOME
+total survived = 201(93.5%);
+total died = 14(6.5%)
+
+OUTCOME BY CONDITION
+Congenital anomalies
+survived =96.9%;
+died = 3.1%;
+Infections 
+survived = 83.0%;
+died = 17.0%;
+Other Conditions
+survived = 90.9%;
+died = 9.1%;
+
+ANESTHESIA USED 
+GA = 166 (77.2%);
+GA ITT/ETI = 24(11.2%);
+Other (halothane, intrathecal narcotics (ITN), ketamine, local anesthesia (LA), and spinal anesthesia) = 25(11.6%)
+
+""For inguinal hernia, 7103 children between 0 and 15 years were estimated to not have received any surgical treatment, for spina bifida 1408 children, and for cleft lip repair 178 children.""",NA,NA,NA,yes,Medical records (theater logbooks),NA,pediatric surgeon = 1,"""There is a pediatric theater with only one pediatric surgeon who was the only specialist pediatric surgeon in the country during the time of the study.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,main hospital = 300 beds,"""Connaught Hospital is a governmental hospital located in Freetown with 300 beds and 12000 patients presenting to its emergency center annually.""",yes,pediatric theatre = 1,"""There is a pediatric theater with only one pediatric surgeon who was the only specialist pediatric surgeon in the country during the time of the study.""",NA,NA,NA,yes,unspecified,"""General anesthesia was the main type of anesthesia used during the surgical procedures (77.2%; n=166) for all age categories"";
+GA ITT/ETI used on 24 cases(11.2%);
+Other types of anesthesia used on 25 cases(11.6%)",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"unspecified number (""This hospital serves as the primary referral hospital for several health facilities in the country. Ola During Children’s Hospital, a major referral hospital for children’s health, also refers surgical patients to Connaught Hospital."")",NA,infrastructure limitations; human resource shortages,"""Also, governmental hospitals experience infrastructure and workforce shortages.""",indirect costs,"""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions.""",transportation issues,"""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions."";
+""Long travel to arrive at the referral facility, most of the time without ambulance or hospital transportation, also increases the chances of mortality outside of the surgical center.""",NA,NA,"late presentation;
+perceived need for surgery","""Reaching hospitals from rural areas poses many challenges, such as inadequate road infrastructure and transportation costs, leading to delayed arrivals and complicated conditions.""; ""Furthermore, there may be a lack of a perceived need for surgery and the belief that the condition could resolve on its own or by medication alone.""",NA,NA,NA,NA,NA,NA,"""Approximately 50% of the 1.7 billion children without access to surgical care worldwide fall within the 5–14 age group. Thus, it is important to include these children in national interventions such as the Free Health Care Initiative."";
+""Providing community health workers (CHWs) with the recently published WHO handbook ‘Birth defects surveillance: quick reference handbook of selected congenital anomalies and infections’, which is designed for front-line health professionals, would be a helpful tool towards achieving early diagnosis."";
+""Implementing quality surveillance systems at the hospital and population levels can allow countries such as Sierra Leone to improve interventions to prevent, treat and support all children with pediatric surgical needs."";
+""...scaling up the surgical workforce and infrastructure is another essential requirement to have an efficient surgical system.""",NA,NA,NA
+3798,Huijing 2011,Facial reconstruction in the developing world: A complicated matter,Consensus,"Huijing M.A., Marck K.W., Combes J., et al.","University Medical Centre Groningen, The Netherlands",marijnhuijing@gmail.com; Mark.mcgurk@btinternet.com,Facial reconstruction in the developing world: a complicated matter,10-Aug,British Journal of Oral and Maxillofacial Surgery,Peer-Reviewed,Ethiopia,"""The authors would like to acknowledge the charities Facing Africa and Project Harar whose funding and actions made this trip possible.""","""In this study we investigate the morbidity and outcome of a British surgical team working for a 2-week period in Ethiopia.""; ""In the present study we investigated the results of a British team who undertook complex reconstructions during a 2-week period in Ethiopia.""",Yekatit 12 Hospital,Other: prospective observational case series,"primary data collection (daily clinical notes and photographs detailing diagnosis, surgical procedures, complications, and clinical outcome at 3 weeks)",10/2007 (13/10/2007 - 28/10/2007),NA,unspecified,unspecified,35 patients,facial deformities,Noma; Posttraumatic deformity; Malignancy (cheek); Ameloblastoma; Odontogenic cyst; Fibrous dysplasia; Leishmaniasis (nasal deformity); Bell's palsy (congenital); Herbal medicine injury; Neurofibromatosis; Schwannoma,excision of scars; temporoparietal fascia flaps; deltopectoral; temporal TPF; Estlander; rib grafts; and pectoralis major flaps,"""In summary, complex operative procedures are technically possible within an under-privileged health care system. However, without meticulous attention paid to diverse aspects of management such as nutritional status, surgical planning, surgical expertise and, in particular, careful postoperative care, the initial results of complex surgery can be disappointing for both surgeon and patient alike.""",descriptive statistics,NA,NA,"35 patients had 47 operations
+1 operation = 25 patients; 
+2 or more operations = 10
+simple procedures = 17;
+complex procedures = 18
+
+DISEASES SEEN IN PATIENTS TREATED
+Noma = 17
+Posttraumatic deformity = 7
+Malignancy (cheek) = 1
+Ameloblastoma = 2
+Odontogenic cyst = 2
+Fibrous dysplasia = 1
+Leishmaniasis (nasal deformity) = 1
+Bell’s palsy (congenital) = 1
+Herbal medicine injury = 1
+Neurofibromatosis = 1
+Schwannoma = 1",NA,NA,"COMPLICATIONS BY SEVERITY
+No Complications
+simple procedures = 9;
+complex procedures = 0;
+percentage of total patients = 26% 
+
+Minor Complications
+simple procedures = 2;
+complex procedures = 3;
+percentage of total patients = 14% 
+
+Intermediate Complications
+simple procedures = 7;
+complex procedures = 12;
+percentage of total patients = 54 
+
+Major Complications
+simple procedures = 0;
+complex procedures = 2;
+percentage of total patients = 6 
+
+EARLY CLINICAL OUTCOME 
+Good Outcome 
+simple procedures = 9;
+complex procedures = 2;
+total patients = 11
+
+Acceptable Outcome
+simple procedures = 5;
+complex procedures = 3;
+total patients = 8
+
+Moderate Outcome
+simple procedures = 2;
+complex procedures = 5;
+total patients = 7
+
+Same as Before
+simple procedures = 1;
+complex procedures = 4;
+total patients = 5
+
+Worse than Before
+simple procedures = 0;
+complex procedures = 4;
+total patients = 4
+
+""There were no operative deaths (defined as death of any cause within 1 month of operation).""",NA,NA,NA,NA,NA,NA,"plastic surgeon = 1;
+maxillofacial surgeon = 2","""The team consisted of a manager (non operating senior plastic surgeon), one plastic surgeon, two maxillofacial surgeons, an anaesthetist, an operating department practitioner, a theatre nurse, and two junior doctors.""",anaesthetist = 1,"""The team consisted of a manager (non operating senior plastic surgeon), one plastic surgeon, two maxillofacial surgeons, an anaesthetist, an operating department practitioner, a theatre nurse, and two junior doctors.""",theatre nurse = 1,NA,"manager = 1 (non operating senior plastic surgeon);
+operating department practitioner = 1;
+junior doctors = 2","""The team consisted of a manager (non operating senior plastic surgeon), one plastic surgeon, two maxillofacial surgeons, an anaesthetist, an operating department practitioner, a theatre nurse, and two junior doctors.""",Britain,NA,NA,"foreign surgical team (paid for by charity, Facing Africa)",NA,NA,NA,NA,yes,unspecified,"""The ward and the operative theatre facilities were of a good standard and well stocked with the basic equipment required for surgery.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,scarce,NA,"""Blood replacement was not readily available.""",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,infrastructure limitations,"""The latter was a perfectly adequate facility, but the supply of medication and blood products was limited."";
+""Personal hygiene was limited and we could not achieve aseptic wound dressings in the ward. """,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+1540,Botman 2022,"Access to Burn Care in Low- and Middle-Income Countries: An Assessment of Timeliness, Surgical Capacity, and Affordability in a Regional Referral Hospital in Tanzania",Consensus,"Botman M., Hendriks T.C.C., de Haas L. E. M., et al.","Department of Plastic, Reconstructive and Hand Surgery, Amsterdam UMC, Location VUmc, The Netherlands; Global Surgery Amsterdam, The Netherlands; Amsterdam Public Health Research Institute, The Netherlands",m.botman@amsterdamumc.nl,"Access to Burn Care in Low- and Middle-Income Countries: An Assessment of Timeliness, Surgical Capacity, and Affordability in a Regional Referral Hospital in Tanzania",22-May,Journal of Burn Care & Research,Peer-Reviewed,Tanzania,NA,"The study investigates patients’ access to surgical care for burns in a low- and middle-income setting by studying timeliness, surgical capacity, and affordability.",Regional referral hospital in the Manyara region.,Other: In-hospital survey,Primary data collection,10/2017 - 10/2018,NA,all ages,male; female,67,Burns,"Acute burns, contractures after burn injury","Conservative treatment, surgical debridement, amputation, skin grafting, escharotomy","TIMELINESS
+•	50% of burn wound patients reached a healthcare facility within 24 hours.
+•	74% of patients referred from another facility arrived at the regional hospital within 3 weeks.
+•	Barriers to timely access included lack of trust, lack of money, and reliance on traditional healers (consulted by 33% of burn wound patients first).
+SURGICAL CAPACITY 
+•	53% of burn wound patients initially sought care at another facility, where 95% received only conservative treatment (fluids, pain medication, antibiotics, and dressings), and only 1 patient (5%) received surgical debridement.
+•	Among contracture patients, 70% never received surgical care or a referral, despite clear indications for skin grafting.
+•	At the referral hospital, 75% of burn wound patients and 100% of contracture patients required surgery. However, 26% of burn wound patients who needed surgery did not receive it.
+AFFORDABILITY
+•	Only 25% of burn patients and 26% of contracture patients had their cost covered by health insurance.
+•	The mean hospital fee was $378 for burn patients and $167 for contracture patients.
+•	Given an average household daily income of $0.73, the cost of care exceeded the catastrophic health expenditure threshold by 6 times for contracture patients and 15 times for burn patients.
+•	Many families sold land and livestock to pay for care, yet 45% of hospital bills remained unpaid.
+
+",NA,"Timeliness, surgical capacity, affordability",NA,"36 acute burns, 31 contractures",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2 to 7 million people,NA,referral system; infrastructure limitations,"Weak referral systems. 70% of contracture patients were never referred for surgical care despite needing it;
+
+No care available at Haydom Lutheran Hospital (HLH), healthcare facilities including several district-level hospitals rarely provide surgical treatment for burn patients;
+
+Some patients consulted another healthcare facility before coming to HLH;
+
+Other facilities frequently lacked consistency in the use of antibiotics, pain medication, fluid resuscitation, and/or dressing.",indirect costs,"Burn care is unaffordable for most patients;
+
+Families often sell land and livestock to afford care;
+
+The mean hospital fee was $378 per patient for the burn group and $167 per patient for the contracture group;
+
+No money for healthcare or transport, hospital patient fees exceed catastrophic health expenditure threshold, most patients could not accomplish micropayments;
+
+Surgical care was unaffordable for majority of patients (mean daily budget of families of patient $0.73 for burn group and $0.70 for contracture group)",physical distance; transportations issues,"“Seven burn patients did not visit a healthcare facility within 24 hours; some delayed up to 49 days due to lack of transport and money.”; 
+
+Difficulties accessing transportation to health care;
+
+Time to reach health facility: one day (median 1, IQR 0-1 days) for burn group, 650 day (range 410-1566) for contracture group",stigma and cultural beliefs,"Visit traditional healers first;
+
+Traditional beliefs about burns lead to delayed care-seeking;
+
+Preference for traditional means for treating illness and injury (usually first option)",perceived need for surgery; fear,"No trust/fear to access hospital, believed it would heal without hospital care;
+
+Lack of trust in surgical care prevents some patients from accepting treatment",NA,NA,training gaps,Study provided twice-yearly surgical training program time to improve skills and equipment for burn care,NA,NA,"1. Strengthening burn care with a comprehensive approach that goes well beyond a single hospital management approach
+2. Strengthening financial risk protection strategies  to improve timely access to healthcare, including burn care, in the coming years.
+3. Community outreach by Improving health-seeking action, such as raising awareness in local communities, can reinforce knowledge and skills of healthcare providers",NA,"Treatment cost: $378 per patient in burn group, $167 per patient in contracture group 
+
+Cost covered by patients/insurance: $ 171 in burn group, $104 in contracture group
+
+Transportation cost: $11.9 in burn group, $5.4 in contracture group",NA
+1395,Bhatia 2024,Implementation of a pediatric trauma registry at a national referral center in Kenya: Utility and concern for sustainability,Consensus,"Bhatia M.B., Keung C.H., Hogan J., et al.","Indiana University Department of Surgery, Indianapolis, IN, USA",manishab917@gmail.com,Implementation of a Pediatric Trauma Registry at a National Referral Center in Kenya: Utility and Concern for Sustainability,24-Apr,Injury,Peer-Reviewed,Kenya,"""This work was supported by the National Institutes of Health, Mitacs  Accelerate which matched Innovative Canadians for Change (IN1516-12415), and University of Alberta Acute Care Emergency Services and Global Office of Surgery.""","""This study aimed at filling the gap in knowledge of pediatric trauma and assessing the implementation of a trauma surveillance registry at Shoe4Africa (S4A), the only public free-standing children’s hospital in East Africa. """,Shoe4Africa (public free-standing children's hospital located within Moi Teaching and Referral Hospital (MTRH)),Other: prospective cohort study,"Trauma registry forms, patient charts",09/2018 - 03/2019,NA,under the age of 15 years,males; females,425 patients,"trauma, burns","falls, burns, foreign body ingestions","extremity injuries, stab/cut wounds","Toddlers had higher risk of burns and poisoning; 56.2% required operations; registry implementation limited by staff and funding
+
+""The effectiveness of the trauma registry within the hospital system did not appear to outweigh the costs of implementation. Due to costs and limited personnel, the registry was not maintained by local stakeholders although a clinical stakeholder attempted to convince hospital admin­istration to support the registry."";
+
+""Maintenance of the trauma registry failed due to cost. Streamlining global surgery efforts through imple­mentation science may allow easier development of trauma registries to then identify modifiable risk factors to prevent trauma and long-term outcomes to understand associated disability.""","Relative Risk (RR), Odds Ratio (OR), p-values, 95% Confidence Intervals","Length of stay, mortality, transport method",NA,"female 
+MTRH = 68(43.9%);
+OH = 110;
+p-value = 0.55
+
+male
+MTRH = 86;
+OH = 157
+
+median age (IQR) 
+MTRH = 4.84 (2.24-7.96);
+OH = 5.36 (2.63-9.24);
+p-value =  <0.0001
+
+MECHANISM OF INJURY
+MTRH 
+blunt = 9(5.8%)
+burn = 28(18.1%);
+drowning = 1(0.6%);
+fall = 52(33.5%);
+other = 25(16.1%);
+poisoning = 21(13.5%);
+stab/cut = 8(5.1%);
+traffic incident = 11(7.1%)
+
+Outside Hospital (OH) 
+blunt = 15(5.6%), p-value = 0.47;
+burn =47(17.4%) ;
+drowning = 1(0.4%);
+fall = 87(32.2%);
+other = 51(18.9%);
+poisoning = 20(7.4%);
+stab/cut = 16(5.9%);
+traffic incident = 33(12.2%)",NA,NA,"""Average time to care was 267.5 min (IQR 134.0, 625.0)."";
+
+""Over half (56.2 %) required an operation during the hospitalization."";
+
+""Toddlers had nearly a six times higher relative risk for poison-related injuries (RR=5.6, 95 % CI 2.8–11.1)."";
+
+""Toddlers were also most likely to sustain burn injuries (RR=3.8, 95 % CI: 2.5–6.0) while school age children (RR=0.3, 95 % CI: 0.2–0.6) and adolescents (RR=0.3, 95 % CI: 0.1–0.6) were less likely."";
+
+""School age children (RR=1.7, 95 % CI: 1.3–2.3) and adolescents (RR=1.9, 95 % CI: 1.5–2.5) had a higher relative risk of falls. School age children were 100 % more likely to be involved with road-traffic trauma (RR=2.2, 95 % CI 1.2–3.8). Most of these injuries were unintentional (95.3 %) while self-inflicted wounds were more likely in the adolescent age group (p < 0.0001).""; 
+
+""Patients were less likely to undergo an operation if they sustained injuries in a burn trauma (OR 0.03, 95 % CI 0.01 – 0.1) or poisoning (OR 0.003, 95 % CI <0.001–0.05)."";
+
+""Patients who sustained a single injury were more likely to undergo an operation than those without an injury (OR 17.8, 95 % CI 3.2 – 99.3). Likewise, patients who sustained extremity injuries were more likely to undergo an operation (OR 11.2, 95 % CI 5.5 – 22.7).""
+
+
+PATIENTS WHO REQUIRED AN OPERATION STRATIFIED BY MECHANISM OF INJURY AND LOCATION OF INJURY
+Mechanism of Injury 
+Blunt (n = 24) 
+had an operation = 11 (45.8 %); 
+p-value = <0.0001; 
+Burn (n = 75); 
+had an operation = 11 (14.7 %); 
+Drowning (n = 2);
+had an operation = 0 (0 %); 
+Fall (n = 139); 
+had an operation = 105 (75.5 %); 
+Other (n = 76); 
+had an operation = 67 (88.2 %); 
+Poisoning (n = 41); 
+had an operation = 1 (2.4 %); 
+Penetrating (n = 24); 
+had an operation = 20 (83.3 %); 
+Traffic Incident (n = 44);
+had an operation = 24 (54.6%)
+
+
+Location of injury 
+Abdominal Injury (n = 16); 
+had an operation = 7 (43.8 %); 
+p-value =0.41; 
+Boney Pelvis Injury (n = 11); 
+had an operation = 3 (27.3 %); 
+p-value = 0.04;
+Chest Injury (n = 11);
+had an operation = 4 (36.4 %); 
+p-value = 0.3;
+Extremity Injury (n = 222); 
+had an operation = 149 (67.1 %);
+p-value = <0.0001;
+Head/Neck/Face Injury (n = 109); 
+had an operation = 37 (33.9 %);
+p-value = <0.0001;
+Pelvis/Peritoneal Injury (n = 24); 
+had an operation = 11 (45.8 %);
+p-value = 0.44;
+Spinal Injury (n = 2);
+had an operation = 0 (0 %);
+p-value = 0.2",NA,Yes,Trauma registry implemented using RE-AIM framework,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,Yes,200,"""This study was performed at S4A, a 200-bed stand-alone pediatric hospital that is located within the larger Moi Teaching and Referral Hospital (MTRH).""",NA,NA,NA,NA,NA,NA,Yes,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,pediatric emergency department,NA,"""The pediatric emergency department is open 24 hours per day and is predominantly run by general practitioners including medical officers who have completed medical school but no further training and clinical officers who have completed undergraduate training in medical sciences.""","""The hospital serves a catchment area of 24 million people in western Kenya, Uganda and South Sudan.""",NA,"Staff shortages, lack of equipment",“Healthcare workers were unable to initiate most forms due to scarcity of personnel and burden of clinical duties.”,indirect costs,"“Registry cost $20,000; not sustainable without external funding.”;
+""Patients may not have presented to S4A because of the financial burden of transportation, the lack of timely transportation or difficult road conditions.""""",transportation issues,"""Another limitation in presentation is the burden of travel, a known barrier, as most of the patients who presented to S4A relied on family or friends for transport. Patients may not have presented to S4A because of the financial burden of transportation, the lack of timely transportation or difficult road conditions.""",Preference for traditional healers,“Some patients did not seek care due to preference for traditional healers.”,NA,NA,lack of transportation services; lack of pre-hospital care,"""The lack of a national emergency trans­portation service and pre-hospital care may also have led to increased pre-hospital mortality, particularly from distant counties.""",Limited training in trauma data collection,“Limited training in trauma data collection among staff.”,NA,NA,"""A necessary step to simplifying and standardizing trauma registries would be a call to action from those who have been involved with trauma registry implementation and maintenance to provide written guidance on specific steps, stakeholders, and costs that could be strati­fied by resources.""",NA,NA,"$20,000 (registry implementation cost)"

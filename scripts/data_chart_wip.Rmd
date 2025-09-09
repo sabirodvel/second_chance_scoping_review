@@ -13,12 +13,8 @@ knitr::opts_chunk$set(echo = F, message = F, warning = F)
 if(!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, 
                here, 
-               janitor, 
-               reactable, 
-               sf, 
-               rnaturalearth, 
+               janitor,
                reactable,
-               countrycode,
                plotly, 
                ggrepel,
                treemap, #package to create treemap
