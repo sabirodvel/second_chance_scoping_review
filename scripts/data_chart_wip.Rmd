@@ -23,7 +23,8 @@ pacman::p_load(tidyverse,
                ggfittext,
                stringr,
                fuzzyjoin,
-               readxl
+               readxl,
+               countrycode
                )
 ```
 
@@ -37,12 +38,62 @@ pacman::p_load(tidyverse,
 final_extracted_df <- read_csv(here("data/final_df_aug_12.csv")) %>% 
   clean_names
 
-health_facilities <- read_excel(here("data/sub-saharan_health_facilities.xlsx"))
+# Extract countries included
+ssa_countries <- countrycode::codelist %>%
+  filter(region == "Sub-Saharan Africa",
+         !country.name.en == "South Africa") %>%
+  pull(country.name.en)
 
+country_list <- final_extracted_df %>%
+  select(country) %>%
+  separate_rows(country, sep = ",|;|\\)|\\(") %>%   # split on commas, semicolons, parentheses
+  mutate(country = str_trim(country),
+         country = str_to_title(country)) %>%       # normalize capitalization
+  distinct() %>%
+  filter(country %in% ssa_countries) %>% 
+  arrange(-desc(country)) %>% 
+  pull()
+
+# Load health facilities
+health_facilities <- read_excel(here("data/sub-saharan_health_facilities.xlsx")) %>% 
+  clean_names() %>% 
+  filter(country %in% country_list)
 ```
 
 ```{r}
+# Map the type of facilities
+map_facility_level <- function(x) {
+  x_norm <- x %>%
+    str_to_lower() %>%
+    str_squish()
+  
+  case_when(
+    # Primary-level (smallest units)
+    str_detect(x_norm, "\\b(primary|health\\s*centre|centre|health\\s*center|clinic|dispensary|phcu|post|hc ii)\\b") ~ "Primary",
+    
+    # District / General hospitals
+    str_detect(x_norm, "\\b(district|municipal|county)\\s+hospital\\b") ~ "District",
+    str_detect(x_norm, "\\bgeneral\\s+hospital\\b") ~ "District",
+    
+    # Regional / Provincial
+    str_detect(x_norm, "\\b(regional|provincial)\\s+hospital\\b") ~ "Regional",
+    
+    # Referral / National level
+    str_detect(x_norm, "\\b(referral|teaching|specialized|university)\\s+hospital\\b") ~ "Referral",
+    str_detect(x_norm, "\\bnational\\s+hospital\\b|referral|refferal") ~ "Referral",
+    
+    TRUE ~ NA_character_  # catch unclassified
+  )
+}
 
+# Apply function
+health_facilities_mapped <- health_facilities %>%
+  mutate(facility_level = map_facility_level(facility_t))
+```
+
+
+```{r}
+# Select relevant columns
 mini_final <- final_extracted_df %>%
   select(country, author, date_of_publication, title_3, study_design, study_timeframe, sources_of_data,
          study_setting_location, hospital_service_coverage_area,
@@ -109,40 +160,163 @@ parse_publication <- function(x) {
   s
 }
 
+# derive_facility_type <- function(...) {
+#   corpus <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+#   if (identical(corpus, character(0)) || corpus == "") return(NA_character_)
+#   hits <- character(0)
+#   if (grepl("\\bprimary\\b", corpus))  hits <- c(hits,"Primary")
+#   if (grepl("\\bdistrict\\b", corpus)) hits <- c(hits,"District")
+#   if (grepl("\\bsecondary\\b", corpus)) hits <- c(hits,"Secondary")
+#   if (grepl("\\btertiar(y|ies)\\b|\\btertiary\\b|\\bteaching\\b|\\buniversity\\b", corpus)) hits <- c(hits,"Tertiary")
+#   if (grepl("\\bregional\\b", corpus)) hits <- c(hits,"Regional")
+#   if (grepl("\\breferral\\b", corpus)) hits <- c(hits,"Referral")
+#   hits <- unique(hits)
+#   if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Multiple"
+# }
+
 derive_facility_type <- function(...) {
-  corpus <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
-  if (identical(corpus, character(0)) || corpus == "") return(NA_character_)
-  hits <- character(0)
-  if (grepl("\\bprimary\\b", corpus))  hits <- c(hits,"Primary")
-  if (grepl("\\bdistrict\\b", corpus)) hits <- c(hits,"District")
-  if (grepl("\\bsecondary\\b", corpus)) hits <- c(hits,"Secondary")
-  if (grepl("\\btertiar(y|ies)\\b|\\btertiary\\b|\\bteaching\\b|\\buniversity\\b", corpus)) hits <- c(hits,"Tertiary")
-  if (grepl("\\bregional\\b", corpus)) hits <- c(hits,"Regional")
-  if (grepl("\\breferral\\b", corpus)) hits <- c(hits,"Referral")
-  hits <- unique(hits)
-  if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Multiple"
+  corpus <- c(...) %>%
+    purrr::discard(is.na) %>%
+    paste(collapse = " ") %>%
+    tolower() %>%
+    stringr::str_squish()
+
+  if (!nzchar(corpus)) return(NA_character_)
+
+  # Detect each bucket (map synonyms -> 4 classes)
+  is_primary  <- grepl("\\b(primary|health\\s*centre|health\\s*center|clinic|dispensary|phcu|
+                       health\\s*post|hc\\s*(ii|iii|iv|2|3|4))\\b", corpus)
+  is_district <- grepl("\\b(district|municipal|county|sub[- ]?county)\\s+hospital\\b|
+                       \\bgeneral\\s+hospital\\b|\\bsecondary\\b", corpus)
+  is_regional <- grepl("\\b(regional|provincial)\\s+hospital\\b|\\bregional\\b", corpus)
+  is_referral <- grepl("\\b(referral|refferal|tertiar(y|ies)|tertiary|teaching|university|
+                       national\\s+hospital|speciali[sz]ed)\\b", corpus)
+
+  # Build hits in a consistent order
+  hits <- c(
+    if (is_primary)  "Primary",
+    if (is_district) "District",
+    if (is_regional) "Regional",
+    if (is_referral) "Referral"
+  )
+  hits <- unique(hits[hits != ""])
+
+  if (length(hits) == 0) return(NA_character_)
+  paste(hits, collapse = "; ")
 }
+
+# derive_ownership <- function(...) {
+#   s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+#   if (s == "") return(NA_character_)
+#   own <- character(0)
+#   if (grepl("\\b(public|government|state)\\b", s)) own <- c(own,"Public")
+#   if (grepl("\\b(private|for-?profit)\\b", s))     own <- c(own,"Private")
+#   if (grepl("\\bngo\\b|\\bfaith[- ]?based\\b|\\bmission(ary)?\\b", s)) own <- c(own,"NGO/Faith-based")
+#   own <- unique(own)
+#   if (!length(own)) NA_character_ else if (length(own)==1) own else "Mixed"
+# }
 
 derive_ownership <- function(...) {
-  s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
-  if (s == "") return(NA_character_)
-  own <- character(0)
-  if (grepl("\\b(public|government|state)\\b", s)) own <- c(own,"Public")
-  if (grepl("\\b(private|for-?profit)\\b", s))     own <- c(own,"Private")
-  if (grepl("\\bngo\\b|\\bfaith[- ]?based\\b|\\bmission(ary)?\\b", s)) own <- c(own,"NGO/Faith-based")
-  own <- unique(own)
-  if (!length(own)) NA_character_ else if (length(own)==1) own else "Mixed"
+  s <- c(...) %>%
+    purrr::discard(is.na) %>%
+    paste(collapse = " ") %>%
+    tolower() %>%
+    stringr::str_squish()
+
+  if (!nzchar(s)) return(NA_character_)
+
+  # Detect each ownership bucket
+  is_public <- grepl("\\b(public|government|state|ministry\\s+of\\s+health|\\bmoh\\b|parastatal)\\b", s)
+  is_private <- grepl("\\b(private|for[- ]?profit)\\b", s)
+  is_ngo <- grepl("\\b(ngo|non[- ]?governmental(\\s+organization)?)\\b", s)
+  is_faith <- grepl("\\b(faith[- ]?based|religious|church|mission(ary)?)\\b", s)
+
+  # Build hits in a consistent order
+  hits <- c(
+    if (is_public)  "Public",
+    if (is_private) "Private",
+    if (is_ngo)     "NGO",
+    if (is_faith)   "Faith-based"
+  )
+  hits <- unique(hits[hits != ""])
+
+  if (length(hits) == 0) return(NA_character_)
+  paste(hits, collapse = "; ")
 }
 
+# derive_data_level <- function(...) {
+#   s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
+#   if (s == "") return(NA_character_)
+#   hits <- character(0)
+#   if (grepl("\\baggregate\\b|\\bhmis\\b", s)) hits <- c(hits,"Aggregate")
+#   if (grepl("patient[- ]?level|register|chart review|record|case report form|line list", s)) hits <- c(hits,"Individual")
+#   if (grepl("survey|questionnaire|interview|facility assessment", s)) hits <- c(hits,"Survey")
+#   hits <- unique(hits)
+#   if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Mixed"
+# }
+
+# Needs: library(stringr); library(purrr)
+
 derive_data_level <- function(...) {
-  s <- c(...) %>% purrr::discard(is.na) %>% paste(collapse=" ") %>% tolower()
-  if (s == "") return(NA_character_)
-  hits <- character(0)
-  if (grepl("\\baggregate\\b|\\bhmis\\b", s)) hits <- c(hits,"Aggregate")
-  if (grepl("patient[- ]?level|register|chart review|record|case report form|line list", s)) hits <- c(hits,"Individual")
-  if (grepl("survey|questionnaire|interview|facility assessment", s)) hits <- c(hits,"Survey")
-  hits <- unique(hits)
-  if (!length(hits)) NA_character_ else if (length(hits)==1) hits else "Mixed"
+  s <- c(...) %>%
+    purrr::discard(is.na) %>%
+    paste(collapse = " ") %>%
+    tolower() %>%
+    stringr::str_squish()
+
+  if (!nzchar(s)) return(NA_character_)
+
+  # Guard: facility types that include level words (still a single facility)
+  re_tiered_hospital <- "\\b(regional|provincial|state|national|district)\\s+hospital(s)?\\b"
+  has_tiered_hospital <- grepl(re_tiered_hospital, s)
+
+  # -------- Scope detectors --------
+  # Multi-country / multinational
+  is_multi <- grepl("\\b(multi[- ]?country|multinational|across\\s+\\d+\\s+countries|
+  in\\s+\\d+\\s+countries|
+                    sub[- ]saharan\\s+africa|\\bssa\\b|global)\\b", s)
+
+  # National (avoid counting "national hospital" as national scope)
+  is_national <- grepl("\\b(national(ly)?|nationwide|country[- ]?wide|
+                       country[- ]?level|across\\s+the\\s+nation)\\b", s) ||
+                 (grepl("\\b(ministry\\s+of\\s+health|\\bmoh\\b|hmis|dhis2)\\b", s) &&
+                  grepl("\\bnational\\b", s))
+  if (has_tiered_hospital && is_national) {
+    # "National Hospital" alone shouldn't flip to national scope
+    is_national <- grepl("\\b(nationwide|country[- ]?wide|country[- ]?level)\\b", s) ||
+                   grepl("\\b(DHS|demographic\\s+and\\s+health\\s+survey|SARA)\\b", s)
+  }
+
+  # Regional / Provincial / State (but not "regional hospital")
+  is_regional <- (grepl("\\b(region(al)?|province|provincial|state|zone)\\b", s) &&
+                  !grepl("\\bregional\\s+hospital\\b", s) &&
+                  !grepl("\\bprovincial\\s+hospital\\b", s) && !grepl("\\bstate\\s+hospital\\b", s))
+
+  # District / County / Municipal / Woreda (but not "district hospital" unless district-wide)
+  is_district <- (
+    grepl("\\b(district|sub[- ]?county|county|municipal|\\blga\\b|woreda)\\b", s) &&
+    !grepl("\\bdistrict\\s+hospital(s)?\\b", s)
+  ) ||
+  grepl("\\b(district[- ]?level|district[- ]?wide|across\\s+the\\s+district|
+        all\\s+(public\\s+)?(hospitals|facilit(y|ies))\\s+in\\s+the\\s+district)\\b", s)
+
+  # Facility / Hospital (single or site-level)
+  is_facility <- has_tiered_hospital ||
+                 grepl("\\b(hospital(s)?|clinic(s)?|health\\s*centre(s)?|
+                       health\\s*center(s)?|health\\s*post(s)?|facility|facilities|
+                       hc\\s*(ii|iii|iv|2|3|4))\\b", s) ||
+                 grepl("\\b(ward|department|icu|operating\\s+theatre|ot|opd)\\b", s) ||
+                 grepl("\\b(single|one)\\s+(hospital|facility|clinic)\\b", s) ||
+                 grepl("\\bat\\s+[^,;\\.]*\\s+hospital\\b", s)
+
+  # -------- Decide by *widest* scope present --------
+  # (If text mentions multiple scopes, pick the largest unit: Multi-country > National > Regional > District > Hospital)
+  if (is_multi)    return("Multi-country")
+  if (is_national) return("National")
+  if (is_regional) return("Regional")
+  if (is_district) return("District")
+  if (is_facility) return("Hospital")
+  NA_character_
 }
 
 extract_facility_counts <- function(text) {
@@ -310,8 +484,8 @@ mini_final_cleaned <- tibble::tibble(
   `Study Design` = study_design,
   `Study Timeframe` = study_timeframe,
   `Data Level` = data_level,
-  `Type of Healthcare Facility (primary, secondary, tertiary, etc.)` = facility_type,
-  `Type of Ownership of Healthcare Facility (private, public, NGO, etc.)` = ownership,
+  `Type of Healthcare Facility` = facility_type,
+  `Type of Ownership of Healthcare Facility` = ownership,
   `Hospital Service Coverage Area` = hospital_service_coverage_area,
   `Total Number of Healthcare Facilities (assessed in study)` = fac_counts$total,
   `Number of Primary Hospitals` = fac_counts$primary,
@@ -350,7 +524,7 @@ mini_final_cleaned <- tibble::tibble(
 stopifnot(nrow(mini_final_cleaned) == n_raw)
 
 # save
-readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
+# readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
 ```
 
 ```{r}
