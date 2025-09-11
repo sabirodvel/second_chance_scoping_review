@@ -95,7 +95,7 @@ health_facilities_mapped <- health_facilities %>%
 ```{r}
 # Select relevant columns
 mini_final <- final_extracted_df %>%
-  select(country, author, date_of_publication, title_3, study_design, study_timeframe, sources_of_data,
+  select(country, study_id, author, date_of_publication, title_3, study_design, study_timeframe, sources_of_data,
          study_setting_location, hospital_service_coverage_area,
          bed_capacity_number, operating_rooms_number, burn_unit_availability_yes_no, anesthesia_availability_yes_no, ventilator_availability_yes_no, blood_bank_availability_yes_no, laboratory_services_available_yes_no, imaging_services_available_yes_no, sterilization_facilities_yes_no,
          surveillance_system_yes_no, surveillance_system_details, health_information_system_yes_no, health_information_system_details,
@@ -135,29 +135,114 @@ normalize_yes_no <- function(x) {
   )
 }
 
-parse_publication <- function(x) {
-  x <- clean_str(x); if (is.na(x)) return(NA_character_)
-  s <- x
-  # MM/YYYY or M/YYYY
-  if (stringr::str_detect(s, "^\\s*\\d{1,2}[/-]\\d{4}\\s*$")) {
-    m <- stringr::str_match(s, "^(\\d{1,2})[/-](\\d{4})$")
-    month <- as.integer(m[,2]); year <- as.integer(m[,3])
-    if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+# parse_publication <- function(x) {
+#   x <- clean_str(x); if (is.na(x)) return(NA_character_)
+#   s <- x
+#   # MM/YYYY or M/YYYY
+#   if (stringr::str_detect(s, "^\\s*\\d{1,2}[/-]\\d{4}\\s*$")) {
+#     m <- stringr::str_match(s, "^(\\d{1,2})[/-](\\d{4})$")
+#     month <- as.integer(m[,2]); year <- as.integer(m[,3])
+#     if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+#   }
+#   # YYYY-MM or YYYY/M
+#   if (stringr::str_detect(s, "^\\s*\\d{4}[/-]\\d{1,2}\\s*$")) {
+#     m <- stringr::str_match(s, "^(\\d{4})[/-](\\d{1,2})$")
+#     year <- as.integer(m[,2]); month <- as.integer(m[,3])
+#     if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+#   }
+#   # Month YYYY
+#   if (stringr::str_detect(s, "^[A-Za-z]+\\s+\\d{4}$")) {
+#     dt <- suppressWarnings(lubridate::parse_date_time(stringr::str_to_title(s), orders = "my"))
+#     if (!is.na(dt)) return(format(dt, "%Y-%m"))
+#   }
+#   # YYYY
+#   if (stringr::str_detect(s, "^\\s*\\d{4}\\s*$")) return(trimws(s))
+#   s
+# }
+
+parse_publication <- function(author, study_id) {
+  author   <- clean_str(author);   if (is.na(author))   return(NA_character_)
+  study_id <- clean_str(study_id); if (is.na(study_id)) return(NA_character_)
+  
+  s <- author
+  
+  # --- First author (before first comma) ---
+  if (stringr::str_detect(s, ",")) {
+    first_author <- sub(",.*$", "", s) |> stringr::str_squish()
+  } else {
+    first_author <- s
   }
-  # YYYY-MM or YYYY/M
-  if (stringr::str_detect(s, "^\\s*\\d{4}[/-]\\d{1,2}\\s*$")) {
-    m <- stringr::str_match(s, "^(\\d{4})[/-](\\d{1,2})$")
-    year <- as.integer(m[,2]); month <- as.integer(m[,3])
-    if (!is.na(month) && between(month,1,12)) return(sprintf("%04d-%02d", year, month))
+  
+  # --- Ensure "et al." is present only once ---
+  if (!grepl("et al\\.?$", first_author, ignore.case = TRUE)) {
+    first_author <- paste0(first_author, " et al.")
   }
-  # Month YYYY
-  if (stringr::str_detect(s, "^[A-Za-z]+\\s+\\d{4}$")) {
-    dt <- suppressWarnings(lubridate::parse_date_time(stringr::str_to_title(s), orders = "my"))
-    if (!is.na(dt)) return(format(dt, "%Y-%m"))
+  
+  # --- Extract year from study_id ---
+  year <- stringr::str_extract(study_id, "(19|20)\\d{2}")
+  
+  if (!is.na(year) && nzchar(year)) { 
+    return(paste0(first_author, ", ", year))
   }
-  # YYYY
-  if (stringr::str_detect(s, "^\\s*\\d{4}\\s*$")) return(trimws(s))
-  s
+  
+  # --- Fallback if year not found ---
+  first_author
+}
+
+derive_study_design <- function(x) {
+  s <- clean_str(x)                 # reuse your helper
+  classify_one <- function(t) {
+    if (is.na(t)) return(NA_character_)
+    t <- tolower(t)
+
+    # 1) Economic evaluation
+    if (grepl("\\bcost(\\b|[- ])|\\bdaly\\b|burden of disease|economic model(ing)?|macroeconomic|step[- ]?down accounting|economic (evaluation|analysis)", t, perl=TRUE))
+      return("Economic evaluation")
+
+    # 2) Case-control
+    if (grepl("case[- ]?control", t, perl=TRUE))
+      return("Case control study")
+
+    # 3) Mixed-methods
+    if (grepl("mixed[\\-\\s]*methods?|mixed[\\-\\s]*method.*(survey|interview|cohort|observational|case study|needs assessment)", t, perl=TRUE))
+      return("Mixed-methods")
+
+    # 4) Case series (incl. chart/record/database reviews)
+    if (grepl("case‐series|case[ -]?series|retrospective chart study|chart review|record review|database review|medical (record|documentation) review|case review|clinical database", t, perl=TRUE))
+      return("Case series")
+
+    # 5) Cohort
+    if (grepl("\\bcohort\\b|follow[- ]?up|surveillance (study|.*cohort)|registry[- ]?based.*cohort|registry[- ]?based surveillance|\\bprospective\\b.*observational|\\bretrospective\\b.*observational|observational.*\\bprospective\\b|observational.*\\bretrospective\\b|descriptive cohort|before[- ]?and[- ]?after|pre[- ]?test\\/?post[- ]?test|pre[- ]?post|intervention study", t, perl=TRUE))
+      return("Cohort study")
+
+    # 6) Cross-sectional (surveys, prevalence, tools)
+    if (grepl("cross.?sectional|point prevalence|\\bsurvey\\b|questionnaire|assessment|nation(wide|al).*survey|countrywide.*survey|population[- ]?based.*survey|household survey|population[- ]?based cross[- ]?sectional household survey|health facility survey|hospital[- ]?based.*survey|institution[- ]?based.*survey|in[- ]?hospital survey|cluster.*(cross.?sectional|survey)|serial cross.?sectional|pipes|who[- ]?iatsic|who tool for situational analysis|surgeons overseas", t, perl=TRUE))
+      return("Cross-sectional study")
+
+    # 7) Qualitative
+    if (grepl("\\bqualitative\\b|semi[- ]?structured interview|interviews?|focus group|thematic analysis", t, perl=TRUE))
+      return("Qualitative research")
+
+    # 8) Literature reviews (all review types)
+    if (grepl("systematic review|meta[- ]?analysis|scoping review|narrative review|nonsystematic literature review|\\bliterature review\\b|review article|scientific review|\\breviews?\\b|study and review|systematic analysis", t, perl=TRUE))
+      return("Literature review")
+
+    # 9) Descriptive
+    if (grepl("\\bdescriptive\\b|descriptive analysis|descriptive study|descriptive observational|descriptive report|descriptive.*hospital[- ]?based|descriptive.*multicenter|descriptive.*multi[- ]?center", t, perl=TRUE))
+      return("Descriptive")
+
+    # 10) Observational (unspecified / registry/database/generic)
+    if (grepl("\\bobservational study\\b|^\\s*other:.*\\bprospective study\\b|^\\s*other:.*\\bretrospective study\\b|data analysis|analysis of|retrospective analysis|prospective analysis|registry|trauma registry|prospectively collected .*registry data|clinical database|\\bgis\\b|geospatial|comparative study|retrospective hospital based study|retrospective and hospital-based study", t, perl=TRUE))
+      return("Observational study")
+
+    # 11) Text & opinion
+    if (grepl("commentary|perspective|policy forum|expert consensus|communication report|text and opinion|activity report", t, perl=TRUE))
+      return("Text and opinion")
+
+    "Other"
+  }
+
+  vapply(s, classify_one, character(1))
 }
 
 # derive_facility_type <- function(...) {
@@ -292,7 +377,7 @@ derive_data_level <- function(...) {
                   !grepl("\\bregional\\s+hospital\\b", s) &&
                   !grepl("\\bprovincial\\s+hospital\\b", s) && !grepl("\\bstate\\s+hospital\\b", s))
 
-  # District / County / Municipal / Woreda (but not "district hospital" unless district-wide)
+# District / County / Municipal / Woreda (but not "district hospital" unless district-wide)
   is_district <- (
     grepl("\\b(district|sub[- ]?county|county|municipal|\\blga\\b|woreda)\\b", s) &&
     !grepl("\\bdistrict\\s+hospital(s)?\\b", s)
@@ -310,7 +395,6 @@ derive_data_level <- function(...) {
                  grepl("\\bat\\s+[^,;\\.]*\\s+hospital\\b", s)
 
   # -------- Decide by *widest* scope present --------
-  # (If text mentions multiple scopes, pick the largest unit: Multi-country > National > Regional > District > Hospital)
   if (is_multi)    return("Multi-country")
   if (is_national) return("National")
   if (is_regional) return("Regional")
@@ -402,7 +486,8 @@ n_raw <- nrow(mini_final)
 
 # pre-clean source columns
 country        <- clean_str(mini_final$country)
-publication    <- purrr::map_chr(mini_final$date_of_publication, parse_publication)
+study_id       <- clean_str(mini_final$study_id)
+author         <- clean_str(mini_final$author)
 title          <- clean_str(mini_final$title_3)
 study_design   <- clean_str(mini_final$study_design)
 study_timeframe<- clean_str(mini_final$study_timeframe)
@@ -446,6 +531,12 @@ cost_individual<- clean_str(mini_final$cost_to_individuals_cost_in_usd_or_other_
 cost_gov       <- clean_str(mini_final$cost_to_government_cost_in_usd_or_other_currency)
 
 # derived
+publication <-  purrr::pmap_chr(list(author, study_id),
+                                ~ parse_publication(..1, ..2))
+
+study_design <- purrr::pmap_chr(list(study_design),
+                                ~ derive_study_design(..1))
+
 data_level <- purrr::pmap_chr(list(sources_of_data, his_details, surveillance_details),
                               ~ derive_data_level(..1, ..2, ..3))
 
@@ -524,7 +615,7 @@ mini_final_cleaned <- tibble::tibble(
 stopifnot(nrow(mini_final_cleaned) == n_raw)
 
 # save
-# readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
+readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
 ```
 
 ```{r}
@@ -625,6 +716,90 @@ openxlsx::writeData(wb, "Summary", summary_ext)
 if (nrow(all_comp))     openxlsx::writeData(wb, "All Column Comparisons", all_comp)
 if (nrow(mismatch_all)) openxlsx::writeData(wb, "Mismatches All Columns", mismatch_all)
 openxlsx::saveWorkbook(wb, here::here("data/mini_final_audit.xlsx"), overwrite = TRUE)
+
+```
+
+```{r}
+titles <- c(
+  "A cohort of pediatric injury patients from a hospital-based trauma registry in Northern Tanzania",
+  "A Cost-Effectiveness Analysis of a Pediatric Operating Room in Uganda",
+  "A cross-sectional survey of emergency and essential surgical care capacity among hospitals with high trauma burden in a Central African country",
+  "A cross-sectional survey of essential surgical capacity in Somalia",
+  "A new era in the management of burns trauma in Kumasi, Ghana",
+  "A plastic and reconstructive surgery landscape assessment of Malawi: a scoping review of Malawian literature",
+  "A prospective analysis of pinch grafting of chronic leg ulcers in a series of elderly patients in rural Cameroon",
+  "A prospective study of burns trauma in children in the University of Calabar Teaching Hospital, Calabar, south-south Nigeria",
+  "A prospective study of suicidal burns admitted to the Harare burns unit",
+  "A Prospective study on the epidemiology of burns in patients admitted to the Harare burn units",
+  "A prospective surgery of patients with cleft lip and palate in kumasi",
+  "A retrospective audit of paediatric surgical admission in a sub-urban tertiary hospital",
+  "A review of existing trauma and musculoskeletal impairment (TMSI) care capacity in East, Central, and Southern Africa",
+  "A rural cleft project in Uganda",
+  "A Systematic Review of the Cost-Effectiveness of Cleft Care in Low- and Middle-Income Countries: What is Needed?",
+  "Access to Burn Care in Low- and Middle-Income Countries: An Assessment of Timeliness, Surgical Capacity, and Affordability in a Regional Referral Hospital in Tanzania",
+  "Access to care following injury in Northern Malawi, a comparison of travel time estimates between Geographic Information System and community household reports",
+  "Access to Operative Intervention Reduces Mortality in Adult Burn Patients in a Resource-Limited Setting in Sub-Saharan Africa",
+  "Access to pediatric surgery delivered by general surgeons and anesthesia providers in Uganda: Results from 2 rural regional hospitals",
+  "Activity report about hospital Saint-Louis's team for taking in charge sequellae of Noma",
+  "Acute burn care in resource-limited settings: A cohort study on treatment and outcomes in a rural regional referral hospital in Tanzania",
+  "Addressing Malawi's surgical workforce crisis: a sustainable paradigm for training and collaboration in Africa",
+  "Adolescent and adult cleft lip and palate, in Ile-Ife, Nigeria",
+  "Africa has unique and urgent barriers to cleft care: lessons from practitioners at the Pan-African Congress on Cleft Lip and Palate",
+  "African primary research publications in plastic surgery: A PRISMA-S-compliant systematic review",
+  "An assessment of orofacial clefts in Tanzania",
+  "An Outreach Experience With Cleft Lip/Palate Surgery in selected Hospitals in Kenya",
+  "Analysis of Prospective Trauma Registry Data in Francophone Africa: A Pilot Study from Cameroon",
+  "Analysis of Soft Tissue Injuries and Scarring Following Terrorist Bomb Explosion at American Embassy in Nairobi, Kenya",
+  "Assessment of Emergency and Essential Surgical Service in Primary Hospitals of South Gondar Zone, Amhara Region, Ethiopia, 2019",
+  "Assessment of Pediatric Surgery Capacity at Government Hospitals in Sierra Leone",
+  "Associations with Perioperative Mortality Rate at a Major Referral Hospital in Rwanda",
+  "Audit of emergency throughput of a plastic surgery unit in a developing country",
+  "Audit of oral and maxillofacial surgical conditions seen at Port Harcourt, Nigeria",
+  "Barriers and prospects for skin grafting in burn treatment across African countries",
+  "Barriers in Cleft Service Access in Sub-Saharan Africa: A Thematic Analysis of Practical Needs of Rural Families",
+  "Barriers to Cleft Lip and Palate Repair Around the World",
+  "Barriers to Performing Soft Tissue Reconstruction Procedures among Orthopedic Surgeons in Low- and Middle-income Countries: Results of a Surgical Skills Training Course",
+  "Burden of diabetic foot ulcer in Nigeria: Current evidence from the multicenter evaluation of diabetic foot ulcer in Nigeria",
+  "Burden of emergency pediatric surgical procedures on surgical capacity in Uganda: a new metric for health system performance",
+  "Burden of Surgical Congenital Anomalies in Kenya: A Population-Based Study",
+  "Burden of Surgically Correctable Disabilities Among Children in the Dadaab Refugee Camp",
+  "Burn management in sub-Saharan Africa: Opportunities for implementation of dedicated training and development of specialty centers",
+  "Burn scar contracture release surgery effectively improves functional range of motion, disability and quality of life: A pre/post cohort study with long-term follow-up in a Low- and Middle-Income Country",
+  "Cancrum oris: Principles of management and reconstructive surgery",
+  "Challenges in global microsurgery: A six year review of outcomes at an East African hospital",
+  "Characteristics, prevalence, and outcomes of diabetic foot ulcers in Africa. A systemic review and meta-analysis",
+  "Cleft & facial deformity foundation (CFDF) outreach model: 6 year experience of an indigenous Nigerian mission in the surgical correction of facial clefts",
+  "Cost/DALY Averted in a Small Hospital in Sierra Leone: What Is the Relative Contribution of Different Services?",
+  "Day-care Plastic Surgery in Nigeria: Coping with Limited Resources",
+  "Designing a contextually appropriate surgical training program in low-resource settings: the Botswana experience",
+  "Epidemiology and outcomes of in-hospital acute burn-patients in Togo: A retrospective analysis",
+  "Getting the job done: analysis of the impact and effectiveness of the SmileTrain program in alleviating the global burden of cleft disease",
+  "Global Burden of Craniofacial Disorders: Where Should Volunteering Plastic Surgeons and Governments Focus Their Care?",
+  "Global Variation in Cleft Palate Repairs: An Analysis of 352,191 Primary Cleft Repairs in Low- to Higher-Middle-Income Countries",
+  "Management Outcome of Burn Injury and Associated Factors among Hospitalized Children at Ayder Referral Hospital, Tigray, Ethiopia",
+  "Mapping Disparities in Access to Safe, Timely, and Essential Surgical Care in Zambia",
+  "Perspectives on the state of cleft lip and cleft palate patient care in Africa",
+  "Plastic and reconstructive surgery in Uganda--10 years experience",
+  "Plastic and Reconstructive Surgery in Zambia: Epidemiology of 16 Years of Practice",
+  "Potential economic benefit of cleft lip and palate repair in sub-Saharan Africa",
+  "Predictors of household direct cost of burn injury in adult patients at a tertiary healthcare facility in Ghana: an analytical cross-sectional study in Korle-Bu Teaching Hospital",
+  "Prevalence and Severity of Burn Scars in Rural Mozambique",
+  "Prioritisation of Surgery in the National Health Strategic Plans of Africa: A Systematic Review",
+  "Quantifying the pediatric surgical need in Uganda: results of a nationwide cross-sectional, household survey",
+  "Recurrence of post burn contractures of the elbow and shoulder joints: experience from a Ugandan hospital",
+  "Review of Plastic and Reconstructive Surgery in a General Hospital Setting: Experience from a Developing Country",
+  "Surgical burn care in sub-saharan africa: A systematic review",
+  "Surgical complications and subsequent revision surgeries among noma cases treated in Ethiopia",
+  "Surgical Repair of Orofacial Clefts in North Kivu Province of Eastern Democratic Republic of Congo (DRC)",
+  "Ten-year experience of more than 35,000 orofacial clefts in Africa",
+  "The burden of waiting: DALYS accrued from delayed access to pediatric surgery in Kenya and Canada",
+  "The Effect of Surgical Intervention on Pediatric Burn Injury Survival in a Resource-Poor Setting",
+  "The impact and cost-effectiveness of the Amref Health Africa-Smile Train Cleft Lip and Palate Surgical Repair Programme in Eastern and Central Africa",
+  "The Met Needs for Pediatric Surgical Conditions in Sierra Leone: Estimating the Gap"
+)
+
+mini_final_cleaned_new <- mini_final_cleaned %>% 
+  filter(!Title %in% titles)
 
 ```
 
