@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 08/19/2025
+## Updated: 09/16/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -103,6 +103,12 @@ categorized_studies_clean <- right_join(joined_studies, categorized_studies_clea
 
 # # Identify NAs
 # pathology_missing <- categorized_studies_clean[is.na(categorized_studies_clean$general_category_of_pathology), ]
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Categorize PRS specific studies ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize general pathologies ----
