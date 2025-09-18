@@ -510,7 +510,7 @@ gt_table <- make_profile_table_gt(
 gt_table
 
 # # Save Table
-gtsave(gt_table, here("images/gt_study_characteristics.png"))
+# gtsave(gt_table, here("images/gt_study_characteristics.png"))
 
 ```
 

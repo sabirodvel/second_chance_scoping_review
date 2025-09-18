@@ -105,12 +105,6 @@ categorized_studies_clean <- right_join(joined_studies, categorized_studies_clea
 # pathology_missing <- categorized_studies_clean[is.na(categorized_studies_clean$general_category_of_pathology), ]
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-## Categorize PRS specific studies ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Categorize general pathologies ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -718,6 +712,9 @@ categorized_assessment_tool <- categorized_assessment_tool %>%
 ### Study Design ----
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Manually fix entry
+categorized_final$study_design[categorized_final$covidence_number == 1325] <- "Case series"
+
 # Create mapping list
 categories_study_design <- list(
   
@@ -731,7 +728,6 @@ categories_study_design <- list(
     "\\bliterature review\\b",
     "review article",
     "scientific review",
-    "\\breviews?\\b",
     "study and review",
     "systematic analysis"
   ),
@@ -785,6 +781,8 @@ categories_study_design <- list(
     "health facility survey|hospital[- ]?based.*survey|institution[- ]?based.*survey|in[- ]?hospital survey",
     "cluster.*(cross.?sectional|survey)",
     "serial cross.?sectional",
+    "Retrospective review",
+    "retrospective facility-based",
     "pipes|who[- ]?iatsic|who tool for situational analysis|surgeons overseas"
   ),
   
@@ -883,7 +881,7 @@ categorized_final <- categorized_final %>%
     priority_order = priority_study_design
    ))
 
-dplyr::count(categorized_final, category_study_design, sort = TRUE)
+dplyr::count(categorized_final, category_study_design, sort = TRUE) 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Source of Data ----
