@@ -71,16 +71,14 @@ map_facility_level <- function(x) {
     # Primary-level (smallest units)
     str_detect(x_norm, "\\b(primary|health\\s*centre|centre|health\\s*center|clinic|dispensary|phcu|post|hc ii)\\b") ~ "Primary",
     
-    # District / General hospitals
-    str_detect(x_norm, "\\b(district|municipal|county)\\s+hospital\\b") ~ "District",
-    str_detect(x_norm, "\\bgeneral\\s+hospital\\b") ~ "District",
+    # Secondary 
+    str_detect(x_norm, "\\b(district|municipal|county)\\s+hospital\\b") ~ "Secondary",
+    str_detect(x_norm, "\\bgeneral\\s+hospital\\b") ~ "Secondary",
+    str_detect(x_norm, "\\b(regional|provincial)\\s+hospital\\b") ~ "Secondary",
     
-    # Regional / Provincial
-    str_detect(x_norm, "\\b(regional|provincial)\\s+hospital\\b") ~ "Regional",
-    
-    # Referral / National level
-    str_detect(x_norm, "\\b(referral|teaching|specialized|university)\\s+hospital\\b") ~ "Referral",
-    str_detect(x_norm, "\\bnational\\s+hospital\\b|referral|refferal") ~ "Referral",
+    # Tertiary
+    str_detect(x_norm, "\\b(referral|teaching|specialized|university)\\s+hospital\\b") ~ "Tertiary",
+    str_detect(x_norm, "\\bnational\\s+hospital\\b|referral|refferal|national") ~ "Tertiary",
     
     TRUE ~ NA_character_  # catch unclassified
   )
@@ -127,7 +125,7 @@ health_facilities_mapped <- health_facilities %>%
   mutate(facility_level = map_facility_level(facility_t),
          ownership_cat = map_facility_ownership(ownership))
 
-# write_csv(health_facilities_mapped,here("outputs/ssa_health_facilities.csv"))
+write_csv(health_facilities_mapped,here("outputs/ssa_health_facilities.csv"))
 ```
 
 ```{r}
@@ -306,21 +304,20 @@ derive_facility_type <- function(...) {
 
   if (!nzchar(corpus)) return(NA_character_)
 
-  # Detect each bucket (map synonyms -> 4 classes)
+  # Detect each bucket (map synonyms -> 3 classes)
   is_primary  <- grepl("\\b(primary|health\\s*centre|health\\s*center|clinic|dispensary|phcu|
                        health\\s*post|hc\\s*(ii|iii|iv|2|3|4))\\b", corpus)
-  is_district <- grepl("\\b(district|municipal|county|sub[- ]?county)\\s+hospital\\b|
-                       \\bgeneral\\s+hospital\\b|\\bsecondary\\b", corpus)
-  is_regional <- grepl("\\b(regional|provincial)\\s+hospital\\b|\\bregional\\b", corpus)
-  is_referral <- grepl("\\b(referral|refferal|tertiar(y|ies)|tertiary|teaching|university|
+  is_secondary <- grepl("\\b(district|municipal|county|sub[- ]?county)\\s+hospital\\b|
+                       \\bgeneral\\s+hospital\\b|\\bsecondary\\b|\\b(regional|provincial)\\s+hospital\\b|
+                       \\bregional\\b", corpus)
+  is_tertiary <- grepl("\\b(referral|refferal|tertiar(y|ies)|tertiary|teaching|university|
                        national\\s+hospital|speciali[sz]ed)\\b", corpus)
 
   # Build hits in a consistent order
   hits <- c(
     if (is_primary)  "Primary",
-    if (is_district) "District",
-    if (is_regional) "Regional",
-    if (is_referral) "Referral"
+    if (is_secondary) "Secondary",
+    if (is_tertiary) "Tertiary"
   )
   hits <- unique(hits[hits != ""])
 
@@ -442,24 +439,43 @@ derive_data_level <- function(...) {
 }
 
 extract_facility_counts <- function(text) {
-  if (is.na(text)) return(tibble(total=NA_real_, primary=NA_real_, district=NA_real_, regional=NA_real_, referral=NA_real_))
+  if (is.na(text)) {
+    return(tibble(
+      total    = NA_real_,
+      primary  = NA_real_,
+      district = NA_real_,
+      regional = NA_real_,
+      national = NA_real_
+    ))
+  }
+
   s <- tolower(text)
+
   ex <- function(pat) {
     m <- stringr::str_match_all(s, pat)[[1]]
-    if (nrow(m)) sum(readr::parse_number(m[,2])) else NA_real_
+    if (nrow(m)) sum(readr::parse_number(m[, 2])) else NA_real_
   }
+
   primary  <- ex("(\\d[\\d,\\.]*)\\s+primary\\s+hospitals?")
   district <- ex("(\\d[\\d,\\.]*)\\s+district\\s+hospitals?")
   regional <- ex("(\\d[\\d,\\.]*)\\s+regional\\s+hospitals?")
-  referral <- ex("(\\d[\\d,\\.]*)\\s+referral\\s+hospitals?")
-  typed_sum <- sum(c(primary,district,regional,referral), na.rm = TRUE)
-  total <- if (is.finite(typed_sum) && typed_sum > 0) typed_sum else {
+  national <- ex("(\\d[\\d,\\.]*)\\s+national\\s+hospitals?")
+
+  typed_sum <- sum(c(primary, district, regional, national), na.rm = TRUE)
+
+  total <- if (is.finite(typed_sum) && typed_sum > 0) {
+    typed_sum
+  } else {
     gen <- stringr::str_match_all(s, "(\\d[\\d,\\.]*)\\s+hospitals?")[[1]]
-    if (nrow(gen)) sum(readr::parse_number(gen[,2])) else NA_real_
+    if (nrow(gen)) sum(readr::parse_number(gen[, 2])) else NA_real_
   }
+
   tibble(
-    total = ifelse(is.finite(total), total, NA_real_),
-    primary = primary, district = district, regional = regional, referral = referral
+    total    = ifelse(is.finite(total), total, NA_real_),
+    primary  = primary,
+    district = district,
+    regional = regional,
+    national = national
   )
 }
 
@@ -620,7 +636,7 @@ mini_final_cleaned <- tibble::tibble(
   `Number of Primary Hospitals` = fac_counts$primary,
   `Number of District Hospitals` = fac_counts$district,
   `Number of Regional Hospitals` = fac_counts$regional,
-  `Number of Referral Hospitals` = fac_counts$referral,
+  `Number of National Hospitals` = fac_counts$national,
   `Bed Capacity` = bed_capacity_parsed,
   `Operating Rooms` = operating_rooms_parsed,
   `Burn Unit Availability` = burn_unit,
@@ -653,7 +669,7 @@ mini_final_cleaned <- tibble::tibble(
 stopifnot(nrow(mini_final_cleaned) == n_raw)
 
 # save
-# readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
+readr::write_csv(mini_final_cleaned, here::here("data/mini_final_cleaned.csv"))
 ```
 
 ```{r}
