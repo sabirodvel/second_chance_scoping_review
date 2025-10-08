@@ -438,7 +438,6 @@ categorized_final <- categorized_combined_pathology %>%
   mutate(category_surgery = sapply(surgery, categorize_surgeries, 
                                    categories = categories_surgery))
 
-
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Organize Epi Info ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
