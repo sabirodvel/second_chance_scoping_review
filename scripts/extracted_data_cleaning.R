@@ -5,7 +5,7 @@
 ## Author: Sabina Rodriguez
 ##
 ## Date: 03/10/2025
-## Updated: 09/16/2025
+## Updated: 10/07/2025
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Load packages ----
@@ -714,6 +714,8 @@ categorized_assessment_tool <- categorized_assessment_tool %>%
 
 # Manually fix entry
 categorized_final$study_design[categorized_final$covidence_number == 1325] <- "Case series"
+categorized_final$study_design[categorized_final$covidence_number == 9523] <- "Cohort study"
+categorized_final$study_design[categorized_final$covidence_number == 585] <- "Cohort study"
 
 # Create mapping list
 categories_study_design <- list(
@@ -781,8 +783,14 @@ categories_study_design <- list(
     "health facility survey|hospital[- ]?based.*survey|institution[- ]?based.*survey|in[- ]?hospital survey",
     "cluster.*(cross.?sectional|survey)",
     "serial cross.?sectional",
+    "Retrospective data analysis",
+    "retrospective study",
+    "retrospective analysis",
     "Retrospective review",
     "retrospective facility-based",
+    "retrospective hospital based study",
+    "retrospective and hospital-based study",
+    "Observational study",
     "pipes|who[- ]?iatsic|who tool for situational analysis|surgeons overseas"
   ),
   
@@ -816,29 +824,18 @@ categories_study_design <- list(
     "descriptive.*multicenter|descriptive.*multi[- ]?center"
   ),
   
-  # 10) Observational (unspecified / registry-/database-based / generic “study/analysis”)
-  "Observational study" = c(
-    "\\bobservational study\\b",
-    # generic prospective/retrospective "study" without cohort/cross-sectional markers
-    "^\\s*other:.*\\bprospective study\\b",
-    "^\\s*other:.*\\bretrospective study\\b",
-    # generic analyses
-    "data analysis|analysis of|retrospective analysis|prospective analysis",
-    # registry/database phrasing not otherwise captured
-    "registry|trauma registry|prospectively collected .*registry data|clinical database",
-    # gis/comparative phrasing
-    "\\bgis\\b|geospatial|comparative study",
-    "retrospective hospital based study",
-    "retrospective and hospital-based study"
-  ),
-  
-  # 11) Text & opinion
+  # 10) Text & opinion
   "Text and opinion" = c(
     "commentary|perspective",
     "policy forum|expert consensus",
     "communication report",
     "text and opinion",
     "activity report"
+  ),
+  
+  # 11) Prospective studies
+  "Prospective study" = c(
+    "prospective study"
   )
 )
 
@@ -850,10 +847,10 @@ priority_study_design <- c(
   "Case series",
   "Cohort study",
   "Cross-sectional study",
+  "Prospective study",
   "Qualitative research",
   "Literature review",
   "Descriptive",
-  "Observational study",
   "Text and opinion"
   # "Other" is fallback
 )
@@ -881,7 +878,7 @@ categorized_final <- categorized_final %>%
     priority_order = priority_study_design
    ))
 
-dplyr::count(categorized_final, category_study_design, sort = TRUE) 
+# dplyr::count(categorized_final, category_study_design, sort = TRUE) 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### Source of Data ----
