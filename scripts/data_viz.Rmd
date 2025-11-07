@@ -42,7 +42,8 @@ pacman::p_load(tidyverse,
                gt,
                forecast,
                purrr,
-               scales
+               scales,
+               svglite
                )
 ```
 
@@ -360,7 +361,7 @@ combined_choro_bar <-
 
 combined_choro_bar
 
-ggsave(filename = here::here("images/combined_choro_bar.png"),
+ggsave(filename = here::here("images/combined_choro_bar.svg"),
        plot = combined_choro_bar, height = 10, width = 13, bg = "white")
 ```
 
@@ -913,7 +914,7 @@ lollipop <-
 #   theme_minimal()
 
 # Save image
-ggsave(filename = here("images/surgeries_lollipop_annotated.png"), bg = "white", plot = lollipop, width = 7, height = 5, dpi = 300)
+ggsave(filename = here("images/surgeries_lollipop_annotated.svg"), bg = "white", plot = lollipop, width = 7, height = 5, dpi = 300)
 ```
 
 # Surgical Capacity
