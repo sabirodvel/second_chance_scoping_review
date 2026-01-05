@@ -320,7 +320,7 @@ barplot_choro <- bar_df_top10 %>%
     plot.margin = margin(t = 8, r = 10, b = 8, l = 2)  # <-- small left margin
   )
 
-ggsave(filename = here("images/barplot_choro.png"))
+# ggsave(filename = here("images/barplot_choro.png"))
 
 # ---- JOIN COUNTS TO SSA POLYGONS (by ISO3) ----
 ssa_joined <- ssa_sf %>%
@@ -348,7 +348,7 @@ geo_distribution <- ggplot() +
     plot.title = element_text(face = "bold")
   )
 
-ggsave(filename = here("images/geo_distribution.png"))
+# ggsave(filename = here("images/geo_distribution.png"))
 
 
 combined_choro_bar <-
@@ -359,10 +359,21 @@ combined_choro_bar <-
                 right = 0.50,
                 top = 0.52)
 
-combined_choro_bar
+print(combined_choro_bar)
 
-ggsave(filename = here::here("images/combined_choro_bar.svg"),
-       plot = combined_choro_bar, height = 10, width = 13, bg = "white")
+# ggsave(filename = here::here("images/combined_choro_bar.svg"),
+#        plot = combined_choro_bar, height = 10, width = 13, bg = "white")
+
+ggsave(
+  filename = here::here("images/combined_choro_bar.tiff"),
+  plot = combined_choro_bar,
+  height = 10,
+  width = 13,
+  units = "in",
+  dpi = 300,
+  bg = "white",
+  device = "tiff"
+)
 ```
 
 # Study Characteristics
@@ -914,7 +925,13 @@ lollipop <-
 #   theme_minimal()
 
 # Save image
-ggsave(filename = here("images/surgeries_lollipop_annotated.svg"), bg = "white", plot = lollipop, width = 7, height = 5, dpi = 300)
+ggsave(filename = here("images/surgeries_lollipop_annotated.tiff"), 
+       bg = "white", 
+       plot = lollipop, 
+       width = 7, 
+       height = 5, 
+       dpi = 300,
+       device = "tiff")
 ```
 
 # Surgical Capacity
